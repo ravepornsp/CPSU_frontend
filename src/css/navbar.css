@@ -1,0 +1,48 @@
+.navbar-component {
+  background-color: white;
+}
+
+.img-logo {
+  width: 50px;
+}
+
+.label-cpsu {
+  color: #18756a;
+}
+
+.nav-position {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.layout-button-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.layout-button-nav a {
+  text-decoration: none;
+  color: #18756a;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.layout-button-nav a:hover {
+  background-color: #18756a;
+  color: white;
+}
+
+.container-fluid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.p-navbar {
+  margin-top: 20px;
+  margin-right: 20px;
+}

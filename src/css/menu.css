@@ -1,0 +1,17 @@
+#menubar{
+    background-color: #E7E7E7;
+}
+
+#display-menu{
+    display: flex;
+    justify-items: start;
+}
+
+
+#btn-menu:hover{
+    background-color: #18756a;
+    color: white;
+}
+#btn-menu {
+    background-color: white;
+}

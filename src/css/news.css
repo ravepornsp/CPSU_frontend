@@ -1,0 +1,21 @@
+/* .header-component{
+    background-color: rebeccapurple;
+    height: 5vh;
+}
+
+.header-col{
+    justify-content: center;
+} */
+
+#btn-addnew {
+  color: white;
+  background-color: #18756a;
+  margin: 20px;
+  display: inline-block;
+  width: 15vh;
+}
+
+#new-all{
+    padding: 10px;
+    font-weight: 600;
+}

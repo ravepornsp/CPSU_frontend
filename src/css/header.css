@@ -1,0 +1,28 @@
+.header-component {
+  background-color: #18756a;
+  height: 12vh;
+  color: #fff;
+  padding: 20px;
+
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+  color: white;
+}
+
+/* .user-icon{
+    width: 60px;
+    height: 60px;
+} */
+
+.icon {
+  font-size: 24px;
+  z-index: 1;
+  color: white;
+}
+
+.layout-button{
+    display: flex;
+}
