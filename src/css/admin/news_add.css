@@ -1,0 +1,23 @@
+#text-news {
+  text-align: start;
+  font-weight: bold;
+
+  margin: 15 px;
+
+}
+
+.header-news-p {
+  font-size: 22px;
+  text-align: start;
+  font-weight: bold;
+}
+
+#btn-submit {
+  background-color: #18756a;
+  margin: 20px;
+}
+
+.custom-editor .ck-editor__editable_inline {
+  min-height: 300px;
+  max-height: 500px;
+}

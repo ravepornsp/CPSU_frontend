@@ -1,11 +1,11 @@
 import React from "react";
-import Navbar from "../component/navbar";
-import Menu from "../component/menu";
-import Headers from "../component/header";
+import Navbar from "../../component_admin/navbar";
+import Menu from "../../component_admin/menu";
+import Headers from "../../component_admin/header";
 
 
-const Course = () => {
-   return (
+const People = () => {
+  return (
     <>
       <Headers />
       <Navbar />
@@ -16,7 +16,7 @@ const Course = () => {
           </div>
           <div className="col-sm-8">
             <p>
-              หลักสูตรทั้งหมด
+              บุคลากรทั้งหมด
             </p>
           </div>
         </div>
@@ -25,4 +25,4 @@ const Course = () => {
   );
 };
 
-export default Course;
+export default People;

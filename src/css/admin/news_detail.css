@@ -1,0 +1,42 @@
+.img-news {
+  width: 50%;
+  height: 70%;
+}
+
+.component-detail-news {
+  display: flex;
+  justify-content: center;
+}
+
+.edit_detele-position {
+  padding: 10px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#news-name {
+  font-size: large;
+  display: flex;
+  font-weight: 600;
+  text-align: start;
+}
+
+#btn-edit {
+  margin: 10px;
+}
+
+#btn-delete {
+  margin: 10px;
+}
+
+#news-detail-more {
+  font-size: large;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+#group-btn-header-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}

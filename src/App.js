@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import Headers from './component/header';
+import Headers from './component_admin/header';
 import { BrowserRouter} from 'react-router-dom';
 import AppRoutes from "./routes";
 

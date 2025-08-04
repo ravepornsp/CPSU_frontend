@@ -1,8 +1,7 @@
 import React from "react";
 import "../css/header.css";
-import { Link } from "react-router-dom";
 import Theme from "./theme";
-import ProfileMenu from "../component/ProfileMenu";
+import ProfileMenu from "../component_admin/ProfileMenu";
 
 const Headers = () => {
   return (

@@ -10,12 +10,20 @@
 #btn-addnew {
   color: white;
   background-color: #18756a;
-  margin: 20px;
+  margin: 15px;
   display: inline-block;
   width: 15vh;
+  border-radius: 10px;
 }
 
-#new-all{
-    padding: 10px;
-    font-weight: 600;
+#btn-addnew:hover {
+  color: #18756a;
+  background-color: white;
+  border-color: #18756a;
+}
+
+#new-all {
+  padding: 15px;
+  font-weight: 600;
+  font-size: 25px;
 }

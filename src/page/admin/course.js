@@ -1,11 +1,11 @@
 import React from "react";
-import Navbar from "../component/navbar";
-import Menu from "../component/menu";
-import Headers from "../component/header";
+import Navbar from "../../component_admin/navbar";
+import Menu from "../../component_admin/menu";
+import Headers from "../../component_admin/header";
 
 
-const Admission = () => {
-  return (
+const Course = () => {
+   return (
     <>
       <Headers />
       <Navbar />
@@ -16,7 +16,7 @@ const Admission = () => {
           </div>
           <div className="col-sm-8">
             <p>
-              การรับสมัครทั้งหมด
+              หลักสูตรทั้งหมด
             </p>
           </div>
         </div>
@@ -25,4 +25,4 @@ const Admission = () => {
   );
 };
 
-export default Admission;
+export default Course;
