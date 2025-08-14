@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Headers from "../../component_admin/header";
 import "../../css/admin/news_detail.css";
-import Navbar from "../../component_admin/navbar";
-import Menu from "../../component_admin/menu";
-import Footer from "../../component_admin/footer";
+import Navbar from "../../component/navbar";
+import Headers from "../../component/header";
+import Footer from "../../component/footer";
+import Menu from "../../component/menu";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -24,7 +24,7 @@ const Detail_News = () => {
       );
       console.log("News deleted successfully:", response.data);
       alert("ลบข่าวสารสำเร็จ");
-      navigate("/news");
+      navigate("/admin/news");
     } catch (error) {
       console.error("Error deleting news:", error);
     }
@@ -93,7 +93,7 @@ const Detail_News = () => {
               <img
                 src={
                   news?.images?.length > 0
-                    ? news.images[0].image_url
+                    ? news.images[0].file_image
                     : "/images/cpsu.png"
                 }
                 className="img-news"
@@ -107,7 +107,7 @@ const Detail_News = () => {
 
               <div className="text-start mt-3">
                 <p id="news-detail-more">รายละเอียดเพิ่มเติม</p>
-                {news?.detail_url ? (
+                {news?.detail_url && news.detail_url !== "null" ? (
                   news.detail_url.split("\n").map((line, index) => (
                     <p key={index}>
                       <a href={line} target="_blank" rel="noopener noreferrer">
@@ -116,7 +116,7 @@ const Detail_News = () => {
                     </p>
                   ))
                 ) : (
-                  <p>&nbsp;</p>
+                  <p>-</p>
                 )}
               </div>
             </div>

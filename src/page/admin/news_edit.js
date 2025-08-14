@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Navbar from "../../component_admin/navbar";
-import Headers from "../../component_admin/header";
-import Footer from "../../component_admin/footer";
-import Menu from "../../component_admin/menu";
+import Navbar from "../../component/navbar";
+import Headers from "../../component/header";
+import Footer from "../../component/footer";
+import Menu from "../../component/menu";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import "../../css/admin/news_add.css";
+import "../../css/admin/news_edit.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -16,8 +16,8 @@ const Edit_News = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState(1);
-  const [fileDetail, setFileDetail] = useState(null);
-  const [fileImage, setFileImage] = useState(null);
+  const [urlDetail, seturlDetail] = useState(null);
+  const [fileImages, setfileImages] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +33,8 @@ const Edit_News = () => {
         setTitle(data.title || "");
         setContent(data.content || "");
         setCategory(data.category ? String(data.category) : 1);
+        seturlDetail (data.detail_url || "")
+        setfileImages (data.images || "")
       } catch (error) {
         console.log("Error fetching news details", error);
       }
@@ -44,25 +46,30 @@ const Edit_News = () => {
   const handleEdit = async (e) => {
     e.preventDefault();
 
-    const body = {
-      title,
-      content,
-      news_type: category,
-      detail_url: fileDetail,
-      images: [], // หากมีข้อมูลภาพแนบมาด้วย
-    };
+    const editNews = new FormData();
+    editNews.append("title", title);
+    editNews.append("content", content);
+    editNews.append("type_id", category);
+    editNews.append("detail_url", urlDetail);
+    editNews.append("images", fileImages);
 
     try {
       const response = await axios.put(
         `http://localhost:8080/api/v1/admin/news/${id}`,
-        body
+        editNews,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       alert("แก้ไขข่าวสารสำเร็จ");
-      navigate("/news");
+      navigate(`/admin/detailnews/${id}`);
       console.log("Update success:", response.data);
     } catch (error) {
       console.log("Error submitting news", error);
+      alert("ไม่สามารถแก้ไขข่าวสารได้");
     }
   };
 
@@ -129,8 +136,8 @@ const Edit_News = () => {
                     </label>
                     <input
                       className="form-control"
-                      type="file"
-                      onChange={(e) => setFileDetail(e.target.files[0])}
+                      value={urlDetail}
+                      onChange={(e) => seturlDetail(e.target.value)}
                     />
                   </div>
                   <div className="col-4">
@@ -140,7 +147,7 @@ const Edit_News = () => {
                     <input
                       className="form-control"
                       type="file"
-                      onChange={(e) => setFileImage(e.target.files[0])}
+                      onChange={(e) => setfileImages(e.target.files[0])}
                     />
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import "../css/header.css";
 import Theme from "./theme";
-import ProfileMenu from "../component_admin/ProfileMenu";
+import ProfileMenu from "../component/ProfileMenu";
 
 const Headers = () => {
   return (

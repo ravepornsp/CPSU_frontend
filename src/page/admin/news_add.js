@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Navbar from "../../component_admin/navbar";
-import Headers from "../../component_admin/header";
-import Footer from "../../component_admin/footer";
-import Menu from "../../component_admin/menu";
+import Navbar from "../../component/navbar";
+import Headers from "../../component/header";
+import Footer from "../../component/footer";
+import Menu from "../../component/menu";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "../../css/admin/news_add.css";
@@ -13,48 +13,51 @@ const Add_News = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("1");
-  const [urlDetail, setUrlDetail] = useState(null);
+  const [urlDetail, setUrlDetail] = useState("");
   const [fileImage, setFileImage] = useState(null);
-  const [news, setNews] = useState([]);
+
   const navigate = useNavigate();
 
+  //news_add.js
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newNews = {
-      title: title,
-      content: content,
-      category: category,
-      urlDetail: urlDetail,
-      fileImage: fileImage,
-    };
+    const newNews = new FormData();
+    newNews.append("title", title);
+    newNews.append("content", content);
+    newNews.append("type_id", category);
+    newNews.append("detail_url", urlDetail);
+    newNews.append("images", fileImage);
 
-    console.log(title);
-    console.log(content);
-    console.log(category);
-    console.log(urlDetail);
-    console.log(fileImage);
-    
     try {
       const response = await axios.post(
         "http://localhost:8080/api/v1/admin/news",
-        newNews
+        newNews,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       console.log(response);
 
-      setNews([...news, newNews]);
-
       setTitle("");
       setContent("");
-      setCategory("");
+      setCategory("1");
       setUrlDetail("");
-      setFileImage("");
+      setFileImage(null);
 
       alert("เผยแพร่ข่าวสารสำเร็จ");
-      navigate("/news");
+      navigate("/admin/news");
     } catch (error) {
-      console.log("Error submittimg news");
+      console.log(title)
+      console.log(content)
+      console.log(category)
+      console.log(urlDetail)
+      console.log(fileImage)
+      console.log("Error submitting news:", error);
+      alert("ไม่สามารถเผยแพร่ข่าวสารได้");
     }
   };
 
@@ -121,7 +124,6 @@ const Add_News = () => {
                     </label>
                     <input
                       className="form-control"
-                      // type="file"
                       onChange={(e) => setUrlDetail(e.target.value)}
                     />
                   </div>

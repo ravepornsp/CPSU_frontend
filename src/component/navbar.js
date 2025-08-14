@@ -9,7 +9,11 @@ const Navbar = () => {
         <div className="container-fluid">
           <div className="nav-position">
             <a className="navbar-brand" href="/">
-              <img src="images/cpsu.png" className="img-logo" alt="CPSU Logo" />
+              <img
+                src="/images/cpsu.png"
+                className="img-logo"
+                alt="CPSU Logo"
+              />
             </a>
             <p className="label-cpsu">
               Department of Computing Silpakorn University
@@ -21,6 +25,7 @@ const Navbar = () => {
             <Link to="/course">หลักสูตร</Link>
             <Link to="/admission">การรับสมัคร</Link>
             <Link to="/subject">รายวิชา</Link>
+            <Link to="/about">เกี่ยวกับภาควิชา</Link>
           </div>
         </div>
       </nav>
