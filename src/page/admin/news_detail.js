@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+
 const Detail_News = () => {
   const { id } = useParams();
   const [news, setNews] = useState(null);
@@ -43,6 +44,7 @@ const Detail_News = () => {
     };
     detailNews();
   }, [id]);
+  const images = news?.images || [];
 
   return (
     <>
@@ -89,16 +91,47 @@ const Detail_News = () => {
                   </label>
                 </div>
               </div>
-
+       {images.length > 0 ? (
+              <div id="newsCarousel" className="carousel slide mb-3" data-bs-ride="carousel">
+                <div className="carousel-inner">
+                  {images.map((image, index) => (
+                    <div
+                      key={index}
+                      className={`carousel-item ${index === 0 ? "active" : ""}`}
+                    >
+                      <img
+                        src={image.file_image}
+                        className="d-block w-100 img-news"
+                        alt={`slide-${index}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+                {/* Controls */}
+                <button
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#newsCarousel"
+                  data-bs-slide="prev"
+                >
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                </button>
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#newsCarousel"
+                  data-bs-slide="next"
+                >
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                </button>
+              </div>
+            ) : (
               <img
-                src={
-                  news?.images?.length > 0
-                    ? news.images[0].file_image
-                    : "/images/cpsu.png"
-                }
-                className="img-news"
-                alt={news?.title || ""}
+                src="/images/cpsu.png"
+                className="img-news mb-3"
+                alt="default"
               />
+            )}
 
               <div
                 className="text-start mt-3"

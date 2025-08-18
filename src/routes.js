@@ -9,6 +9,11 @@ import Add_News from "./page/admin/news_add";
 import Detail_News from "./page/admin/news_detail";
 import Edit_News from "./page/admin/news_edit";
 
+import Course_admin from "./page/admin/course";
+import Add_course from "./page/admin/course_add";
+import Edit_course from "./page/admin/course_edit";
+import Detail_course from "./page/admin/course_detail";
+
 import Homepage from "./page/homepage";
 import News_admin from "./page/admin/news";
 import About from "./page/about";
@@ -21,9 +26,14 @@ const AppRoutes = () => {
       {/* Admin Group */}
       <Route path="/admin">
         <Route path="addnews" element={<Add_News />} />
-        <Route path="news" element={<News_admin/>} />
+        <Route path="news" element={<News_admin />} />
         <Route path="detailnews/:id" element={<Detail_News />} />
         <Route path="editnews/:id" element={<Edit_News />} />
+
+        <Route path="addcourse" element={<Add_course />} />
+        <Route path="course" element={<Course_admin />} />
+        <Route path="detailcourse/:id" element={<Detail_course />} />
+        <Route path="editcourse/:id" element={<Edit_course />} />
       </Route>
       {/* User Group */}
       {/* <Route path="/user" element={<UserLayout />}>
@@ -31,7 +41,6 @@ const AppRoutes = () => {
         <Route path="news" element={<UserNews />} />
         <Route path="profile" element={<UserProfile />} />
       </Route> */}
-
       <Route path="/home" element={<Homepage />}></Route>
       <Route path="/admission" element={<Admission />} />
       <Route path="/people" element={<People />} />

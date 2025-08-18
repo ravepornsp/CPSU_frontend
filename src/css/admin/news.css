@@ -12,13 +12,18 @@
   background-color: #18756a;
   margin: 15px;
   display: inline-block;
-  width: 15vh;
-  border-radius: 10px;
+  width: 14vh;
+  height: 4vh;
+  border-radius: 5px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #btn-addnew:hover {
-  color: #18756a;
-  background-color: white;
+  color: white;
+  background-color: #0e524a;
   border-color: #18756a;
 }
 
@@ -37,17 +42,16 @@
   max-height: 20vh;
 } */
 
-
 #card-title {
   font-size: 16px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;      
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-line-height: 1.5;
+  line-height: 1.5;
 }
 
-#space{
+#space {
   margin-bottom: 20px;
 }
