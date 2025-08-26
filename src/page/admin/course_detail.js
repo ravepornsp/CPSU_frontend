@@ -1,11 +1,79 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/course_detail.css";
+import axios from "axios";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 const Detail_course = () => {
+  const { id } = useParams(); // ดึง course_id จาก URL
+  const [courseDetail, setCourseDetail] = useState(null);
+  const [subjects, setSubjects] = useState([]);
+  const [structures, setStructures] = useState([]);
+  const [roadmap, setRoadmap] = useState([]);
+  const navigate = useNavigate();
+
+  const deleteCourse = async () => {
+    const confirmDelete = window.confirm(
+      "คุณแน่ใจหรือไม่ว่าต้องการลบหลักสูตรนี้?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/v1/admin/course/${id}`
+      );
+      console.log("Course deleted successfully:", response.data);
+      alert("ลบหลักสูตรสำเร็จ");
+      navigate("/admin/course");
+    } catch (error) {
+      console.error("Error deleting course:", error);
+    }
+  };
+
+  useEffect(() => {
+    // ✅ ดึงข้อมูล Course
+    axios
+      .get(`http://localhost:8080/api/v1/admin/course/${id}`)
+      .then((res) => {
+        setCourseDetail(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching course detail:", err);
+      });
+
+    axios
+      .get(`http://localhost:8080/api/v1/admin/roadmap/${id}`)
+      .then((res) => {
+        setRoadmap(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching course detail:", err);
+      });
+
+    // ✅ ดึงข้อมูล Subject
+    axios
+      .get("http://localhost:8080/api/v1/admin/subject")
+      .then((res) => {
+        setSubjects(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching subject:", err);
+      });
+
+    // ✅ ดึงข้อมูล Structure
+    axios
+      .get("http://localhost:8080/api/v1/admin/structure")
+      .then((res) => {
+        setStructures(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching structure:", err);
+      });
+  }, [id]);
+
   return (
     <>
       <Headers />
@@ -17,8 +85,33 @@ const Detail_course = () => {
             <Menu />
           </div>
           <div className="col-sm-8">
-            <p>ภาพรวมหลักสูตร</p>
+            <div id="group-btn-header-detail">
+              <p id="news-name">
+                {courseDetail?.thai_course || "กำลังโหลด..."}
+              </p>
+              <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                <div className="edit_detele-position">
+                  {courseDetail && (
+                    <Link
+                      to={`/admin/editcourse/${courseDetail.course_id}`}
+                      className="btn btn-warning"
+                      id="btn-edit"
+                    >
+                      แก้ไข
+                    </Link>
+                  )}
+                  <div
+                    className="btn btn-danger"
+                    id="btn-delete"
+                    onClick={deleteCourse}
+                  >
+                    ลบ
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            {/* ชื่อหลักสูตร */}
             <p id="text-header-coures">ชื่อหลักสูตร</p>
             <div className="container">
               <div className="row">
@@ -26,21 +119,21 @@ const Detail_course = () => {
                   ภาษาไทย
                 </div>
                 <div className="col-6" id="text-content-course">
-                  หลักสูตรวิทยาศาสตรบัณฑิตสาขาวิชาเทคโนโลยีสารสนเทศ 2565
+                  {courseDetail?.thai_course}
                 </div>
               </div>
-            </div>
-            <div className="container">
               <div className="row">
                 <div className="col-4" id="text-title-course">
                   ภาษาอังกฤษ
                 </div>
                 <div className="col-6" id="text-content-course">
-                  Bachelor of Science Program in Information Technology 2022
+                  {courseDetail?.eng_course}
                 </div>
               </div>
             </div>
-            <hr></hr>
+            <hr />
+
+            {/* ชื่อปริญญา */}
             <p id="text-header-coures">ชื่อปริญญา</p>
             <div className="container">
               <div className="row">
@@ -48,24 +141,23 @@ const Detail_course = () => {
                   ภาษาไทย
                 </div>
                 <div className="col-6" id="text-content-course">
-                  วิทยาศาสตรบัณฑิต (เทคโนโลยีสารสนเทศ)
+                  {courseDetail?.thai_degree}
                 </div>
               </div>
-            </div>
-            <div className="container">
               <div className="row">
                 <div className="col-4" id="text-title-course">
                   ภาษาอังกฤษ
                 </div>
                 <div className="col-6" id="text-content-course">
-                  Bachelor of Science (Information Technology)
+                  {courseDetail?.eng_degree}
                 </div>
               </div>
             </div>
-            <hr></hr>
+            <hr />
 
+            {/* เกณฑ์ */}
             <p id="text-header-coures">
-              เกณท์การเข้าศึกษาและเกณท์การสำเร็จการศึกษา
+              เกณฑ์การเข้าศึกษาและเกณฑ์การสำเร็จการศึกษา
             </p>
             <div className="container">
               <div className="row">
@@ -73,166 +165,226 @@ const Detail_course = () => {
                   เกณฑ์การเข้าศึกษา
                 </div>
                 <div className="col-6" id="text-content-course">
-                  สำเร็จการศึกษาระดับมัธยมศึกษาปีที่ 6 หรือเทียบเท่า
+                  {courseDetail?.admission_req}
                 </div>
               </div>
-            </div>
-            <div className="container">
               <div className="row">
                 <div className="col-4" id="text-title-course">
                   เกณฑ์การสำเร็จการศึกษา
                 </div>
                 <div className="col-6" id="text-content-course">
-                  เกรดเฉลี่ยไม่ต่ำกว่า 2.00 เกรดเฉลี่ยวิชาเฉพาะไม่ต่ำกว่า 2.00{" "}
+                  {courseDetail?.graduation_req}
                 </div>
               </div>
             </div>
-            <hr></hr>
+            <hr />
+
+            {/* ปรัชญา */}
             <p id="text-header-coures">ปรัชญาของหลักสูตร</p>
-            <div id="text-content-course2">
-              สร้างบัณฑิตที่มีคุณภาพ คุณธรรม จริยธรรม และวินัย
-              มีความรู้และทักษะทางด้านเทคโนโลยีสารสนเทศที่ทันสมัย
-              มีความคิดสร้างสรรค์ สามารถบูรณาการความรู้ไปประยุกต์ใช้งานด้านต่าง
-              ๆ
-              สอดคล้องกับความต้องการทางด้านเทคโนโลยีสารสนเทศของทั้งภาครัฐและเอกชน
-            </div>
-            <hr></hr>
+            <div id="text-content-course2">{courseDetail?.philosophy}</div>
+            <hr />
+
+            {/* วัตถุประสงค์ */}
             <p id="text-header-coures">วัตถุประสงค์</p>
-            <div id="text-content-course2">
-              หลักสูตรนี้มุ่งผลิตบัณฑิตที่มีคุณภาพมีความรู้ความเชี่ยวชาญในสาขาเทคโนโลยีสารสนเทศที่ทันสมัย
-              โดยมุ่งเน้นให้บัณฑิตสามารถหาความรู้ด้านเทคโนโลยีสารสนเทศไปประยุกต์ใช้ในการทำงานและเป็นพื้นฐานใน
-              การศึกษาต่อในสาขาวิชาที่เกี่ยวข้องต่อไปในอนาคตนอกจากนี้ยังมุ่งเน้นให้นักศึกษามองเห็นถึงความสัมพันธ์ของศาสตร์ต่าง
-              ๆ
-              ในสาขาวิชาเทคโนโลยีสารสนเทศนำความรู้เหล่านั้นมาสร้างงานประยุกต์เพื่อเตรียมพร้อมในการทำงาน
-              และการวิจัยในขั้นสูงต่อไป
-            </div>
-            <hr></hr>
+            <div id="text-content-course2">{courseDetail?.objective}</div>
+            <hr />
+
+            {/* PLO */}
             <p id="text-header-coures">
               รายละเอียดผลการเรียนรู้ที่คาดหวังของหลักสูตร (Program Learning
               Outcome: PLOs)
             </p>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">PLO</th>
-                  <th scope="col" id="table-header">
-                    รายละเอียดผลการเรียนรู้ที่คาดหวังของหลักสูตร
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">PLO1</th>
-                  <td id="table-content">
-                    อธิบายความหมายและคุณค่าของศิลปะและการสร้างสรรค์ได้
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO2</th>
-                  <td id="table-content">
-                    อภิปรายความหมายของความหลากหลายทางวัฒนธรรมได้
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO3</th>
-                  <td id="table-content">
-                    ระบุความรู้เบื้องต้นเกี่ยวกับการประกอบธุรกิจและทักษะพื้นฐานที่จำเป็นต่อการเป็นผู้ประกอบการได้
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO4</th>
-                  <td id="table-content">
-                    มีทักษะการใช้ภาษาและสื่อสารได้ตรงตามวัตถุประสงค์ในบริบทการสื่อสารที่หลากหลาย
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO5</th>
-                  <td id="table-content">
-                    เลือกใช้เทคโนโลยีสารสนเทศและการสื่อสารได้ตรงตามวัตถุประสงค์
-                    ตลอดจนรู้เท่าทันสื่อ และสารสนเทศ
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO6</th>
-                  <td id="table-content">
-                    แสวงหาความรู้ได้ด้วยตนเอง
-                    และนำความรู้ไปใช้ในการพัฒนาตนเองและการดำเนินชีวิต
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO7</th>
-                  <td id="table-content">
-                    แสดงออกซึ่งทักษะความสัมพันธ์ระหว่างบุคคล
-                    สามารถทำงานร่วมกับผู้อื่นได้ มีระเบียบวินัย ตรงต่อเวลา
-                    ซื่อสัตย์สุจริต มีความรับผิดชอบต่อตนเอง สังคม และสิ่งแวดล้อม
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO8</th>
-                  <td id="table-content">
-                    ใช้ความคิดสร้างสรรค์ในการสร้างผลงานหรือดำเนินโครงการได้
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO9</th>
-                  <td id="table-content">
-                    คิดวิเคราะห์ วางแผนอย่างเป็นระบบ
-                    เพื่อแก้ไขปัญหาหรือเพื่อออกแบบนวัตกรรมได้
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">PLO10</th>
-                  <td id="table-content">
-                    อธิบายหลักการและองค์ประกอบของเทคโนโลยีสารสนเทศได้
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <hr></hr>
-            <p id="text-header-coures">ค่าใช้จ่าย</p>
-            <div id="text-content-course2">ประมาณ 20,000 บาทต่อเทอม</div>
-            <hr></hr>
-            <p id="text-header-coures">หน่วยกิต</p>
-            <div id="text-content-course2">จำนวนไม่น้อยกว่า 133 หน่วยกิต</div>
-            <hr></hr>
-            <p id="text-header-coures">
-              อาชีพที่สามารถประกอบได้หลังสําเร็จการศึกษา
-            </p>
-            <li id="list-career">
-              นักเทคโนโลยีสารสนเทศ (Information Technology Specialist)
-            </li>
-            <li id="list-career">นักพัฒนาระบบ (Systems Developer)</li>
-            <li id="list-career">นักพัฒนาเว็บไซต์ (Website Developer)</li>
-            <li id="list-career">
-              ผู้ดูแลระบบฐานข้อมูล (Database Administrator)
-            </li>
-            <li id="list-career">
-              นักวิเคราะห์ และออกแบบระบบงานสารสนเทศ (Information Systems Analyst
-              and Designer)
-            </li>
-            <li id="list-career">
-              ผู้ดูแลระบบเครือข่าย และเครื่องแม่ข่าย (Network and Server
-              Administrator)
-            </li>
-            <li id="list-career">
-              ผู้จัดการโครงการสารสนเทศ (Information Systems Project Manager)
-            </li>
-            <li id="list-career">
-              ผู้จัดการซอฟต์แวร์ หรือผู้จัดการเทคโนโลยีสารสนเทศ (Software
-              Manager or IT Manager)
-            </li>
-            <li id="list-career">
-              นักทดสอบระบบในสถานประกอบการที่มีการใช้เทคโนโลยีสารสนเทศ (System
-              Tester in IT-based Enterprises)
-            </li>
-            <li id="list-career">
-              นักวิเคราะห์ข้อมูลทางธุรกิจ (Business Data Analyst)
-            </li>
-            <hr></hr>
+            <div id="text-content-course2">
+              <pre style={{ textAlign: "left" }}>{courseDetail?.plo}</pre>
+            </div>
+            <hr />
 
+            {/* ค่าใช้จ่าย */}
+            <p id="text-header-coures">ค่าใช้จ่าย</p>
+            <div id="text-content-course2">{courseDetail?.tuition}</div>
+            <hr />
+
+            {/* หน่วยกิต */}
+            <p id="text-header-coures">หน่วยกิต</p>
+            <div id="text-content-course2">{courseDetail?.credits}</div>
+            <hr />
+
+            {/* อาชีพ */}
+            <p id="text-header-coures">อาชีพที่สามารถประกอบได้</p>
+            <div id="text-content-course2">{courseDetail?.career_paths}</div>
+            <hr />
+
+            {/* รายละเอียดเพิ่มเติม */}
             <p id="text-header-coures">รายละเอียดเพิ่มเติม</p>
-            <div id="text-content-course2">-</div>
+            <a
+              href={courseDetail?.detail_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {courseDetail?.detail_url}
+            </a>
+            <br />
+            <hr />
+            <p id="text-header-coures">โครงสร้างหลักสูตร</p>
+            <div className="structure-images">
+              {structures
+                .filter((st) => st.course_id === courseDetail?.course_id) // กรองตาม course_id
+                .map((st) => (
+                  <div
+                    key={st.course_structure_id}
+                    style={{ marginBottom: "20px" }}
+                  >
+                    <p>{st.thai_course}</p>
+                    <a
+                      href={st.course_structure_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={st.course_structure_url}
+                        alt={st.thai_course}
+                        style={{
+                          maxWidth: "100%",
+                          height: "auto",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </a>
+                  </div>
+                ))}
+            </div>
+            <p id="text-header-coures">แผนการศึกษา</p>
+            <div className="structure-images">
+              {roadmap ? (
+                // ถ้า roadmap เป็น array
+                Array.isArray(roadmap) ? (
+                  roadmap.map((rd) => (
+                    <div key={rd.roadmap_id} style={{ marginBottom: "20px" }}>
+                      <p>{rd.thai_course}</p>
+                      <a
+                        href={rd.roadmap_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          src={rd.roadmap_url}
+                          alt={rd.thai_course}
+                          style={{
+                            maxWidth: "100%",
+                            height: "auto",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  // ถ้า roadmap เป็น object เดียว
+                  <div
+                    key={roadmap.roadmap_id}
+                    style={{ marginBottom: "20px" }}
+                  >
+                    <p>{roadmap.thai_course}</p>
+                    <a
+                      href={roadmap.roadmap_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={roadmap.roadmap_url}
+                        alt={roadmap.thai_course}
+                        style={{
+                          maxWidth: "100%",
+                          height: "auto",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </a>
+                  </div>
+                )
+              ) : (
+                <p>กำลังโหลดโครงสร้างหลักสูตร...</p>
+              )}
+            </div>
+
             <br></br>
+            <hr />
+
+            <p id="text-header-coures">รายวิชาของหลักสูตร</p>
+
+            {subjects.length === 0 ? (
+              <p>กำลังโหลดรายวิชา...</p>
+            ) : (
+              (() => {
+                // แยกกลุ่มตาม semester
+                const semesterGroups = subjects.reduce((acc, subj) => {
+                  const sem = subj.semester || "ไม่ระบุภาคเรียน";
+                  if (!acc[sem]) acc[sem] = [];
+                  acc[sem].push(subj);
+                  return acc;
+                }, {});
+
+                // เรียง semester ตามปีและภาค
+                const sortedSemesters = Object.keys(semesterGroups).sort(
+                  (a, b) => {
+                    const regex = /ปีที่ (\d+) ภาคการศึกษาที่ (\d+)/;
+                    const matchA = a.match(regex);
+                    const matchB = b.match(regex);
+
+                    if (matchA && matchB) {
+                      const yearA = parseInt(matchA[1]);
+                      const semA = parseInt(matchA[2]);
+                      const yearB = parseInt(matchB[1]);
+                      const semB = parseInt(matchB[2]);
+
+                      if (yearA !== yearB) return yearA - yearB;
+                      return semA - semB;
+                    }
+                    return 0; // ถ้าไม่ match regex
+                  }
+                );
+
+                return sortedSemesters.map((semester) => {
+                  // แยกตาม plan_type
+                  const planGroups = semesterGroups[semester].reduce(
+                    (acc, subj) => {
+                      const plan = subj.plan_type || "ไม่ระบุแผน";
+                      if (!acc[plan]) acc[plan] = [];
+                      acc[plan].push(subj);
+                      return acc;
+                    },
+                    {}
+                  );
+
+                  return (
+                    <div key={semester} style={{ marginBottom: "25px" }}>
+                      <h5>{semester}</h5>
+                      {Object.keys(planGroups).map((plan) => (
+                        <div key={plan} style={{ marginBottom: "15px" }}>
+                          <strong>แผน: {plan}</strong>
+                          <table className="table table-bordered mt-2">
+                            <thead>
+                              <tr>
+                                <th>ชื่อวิชา</th>
+                                <th style={{ width: "25%" }}>หน่วยกิต</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {planGroups[plan].map((subj, index) => (
+                                <tr key={subj.subject_id}>
+                                  <td>{subj.thai_subject}</td>
+                                  <td>{subj.credits}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                });
+              })()
+            )}
           </div>
         </div>
       </div>

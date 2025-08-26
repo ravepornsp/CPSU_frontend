@@ -11,9 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 // Cropper import
 import Cropper from "react-easy-crop";
-import Slider from "@mui/material/Slider";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import { getOrientation } from "get-orientation/browser";
 import { makeStyles } from "@mui/styles";
 

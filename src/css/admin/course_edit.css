@@ -1,0 +1,9 @@
+#btn-course {
+  color: white;
+  background-color: #18756a;
+}
+
+:hover#btn-course {
+  color: white;
+  background-color: #0e4a43;
+}

@@ -12,6 +12,11 @@
   justify-content: center;
 }
 
+:hover#btn-addcourse {
+  color: white;
+  background-color: #0e4a43;
+}
+
 #course-all {
   padding: 15px;
   font-weight: 400;
@@ -29,4 +34,18 @@
   align-items: center;
 
   font-weight: 400;
+}
+
+#btn-detailcourse {
+  color: white;
+  background-color: #18756a;
+}
+
+:hover#btn-detailcourse {
+  color: white;
+  background-color: #0e4a43;
+}
+
+#detail-course {
+  display: flex;
 }
