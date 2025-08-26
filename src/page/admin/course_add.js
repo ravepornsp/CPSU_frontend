@@ -9,16 +9,16 @@ import { useNavigate } from "react-router-dom"; // ✅ import useNavigate
 
 const Add_course = () => {
   const [summaryFile, setSummaryFile] = useState(null);
-  const [roadmapFile, setRoadmapFile] = useState(null);
+  const [structure, setStructure] = useState(null);
+  const [roadmap, setRoadmap] = useState(null);
   const navigate = useNavigate(); // ✅ ใช้สำหรับเปลี่ยนหน้า
 
   const handleFileChange = (e) => {
     setSummaryFile(e.target.files[0]);
   };
 
-  const handleRoadmapChange = (e) => {
-    setRoadmapFile(e.target.files[0]);
-  };
+  const handleStructureChange = (e) => setStructure(e.target.files[0]);
+  const handleRoadmapChange = (e) => setRoadmap(e.target.files[0]);
 
   const handleSubmit = async () => {
     if (!summaryFile) {
@@ -39,10 +39,21 @@ const Add_course = () => {
           },
         }
       );
+      if (structure) {
+        const structureFormData = new FormData();
+        structureFormData.append("structurefile", structure);
 
-      if (roadmapFile) {
+        const structureRes = await axios.post(
+          "http://localhost:8080/api/v1/admin/structure",
+          structureFormData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        console.log("Structure uploaded:", structureRes.data);
+      }
+
+      if (roadmap) {
         const roadmapFormData = new FormData();
-        roadmapFormData.append("roadmapfile", roadmapFile);
+        roadmapFormData.append("roadmapfile", roadmap);
 
         const roadmapRes = await axios.post(
           "http://localhost:8080/api/v1/admin/roadmap",
@@ -77,7 +88,6 @@ const Add_course = () => {
             <div className="col-md-4" id="course-all">
               เพิ่มหลักสูตร
             </div>
-
             <p id="text-header-coures">ภาพรวมหลักสูตร</p>
             <div className="mb-3">
               <input
@@ -87,13 +97,32 @@ const Add_course = () => {
                 onChange={handleFileChange}
               />
             </div>
-
-            <p id="text-header-coures">แผนผังหลักสูตร</p>
+            <p id="text-header-coures">โครงสร้างหลักสูตร</p>
             <div className="mb-3">
-              <input className="form-control" type="file" accept=".csv" />
+              <input
+                className="form-control"
+                type="file"
+                accept=".csv"
+                onChange={handleStructureChange}
+              />
             </div>
-
-            <p id="text-header-coures">แผนผังหลักสูตร(รูป)</p>
+            {structure && structure.type.startsWith("image/") && (
+              <div style={{ margin: "10px 0" }}>
+                <p>Preview โครงสร้างหลักสูตร:</p>
+                <img
+                  src={URL.createObjectURL(structure)}
+                  alt="Structure Preview"
+                  style={{
+                    maxWidth: "300px",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                  }}
+                />
+              </div>
+            )}
+            // ตัวอย่างแสดง preview รูป
+            <hr></hr>
+            <p id="text-header-coures">แผนผังหลักสูตร</p>
             <div className="mb-3">
               <input
                 className="form-control"
@@ -102,17 +131,28 @@ const Add_course = () => {
                 onChange={handleRoadmapChange}
               />
             </div>
-
-            <p id="text-header-coures">โครงสร้างหลักสูตร</p>
+            {roadmap && (
+              <div style={{ margin: "10px 0" }}>
+                <p>Preview แผนผังหลักสูตร:</p>
+                <img
+                  src={URL.createObjectURL(roadmap)}
+                  alt="Roadmap Preview"
+                  style={{
+                    maxWidth: "300px",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                  }}
+                />
+              </div>
+            )}
+            <p id="text-header-coures">รายวิชาของหลักสูตร</p>
             <div className="mb-3">
               <input className="form-control" type="file" />
             </div>
-
             <p id="text-header-coures">รายละเอียดเพิ่มเติม</p>
             <div className="mb-3">
               <input className="form-control" />
             </div>
-
             <br />
             <button
               type="submit"
