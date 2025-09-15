@@ -1,35 +1,28 @@
 #text-header-coures {
   text-align: start;
   color: #18756a;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 20px;
 }
 
 #text-title-course {
-  display: flex;
-  margin: 7px;
-  flex-direction: column;
   font-weight: bold;
+  text-align: start;
+  margin-bottom: 5px;
 }
 
-#text-content-course {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-}
-
+#text-content-course,
 #text-content-course2 {
-  display: flex;
-  align-items: start;
   font-size: 15px;
+  text-align: start;
+  white-space: pre-line; /* ให้รองรับการขึ้นบรรทัด */
+  line-height: 1.6;
+  margin-bottom: 10px;
 }
 
-#table-content{
-    text-align: start;
-}
-
-#table-header{
-    text-align: start;
-}
-
-#list-career{
-    text-align: start;
+#table-content,
+#table-header,
+#list-career {
+  text-align: start;
 }

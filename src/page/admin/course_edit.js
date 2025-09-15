@@ -1,421 +1,424 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
-import "../../css/admin/course_edit.css"
+import "../../css/admin/course_detail.css";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 const Edit_course = () => {
-  const { id } = useParams(); // รับ course_id จาก URL
+  const { id } = useParams();
   const [courseDetail, setCourseDetail] = useState(null);
+  const [editMode, setEditMode] = useState(true);
   const [formData, setFormData] = useState({});
-  const [structures, setStructures] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [structures, setStructures] = useState([]);
   const [roadmap, setRoadmap] = useState([]);
-
   const navigate = useNavigate();
 
-  // โหลดข้อมูลหลักสูตรเดิม
-  useEffect(() => {
+  // ฟังก์ชันโหลดข้อมูลหลักสูตรและข้อมูลที่เกี่ยวข้อง
+  const fetchCourseData = () => {
     axios
       .get(`http://localhost:8080/api/v1/admin/course/${id}`)
       .then((res) => {
-        const data = res.data;
-        setCourseDetail(data);
-        setFormData({
-          degree: data.degree,
-          major: data.major,
-          year: data.year,
-          thai_course: data.thai_course,
-          eng_course: data.eng_course,
-          thai_degree: data.thai_degree,
-          eng_degree: data.eng_degree,
-          admission_req: data.admission_req,
-          graduation_req: data.graduation_req,
-          philosophy: data.philosophy,
-          objective: data.objective,
-          tuition: data.tuition,
-          credits: data.credits,
-          career_paths: data.career_paths,
-          plo: data.plo,
-          detail_url: data.detail_url,
-        });
-
-        // โหลด structures
-        axios
-          .get(`http://localhost:8080/api/v1/admin/structure/${id}`)
-          .then((res) => {
-            const data = res.data;
-            setStructures(Array.isArray(data) ? data : [data]); // <-- แปลงเป็น array
-          })
-          .catch((err) => console.error("Error loading structure:", err));
-
-        // โหลด roadmap
-        axios
-          .get(`http://localhost:8080/api/v1/admin/roadmap/${id}`)
-          .then((res) => {
-            const data = res.data;
-            setRoadmap(Array.isArray(data) ? data : [data]); // <-- แปลงเป็น array
-          })
-          .catch((err) => console.error("Error loading roadmap:", err));
+        setCourseDetail(res.data);
+        setFormData(res.data);
       })
+      .catch((err) => {
+        console.error("Error fetching course detail:", err);
+      });
 
-      .catch((err) => console.error(err));
+    axios
+      .get(`http://localhost:8080/api/v1/admin/roadmap`)
+      .then((res) => {
+        // กรอง roadmap เฉพาะหลักสูตรนี้
+        const courseRoadmap = res.data.filter((item) => item.course_id === id);
+        setRoadmap(courseRoadmap);
+      })
+      .catch((err) => {
+        console.error("Error fetching roadmap:", err);
+      });
+
+    axios
+      .get("http://localhost:8080/api/v1/admin/subject")
+      .then((res) => {
+        setSubjects(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching subject:", err);
+      });
+
+    axios
+      .get("http://localhost:8080/api/v1/admin/structure")
+      .then((res) => {
+        // กรอง structure เฉพาะหลักสูตรนี้
+        const courseStructures = res.data.filter(
+          (item) => item.course_id === id
+        );
+        setStructures(courseStructures);
+      })
+      .catch((err) => {
+        console.error("Error fetching structure:", err);
+      });
+  };
+
+  useEffect(() => {
+    fetchCourseData();
   }, [id]);
 
-  // handle input change
+
+  const saveChanges = async () => {
+    try {
+      await axios.put(
+        `http://localhost:8080/api/v1/admin/course/${id}`,
+        formData
+      );
+      alert("แก้ไขหลักสูตรสำเร็จ");
+      navigate("/admin/course");
+      setCourseDetail(formData);
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error updating course:", error);
+      alert("เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
+    }
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleRoadmapImageChange = (index, file) => {
-    const updated = [...roadmap];
-    updated[index].file = file; // เก็บไฟล์ใหม่
-    setRoadmap(updated);
-  };
+  const onStructureImagesChange = async (e) => {
+    const files = e.target.files;
+    if (!files.length || !courseDetail?.course_id) return;
 
-  const handleDeleteRoadmap = (index) => {
-    const updated = [...roadmap];
-    updated.splice(index, 1);
-    setRoadmap(updated);
-  };
-
-  const handleAddRoadmap = () => {
-    setRoadmap([
-      ...roadmap,
-      {
-        roadmap_id: Date.now(),
-        course_id: courseDetail.course_id,
-        roadmap_url: "",
-        file: null,
-      },
-    ]);
-  };
-
-  // --- Structures ---
-  const handleStructureChange = (index, field, value) => {
-    const updated = [...structures];
-    updated[index][field] = value;
-    setStructures(updated);
-  };
-
-  const handleStructureImageChange = (index, file) => {
-    const updated = [...structures];
-    updated[index].file = file; // เก็บไฟล์ใหม่
-    setStructures(updated);
-  };
-
-  const handleDeleteStructure = (index) => {
-    const updated = [...structures];
-    updated.splice(index, 1);
-    setStructures(updated);
-  };
-
-  const handleAddStructure = () => {
-    setStructures([
-      ...structures,
-      {
-        course_structure_id: Date.now(), // id ชั่วคราว
-        course_id: courseDetail.course_id,
-        thai_course: "",
-        course_structure_url: "",
-        file: null,
-      },
-    ]);
-  };
-
-  // --- Subjects ---
-  const handleSubjectChange = (index, field, value) => {
-    const updated = [...subjects];
-    updated[index][field] = value;
-    setSubjects(updated);
-  };
-
-  const handleDeleteSubject = (index) => {
-    const updated = [...subjects];
-    updated.splice(index, 1);
-    setSubjects(updated);
-  };
-
-  const handleAddSubject = () => {
-    setSubjects([
-      ...subjects,
-      {
-        subject_id: Date.now(), // id ชั่วคราว
-        course_id: courseDetail.course_id,
-        thai_subject: "",
-        credits: "",
-        semester: "",
-        plan_type: "",
-      },
-    ]);
-  };
-
-  // ตรวจสอบข้อมูลก่อนบันทึก
-  const validateForm = () => {
-    if (!formData.thai_course || !formData.eng_course) {
-      alert("กรุณากรอกชื่อหลักสูตรทั้งภาษาไทยและอังกฤษ");
-      return false;
-    }
-    if (formData.year && isNaN(formData.year)) {
-      alert("ปีการศึกษาต้องเป็นตัวเลข");
-      return false;
-    }
-    return true;
-  };
-
-  // submit แก้ไข
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-
-    const form = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (formData[key] !== undefined && formData[key] !== null) {
-        form.append(key, formData[key].toString());
-      }
-    });
-
-    // เพิ่ม structures และ subjects
-    form.append("structures", JSON.stringify(structures));
-    form.append("subjects", JSON.stringify(subjects));
-
-    // เพิ่มไฟล์รูปของ structures
-    structures.forEach((st, i) => {
-      if (st.file) {
-        form.append(`structure_files[${i}]`, st.file);
-      }
-    });
+    const formDataUpload = new FormData();
+    formDataUpload.append("course_structure_url", files[0]);
+    formDataUpload.append("thai_course", courseDetail.thai_course);
+    formDataUpload.append("course_id", courseDetail.course_id);
 
     try {
-      const response = await axios.put(
-        `http://localhost:8080/api/v1/admin/course/${id}`,
-        form,
-        { headers: { "Content-Type": "multipart/form-data" } }
+      await axios.post(
+        "http://localhost:8080/api/v1/admin/structure",
+        formDataUpload,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-      alert("อัปเดตหลักสูตรสำเร็จ!");
-      navigate(`/admin/detailcourse/${id}`);
+      alert("อัปโหลดโครงสร้างหลักสูตรสำเร็จ");
+      fetchCourseData(); // โหลดข้อมูลใหม่โดยไม่ต้อง reload หน้า
     } catch (error) {
-      console.error(error);
-      alert("อัปเดตไม่สำเร็จ");
+      console.error("Error uploading structure:", error);
+      alert("เกิดข้อผิดพลาดในการอัปโหลดโครงสร้างหลักสูตร");
     }
   };
 
-  if (!courseDetail) return <p>กำลังโหลด...</p>;
-  // console.log(roadmap)
-  // console.log(structures)
+  const onRoadmapImagesChange = async (e) => {
+    const files = e.target.files;
+    if (!files.length || !courseDetail?.course_id) return;
+
+    const formDataUpload = new FormData();
+    formDataUpload.append("roadmap_url", files[0]);
+    formDataUpload.append("thai_course", courseDetail.thai_course);
+    formDataUpload.append("course_id", courseDetail.course_id);
+
+    try {
+      await axios.post("http://localhost:8080/api/v1/admin/roadmap", formDataUpload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      alert("อัปโหลดแผนการเรียนสำเร็จ");
+      fetchCourseData(); // โหลดข้อมูลใหม่โดยไม่ต้อง reload หน้า
+    } catch (error) {
+      console.error("Error uploading roadmap:", error);
+      alert("เกิดข้อผิดพลาดในการอัปโหลดแผนการเรียน");
+    }
+  };
 
   return (
     <>
       <Headers />
       <Navbar />
+
       <div className="container text-center">
         <div className="row">
           <div className="col-sm-4">
             <Menu />
           </div>
           <div className="col-sm-8">
-            <h3>แก้ไขหลักสูตร</h3>
-            <br />
+            <div id="group-btn-header-detail">
+              <p id="news-name">{courseDetail?.thai_course || "กำลังโหลด..."}</p>
+            </div>
+
+            {/* รหัสของหลักสูตร */}
+            <p id="text-header-coures">รหัสของหลักสูตร</p>
+            <div id="text-content-course2">{courseDetail?.course_id}</div>
+            {editMode ? (
+              <textarea
+                type="text"
+                name="course_id"
+                value={formData.course_id || ""}
+                onChange={handleChange}
+                className="form-control"
+              />
+            ) : (
+              courseDetail?.course_id
+            )}
+            <hr />
 
             {/* ชื่อหลักสูตร */}
             <p id="text-header-coures">ชื่อหลักสูตร</p>
-            <input
-              className="form-control mb-3"
-              name="thai_course"
-              value={formData.thai_course || ""}
-              onChange={handleChange}
-              placeholder="ชื่อหลักสูตรภาษาไทย"
-            />
-            <input
-              className="form-control mb-3"
-              name="eng_course"
-              value={formData.eng_course || ""}
-              onChange={handleChange}
-              placeholder="ชื่อหลักสูตรภาษาอังกฤษ"
-            />
+            <div className="container">
+              <div className="row">
+                <div className="col-4" id="text-title-course">
+                  ภาษาไทย
+                </div>
+                <div className="col-6" id="text-content-course">
+                  {editMode ? (
+                    <textarea
+                      type="text"
+                      name="thai_course"
+                      value={formData.thai_course || ""}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  ) : (
+                    courseDetail?.thai_course
+                  )}
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-4" id="text-title-course">
+                  ภาษาอังกฤษ
+                </div>
+                <div className="col-6" id="text-content-course">
+                  {editMode ? (
+                    <textarea
+                      type="text"
+                      name="eng_course"
+                      value={formData.eng_course || ""}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  ) : (
+                    courseDetail?.eng_course
+                  )}
+                </div>
+              </div>
+            </div>
+            <hr />
 
             {/* ชื่อปริญญา */}
             <p id="text-header-coures">ชื่อปริญญา</p>
-            <input
-              className="form-control mb-3"
-              name="thai_degree"
-              value={formData.thai_degree || ""}
-              onChange={handleChange}
-              placeholder="ชื่อปริญญาภาษาไทย"
-            />
-            <input
-              className="form-control mb-3"
-              name="eng_degree"
-              value={formData.eng_degree || ""}
-              onChange={handleChange}
-              placeholder="ชื่อปริญญาภาษาอังกฤษ"
-            />
+            <div className="container">
+              <div className="row">
+                <div className="col-4" id="text-title-course">
+                  ภาษาไทย
+                </div>
+                <div className="col-6" id="text-content-course">
+                  {editMode ? (
+                    <textarea
+                      type="text"
+                      name="thai_degree"
+                      value={formData.thai_degree || ""}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  ) : (
+                    courseDetail?.thai_degree
+                  )}
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-4" id="text-title-course">
+                  ภาษาอังกฤษ
+                </div>
+                <div className="col-6" id="text-content-course">
+                  {editMode ? (
+                    <textarea
+                      type="text"
+                      name="eng_degree"
+                      value={formData.eng_degree || ""}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  ) : (
+                    courseDetail?.eng_degree
+                  )}
+                </div>
+              </div>
+            </div>
+            <hr />
 
-            {/* ปีการศึกษา */}
-            <p id="text-header-coures">ปีการศึกษา</p>
-            <input
-              type="text"
-              className="form-control mb-3"
-              name="year"
-              value={formData.year || ""}
-              onChange={handleChange}
-              placeholder="ปีการศึกษา"
-            />
+            {/* เกณฑ์การเข้าศึกษาและเกณฑ์การสำเร็จการศึกษา */}
+            <p id="text-header-coures">
+              เกณฑ์การเข้าศึกษาและเกณฑ์การสำเร็จการศึกษา
+            </p>
+            <div className="container">
+              <div className="row">
+                <div className="col-4" id="text-title-course">
+                  เกณฑ์การเข้าศึกษา
+                </div>
+                <div className="col-6" id="text-content-course">
+                  {editMode ? (
+                    <textarea
+                      name="admission_req"
+                      value={formData.admission_req || ""}
+                      onChange={handleChange}
+                      className="form-control"
+                      rows={3}
+                    />
+                  ) : (
+                    courseDetail?.admission_req
+                  )}
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-4" id="text-title-course">
+                  เกณฑ์การสำเร็จการศึกษา
+                </div>
+                <div className="col-6" id="text-content-course">
+                  {editMode ? (
+                    <textarea
+                      name="graduation_req"
+                      value={formData.graduation_req || ""}
+                      onChange={handleChange}
+                      className="form-control"
+                      rows={3}
+                    />
+                  ) : (
+                    courseDetail?.graduation_req
+                  )}
+                </div>
+              </div>
+            </div>
+            <hr />
 
-            {/* สาขา */}
-            <p id="text-header-coures">สาขา</p>
-            <input
-              className="form-control mb-3"
-              name="major"
-              value={formData.major || ""}
-              onChange={handleChange}
-              placeholder="สาขา"
-            />
-
-            {/* ปรัชญา */}
+            {/* ปรัชญาของหลักสูตร */}
             <p id="text-header-coures">ปรัชญาของหลักสูตร</p>
-            <textarea
-              className="form-control mb-3"
-              name="philosophy"
-              value={formData.philosophy || ""}
-              onChange={handleChange}
-            />
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="philosophy"
+                  value={formData.philosophy || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={5}
+                />
+              ) : (
+                courseDetail?.philosophy
+              )}
+            </div>
+            <hr />
 
             {/* วัตถุประสงค์ */}
             <p id="text-header-coures">วัตถุประสงค์</p>
-            <textarea
-              className="form-control mb-3"
-              rows="5"
-              name="objective"
-              value={formData.objective || ""}
-              onChange={handleChange}
-            />
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="objective"
+                  value={formData.objective || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={5}
+                />
+              ) : (
+                courseDetail?.objective
+              )}
+            </div>
+            <hr />
 
-            {/* ข้อกำหนดการรับเข้า */}
-            <p id="text-header-coures">ข้อกำหนดการรับเข้าศึกษา</p>
-            <textarea
-              className="form-control mb-3"
-              rows="3"
-              name="admission_req"
-              value={formData.admission_req || ""}
-              onChange={handleChange}
-            />
-
-            {/* ข้อกำหนดการสำเร็จการศึกษา */}
-            <p id="text-header-coures">ข้อกำหนดการสำเร็จการศึกษา</p>
-            <textarea
-              className="form-control mb-3"
-              rows="3"
-              name="graduation_req"
-              value={formData.graduation_req || ""}
-              onChange={handleChange}
-            />
-
-            {/* ค่าเล่าเรียน */}
-            <p id="text-header-coures">ค่าเล่าเรียน</p>
-            <input
-              type="text"
-              className="form-control mb-3"
-              name="tuition"
-              value={formData.tuition || ""}
-              onChange={handleChange}
-            />
-
-            {/* หน่วยกิต */}
-            <p id="text-header-coures">หน่วยกิต</p>
-            <input
-              type="text"
-              className="form-control mb-3"
-              name="credits"
-              value={formData.credits || ""}
-              onChange={handleChange}
-            />
-
-            {/* เส้นทางอาชีพ */}
-            <p id="text-header-coures">เส้นทางอาชีพ</p>
-            <textarea
-              className="form-control mb-3"
-              rows="3"
-              name="career_paths"
-              value={formData.career_paths || ""}
-              onChange={handleChange}
-            />
-
-            {/* PLO */}
-            <p id="text-header-coures">PLO</p>
-            <textarea
-              className="form-control mb-3"
-              rows="15"
-              name="plo"
-              value={formData.plo ? formData.plo.replace(/\\n/g, "\n") : ""}
-              onChange={handleChange}
-            />
-
-            {/* URL รายละเอียดหลักสูตร */}
-            <p id="text-header-coures">URL รายละเอียดหลักสูตร</p>
-            <input
-              className="form-control mb-3"
-              name="detail_url"
-              value={formData.detail_url || ""}
-              onChange={handleChange}
-              id="detail-course"
-            />
-
-            <br />
+            {/* รายละเอียดผลการเรียนรู้ที่คาดหวังของหลักสูตร (PLO) */}
+            <p id="text-header-coures">
+              รายละเอียดผลการเรียนรู้ที่คาดหวังของหลักสูตร (PLO)
+            </p>
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="plo"
+                  value={formData.plo || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={15}
+                />
+              ) : (
+                courseDetail?.plo
+              )}
+            </div>
+            <hr />
 
             {/* โครงสร้างหลักสูตร */}
             <p id="text-header-coures">โครงสร้างหลักสูตร</p>
-            <input className="form-control" type="file" />
+
             {structures.length > 0 ? (
-              structures.map((st, i) => (
-                <div
-                  key={st.course_structure_id}
-                  style={{ marginBottom: "10px" }}
-                >
+              structures.map((item) => (
+                <div key={item.structure_id} className="mb-3">
                   <img
-                    src={st.course_structure_url} // URL ตรงจาก API
-                    alt={`โครงสร้างหลักสูตร ${i + 1}`}
-                    style={{
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
+                    src={item.course_structure_url}
+                    alt={item.thai_course}
+                    style={{ maxWidth: "100%", maxHeight: "400px" }}
                   />
-                  <p>{st.thai_course}</p>
                 </div>
               ))
             ) : (
-              <p>ไม่มีข้อมูลโครงสร้างหลักสูตร</p>
+              <p>ยังไม่มีไฟล์โครงสร้างหลักสูตร</p>
             )}
 
-            {/* แผนการศึกษา */}
-            <p id="text-header-coures">แผนการศึกษา</p>
-            <input className="form-control" type="file" />
+            <input
+              className="form-control"
+              type="file"
+              onChange={onStructureImagesChange}
+            />
+
+            <hr />
+
+            {/* แผนการเรียน (Roadmap) */}
+            <p id="text-header-coures">แผนการเรียน</p>
 
             {roadmap.length > 0 ? (
-              roadmap.map((rd, i) => (
-                <div key={rd.roadmap_id} style={{ marginBottom: "10px" }}>
-                  <img
-                    src={rd.roadmap_url} // URL ตรงจาก API
-                    alt={`แผนการศึกษา ${i + 1}`}
-                    style={{
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <p>{rd.thai_course}</p>
-                </div>
-              ))
+              roadmap.map((item, index) =>
+                item.roadmap_url ? (
+                  <div key={index} className="mb-3">
+                    <img
+                      src={item.roadmap_url}
+                      alt={`roadmap-${index}`}
+                      style={{ maxWidth: "100%", maxHeight: "400px" }}
+                    />
+                  </div>
+                ) : null
+              )
             ) : (
-              <p>ไม่มีข้อมูลแผนการศึกษา</p>
+              <p>ยังไม่มีไฟล์แผนการเรียน</p>
             )}
-          <button type="submit" className="btn btn-primary" id="btn-course">
-            อัปเดตหลักสูตร
-          </button>
+
+            <input
+              className="form-control"
+              type="file"
+              onChange={onRoadmapImagesChange}
+            />
+
+            <hr />
+
+            {/* ปุ่มบันทึกและลบ */}
+            {editMode ? (
+              <button className="btn btn-primary me-2" onClick={saveChanges}>
+                บันทึก
+              </button>
+            ) : (
+              <button
+                className="btn btn-secondary me-2"
+                onClick={() => setEditMode(true)}
+              >
+                บันทึก
+              </button>
+            )}
           </div>
         </div>
       </div>

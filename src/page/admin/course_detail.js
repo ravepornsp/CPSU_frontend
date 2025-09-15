@@ -8,7 +8,7 @@ import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 
 const Detail_course = () => {
-  const { id } = useParams(); // ดึง course_id จาก URL
+  const { id } = useParams();
   const [courseDetail, setCourseDetail] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [structures, setStructures] = useState([]);
@@ -34,10 +34,10 @@ const Detail_course = () => {
   };
 
   useEffect(() => {
-    // ✅ ดึงข้อมูล Course
     axios
       .get(`http://localhost:8080/api/v1/admin/course/${id}`)
       .then((res) => {
+        // console.log("Course Detail:", res.data);
         setCourseDetail(res.data);
       })
       .catch((err) => {
@@ -45,7 +45,7 @@ const Detail_course = () => {
       });
 
     axios
-      .get(`http://localhost:8080/api/v1/admin/roadmap/${id}`)
+      .get(`http://localhost:8080/api/v1/admin/roadmap`)
       .then((res) => {
         setRoadmap(res.data);
       })
@@ -53,7 +53,6 @@ const Detail_course = () => {
         console.error("Error fetching course detail:", err);
       });
 
-    // ✅ ดึงข้อมูล Subject
     axios
       .get("http://localhost:8080/api/v1/admin/subject")
       .then((res) => {
@@ -63,7 +62,6 @@ const Detail_course = () => {
         console.error("Error fetching subject:", err);
       });
 
-    // ✅ ดึงข้อมูล Structure
     axios
       .get("http://localhost:8080/api/v1/admin/structure")
       .then((res) => {
@@ -86,7 +84,7 @@ const Detail_course = () => {
           </div>
           <div className="col-sm-8">
             <div id="group-btn-header-detail">
-              <p id="news-name">
+              <p id="course-name">
                 {courseDetail?.thai_course || "กำลังโหลด..."}
               </p>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -112,6 +110,11 @@ const Detail_course = () => {
             </div>
 
             {/* ชื่อหลักสูตร */}
+
+            <p id="text-header-coures">รหัสของหลักสูตร</p>
+            <div id="text-content-course2">{courseDetail?.course_id}</div>
+            <hr />
+
             <p id="text-header-coures">ชื่อหลักสูตร</p>
             <div className="container">
               <div className="row">
@@ -133,7 +136,6 @@ const Detail_course = () => {
             </div>
             <hr />
 
-            {/* ชื่อปริญญา */}
             <p id="text-header-coures">ชื่อปริญญา</p>
             <div className="container">
               <div className="row">
@@ -227,6 +229,19 @@ const Detail_course = () => {
             <hr />
             <p id="text-header-coures">โครงสร้างหลักสูตร</p>
             <div className="structure-images">
+              {/* {structures.length > 0 ? (
+              structures.map((item) => (
+                <div key={item.structure_id} className="mb-3">
+                  <img
+                    src={item.course_structure_url}
+                    alt={item.thai_course}
+                    style={{ maxWidth: "100%", maxHeight: "400px" }}
+                  />
+                </div>
+              ))
+            ) : (
+              <p>ยังไม่มีไฟล์โครงสร้างหลักสูตร</p>
+            )} */}
               {structures
                 .filter((st) => st.course_id === courseDetail?.course_id) // กรองตาม course_id
                 .map((st) => (
@@ -234,77 +249,37 @@ const Detail_course = () => {
                     key={st.course_structure_id}
                     style={{ marginBottom: "20px" }}
                   >
-                    <p>{st.thai_course}</p>
-                    <a
-                      href={st.course_structure_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={st.course_structure_url}
-                        alt={st.thai_course}
-                        style={{
-                          maxWidth: "100%",
-                          height: "auto",
-                          border: "1px solid #ccc",
-                        }}
-                      />
-                    </a>
+                    <img
+                      src={st.course_structure_url}
+                      alt={st.thai_course}
+                      style={{
+                        maxWidth: "100%",
+                        height: "auto",
+                        border: "1px solid #ccc",
+                      }}
+                    />
                   </div>
                 ))}
             </div>
+            <hr />
+
             <p id="text-header-coures">แผนการศึกษา</p>
             <div className="structure-images">
-              {roadmap ? (
-                // ถ้า roadmap เป็น array
-                Array.isArray(roadmap) ? (
-                  roadmap.map((rd) => (
-                    <div key={rd.roadmap_id} style={{ marginBottom: "20px" }}>
-                      <p>{rd.thai_course}</p>
-                      <a
-                        href={rd.roadmap_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <img
-                          src={rd.roadmap_url}
-                          alt={rd.thai_course}
-                          style={{
-                            maxWidth: "100%",
-                            height: "auto",
-                            border: "1px solid #ccc",
-                          }}
-                        />
-                      </a>
-                    </div>
-                  ))
-                ) : (
-                  // ถ้า roadmap เป็น object เดียว
-                  <div
-                    key={roadmap.roadmap_id}
-                    style={{ marginBottom: "20px" }}
-                  >
-                    <p>{roadmap.thai_course}</p>
-                    <a
-                      href={roadmap.roadmap_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={roadmap.roadmap_url}
-                        alt={roadmap.thai_course}
-                        style={{
-                          maxWidth: "100%",
-                          height: "auto",
-                          border: "1px solid #ccc",
-                        }}
-                      />
-                    </a>
+              {roadmap
+                .filter((rp) => rp.course_id === courseDetail?.course_id)
+                .map((rp) => (
+                  <div key={rp.roadmap_id} style={{ marginBottom: "20px" }}>
+                    <img
+                      src={rp.roadmap_url}
+                      alt={rp.thai_course}
+                      style={{
+                        maxWidth: "100%",
+                        height: "auto",
+                        border: "1px solid #ccc",
+                      }}
+                    />
                   </div>
-                )
-              ) : (
-                <p>กำลังโหลดโครงสร้างหลักสูตร...</p>
-              )}
+                ))}
             </div>
 
             <br></br>
@@ -316,8 +291,12 @@ const Detail_course = () => {
               <p>กำลังโหลดรายวิชา...</p>
             ) : (
               (() => {
+                // กรองรายวิชาเฉพาะของ course_id ที่เลือก
+                const filteredSubjects = subjects.filter(
+                  (subj) => subj.course_id === courseDetail?.course_id // <-- สมมติคุณได้ courseId จาก props หรือ useParams
+                );
                 // แยกกลุ่มตาม semester
-                const semesterGroups = subjects.reduce((acc, subj) => {
+                const semesterGroups = filteredSubjects.reduce((acc, subj) => {
                   const sem = subj.semester || "ไม่ระบุภาคเรียน";
                   if (!acc[sem]) acc[sem] = [];
                   acc[sem].push(subj);
@@ -365,13 +344,21 @@ const Detail_course = () => {
                           <table className="table table-bordered mt-2">
                             <thead>
                               <tr>
+                                <th style={{ width: "10%" }}>รหัสวิชา</th>
                                 <th>ชื่อวิชา</th>
-                                <th style={{ width: "25%" }}>หน่วยกิต</th>
+                                <th style={{ width: "20%" }}>หน่วยกิต</th>
                               </tr>
                             </thead>
                             <tbody>
                               {planGroups[plan].map((subj, index) => (
                                 <tr key={subj.subject_id}>
+                                  <td>
+                                    <Link
+                                      to={`/admin/subject/${subj.subject_id}`}
+                                    >
+                                      {subj.subject_id}
+                                    </Link>
+                                  </td>
                                   <td>{subj.thai_subject}</td>
                                   <td>{subj.credits}</td>
                                 </tr>

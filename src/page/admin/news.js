@@ -51,7 +51,7 @@ function News_admin() {
               {news.map((item, index) => (
                 <div className="col" key={index}>
                   <Link
-                    to={`/admin/detailnews/${item.news_id}`}
+                    to={`/admin/news/${item.news_id}`}
                     className="text-decoration-none text-dark"
                   >
                     <div className="card h-300">

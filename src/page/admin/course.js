@@ -54,10 +54,11 @@ const Course = () => {
                 <div className="col-md-4 mb-3" key={course.course_id}>
                   <div className="card h-100">
                     <div className="card-body d-flex flex-column">
+                      <h5 className="card-title">{course.course_id}</h5>
                       <h5 className="card-title">{course.thai_course}</h5>
                       <div className="mt-auto">
                         <Link
-                          to={`/admin/detailcourse/${course.course_id}`}
+                          to={`/admin/course/${course.course_id}`}
                           className="btn btn-primary"
                           id="btn-detailcourse"
                         >

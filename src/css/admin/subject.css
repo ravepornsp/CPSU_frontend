@@ -1,0 +1,58 @@
+#subject-all {
+  padding: 15px;
+  font-weight: 600;
+  font-size: 25px;
+}
+
+#btn-addsubject {
+  color: white;
+  background-color: #18756a;
+  margin: 15px;
+  display: inline-block;
+  width: 15vh;
+  height: 4vh;
+  border-radius: 5px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#btn-addsubject:hover {
+  color: white;
+  background-color: #0e524a;
+  border-color: #18756a;
+}
+
+.searchbox-subject {
+  align-items: center;
+}
+
+.edit_detele-position {
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+}
+
+#subject-name {
+  font-size: large;
+  font-weight: 600;
+  text-align: start;
+}
+
+#subject-detail {
+  font-size: large;
+  font-weight: 600;
+  text-align: start;
+}
+
+#text-editsubject {
+  display: flex;
+  font-weight: 600;
+}
+
+#btn-subject {
+  color: white;
+  background-color: #18756a;
+  margin: 10px;
+}
