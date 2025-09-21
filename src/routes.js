@@ -20,10 +20,10 @@ import Add_Subject from "./page/admin/subject_add";
 import Edit_Subject from "./page/admin/subject_edit";
 import Detail_Subject from "./page/admin/subject_detail";
 
-import Personnel_admin from "./page/admin/personnel"
-import Add_Personnel from "./page/admin/personnel_add"
-import Edit_Personnel from "./page/admin/personnel_edit"
-import Detail_Personnel from "./page/admin/personnel_detail"
+import Personnel_admin from "./page/admin/personnel";
+import Add_Personnel from "./page/admin/personnel_add";
+import Edit_Personnel from "./page/admin/personnel_edit";
+import Detail_Personnel from "./page/admin/personnel_detail";
 
 import TeacherDetail from "./page/personnel_teacher_detail";
 import StaffDetail from "./page/personnel_staff_detail";
@@ -33,10 +33,12 @@ import About from "./page/about";
 import Login from "./component/login";
 import Course_detail from "./page/course_detail";
 import Document from "./page/document";
-import EventCalendarAdmin from "./page/admin/EventCalendarAdmin"
-import UserPermissions from "./page/admin/UserPermissions"
+import EventCalendarAdmin from "./page/admin/EventCalendarAdmin";
+import UserPermissions from "./page/admin/UserPermissions";
 import Subject_detail from "./page/subject_detail";
 
+import EditTeacherInfomation from "./page/teacher/editinfomation";
+import TeacherInfomation from "./page/teacher/infomation";
 
 const AppRoutes = () => {
   return (
@@ -66,10 +68,14 @@ const AppRoutes = () => {
         <Route path="personnel/:id" element={<Detail_Personnel />} />
         <Route path="editpersonnel/:id" element={<Edit_Personnel />} />
 
-       <Route path="calendar" element={<EventCalendarAdmin />} />
+        <Route path="calendar" element={<EventCalendarAdmin />} />
 
-       <Route path="userpermissions" element={<UserPermissions />} />
+        <Route path="userpermissions" element={<UserPermissions />} />
+      </Route>
 
+      <Route path="/teacher">
+        <Route path="information" element={<TeacherInfomation />} />
+        <Route path="informationedit" element={<EditTeacherInfomation />} />
       </Route>
       {/* User Group */}
       {/* <Route path="/user" element={<UserLayout />}>
@@ -91,7 +97,6 @@ const AppRoutes = () => {
       <Route path="/staff/:id" element={<StaffDetail />} />
       <Route path="/teacher/:id" element={<TeacherDetail />} />
       <Route path="/subject/:subject_id" element={<Subject_detail />} />
-
     </Routes>
   );
 };

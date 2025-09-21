@@ -1,86 +1,69 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import Navbar from "../component/navbar";
-import Headers from "../component/header";
-import Footer from "../component/footer";
-import "../css/people_teacher_detail.css";
+import React, { useState } from "react";
+import Footer from "../../component/footer";
+import Header from "../../component/header";
+import Navbar from "../../component/navbar";
+import { useNavigate } from "react-router-dom";
 
-const TeacherDetail = () => {
-  const { id } = useParams();
-  const [person, setPerson] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const TeacherInfomation = () => {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchPerson = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
-        );
-        setPerson(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching personnel detail:", err);
-        setError(err);
-        setLoading(false);
-      }
-    };
-
-    fetchPerson();
-  }, [id]);
-
-  const handleCopyEmail = () => {
-    if (person?.email) {
-      navigator.clipboard.writeText(person.email);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  // ตัวอย่าง handler เมื่อกดปุ่มแก้ไข
+  const handleEdit = () => {
+    navigate("/teacher/informationedit"); // <-- ใช้ navigate เปลี่ยนหน้า
   };
 
-  if (loading) {
-    return (
-      <>
-        <Headers />
-        <Navbar />
-        <div className="container text-center my-5">
-          <div className="spinner-border text-primary" role="status"></div>
-          <p className="mt-3">กำลังโหลดข้อมูล...</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(data.email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
-  if (error || !person) {
-    return (
-      <>
-        <Headers />
-        <Navbar />
-        <div className="container my-5">
-          <div className="alert alert-danger text-center">
-            <strong>เกิดข้อผิดพลาด:</strong> ไม่สามารถโหลดข้อมูลได้
-          </div>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  const data = {
+    personnel_id: 1,
+    type_personnel: "สายวิชาการ",
+    department_position_id: 1,
+    department_position_name: "หัวหน้าภาควิชา",
+    academic_position_id: 2,
+    thai_academic_position: "ผศ.ดร.",
+    eng_academic_position: "Asst.Prof.Dr.",
+    thai_name: "สิรักข์ แก้วจำนงค์",
+    eng_name: "Sirak Kaewjamnong",
+    education: `Ph.D. (Computer Science) Lancaster University, UK (2015)
+วศ.ม. (วิศวกรรมคอมพิวเตอร์) มหาวิทยาลัยเกษตรศาสตร์ (2544)
+วท.บ. (วิทยาการคอมพิวเตอร์) สถาบันเทคโนโลยีราชมงคล (2540)`,
+    related_fields: `Computer Network Architectures
+Algorithms and Protocols`,
+    email: "kaewjamnong_s@su.ac.th",
+    website: "https://webserv.cp.su.ac.th/lecturer/sirak",
+    file_image:
+      "https://cpsu-website.s3.ap-southeast-2.amazonaws.com/images/personnel/Sirak.jpg",
+  };
 
   return (
     <>
-      <Headers />
+      <Header />
       <Navbar />
-      <h4>บุคลากร</h4>
+      <h4 className="text-center my-4">บุคลากร</h4>
       <div className="container my-5">
-        <div className="teacher-card mx-auto bg-white shadow rounded p-4">
+        <div className="teacher-card mx-auto bg-white shadow rounded p-4 position-relative">
+          {/* ปุ่มแก้ไขตำแหน่งมุมบนขวา */}
+          <button
+            onClick={handleEdit}
+            className="btn btn-outline-secondary position-absolute top-0 end-0 m-3 d-flex align-items-center gap-1"
+            title="แก้ไขข้อมูล"
+            style={{ zIndex: 10 }}
+          >
+            <i className="bi bi-pencil"></i> แก้ไข
+          </button>
+
           <div className="row">
             {/* Left: Image and Email */}
             <div className="col-md-4 text-center mb-4 mb-md-0">
               <img
-                src={person.file_image}
-                alt={person.thai_name}
+                src={data.file_image}
+                alt={data.thai_name}
                 className="img-fluid img-profile"
                 onError={(e) => (e.target.src = "/images/default-profile.png")}
               />
@@ -89,7 +72,7 @@ const TeacherDetail = () => {
                 <div>
                   <strong>อีเมล</strong>
                   <br />
-                  <a href={`mailto:${person.email}`}>{person.email}</a>
+                  <a href={`mailto:${data.email}`}>{data.email}</a>
                 </div>
                 <button
                   className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 copy-btn"
@@ -106,39 +89,39 @@ const TeacherDetail = () => {
 
             {/* Right: Info */}
             <div className="col-md-8 text-start">
-              <h5 className="text-primary">
-                {person.department_position_name}
-              </h5>
-              <hr></hr>
+              <h5 className="text-primary">{data.department_position_name}</h5>
+              <hr />
               <h4 className="fw-bold mt-2">
-                {person.thai_academic_position} {person.thai_name}
+                {data.thai_academic_position} {data.thai_name}
               </h4>
               <p className="text-muted mb-1">
-                {person.eng_academic_position} {person.eng_name}
+                {data.eng_academic_position} {data.eng_name}
               </p>
-              <hr></hr>
+              <hr />
               <h5 className="mt-4">ประวัติการศึกษา</h5>
               <ul>
-                {person.education &&
-                  person.education
-                    .split("\n")
-                    .filter((line) => line.trim() !== "")
-                    .map((line, index) => <li key={index}>{line.trim()}</li>)}
+                {data.education
+                  .split("\n")
+                  .filter((line) => line.trim() !== "")
+                  .map((line, index) => (
+                    <li key={index}>{line.trim()}</li>
+                  ))}
               </ul>
-              <hr></hr>
+              <hr />
               <h5 className="mt-4">สาขาที่เชี่ยวชาญ</h5>
               <ul>
-                {person.related_fields &&
-                  person.related_fields
-                    .split("\n")
-                    .filter((line) => line.trim() !== "")
-                    .map((line, index) => <li key={index}>{line.trim()}</li>)}
+                {data.related_fields
+                  .split("\n")
+                  .filter((line) => line.trim() !== "")
+                  .map((line, index) => (
+                    <li key={index}>{line.trim()}</li>
+                  ))}
               </ul>
-              <hr></hr>
+              <hr />
               <p className="mt-3">
                 <strong>เว็บไซต์ </strong>{" "}
-                <a href={person.website} target="_blank" rel="noreferrer">
-                  {person.website}
+                <a href={data.website} target="_blank" rel="noreferrer">
+                  {data.website}
                 </a>
               </p>
             </div>
@@ -220,4 +203,4 @@ const TeacherDetail = () => {
   );
 };
 
-export default TeacherDetail;
+export default TeacherInfomation;
