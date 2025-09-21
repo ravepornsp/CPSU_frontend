@@ -54,7 +54,7 @@ function News_admin() {
                     to={`/admin/news/${item.news_id}`}
                     className="text-decoration-none text-dark"
                   >
-                    <div className="card h-300">
+                    <div className="card h-200">
                       <img
                         src={
                           item.images && item.images.length > 0

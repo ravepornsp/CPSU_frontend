@@ -67,7 +67,6 @@ const Edit_course = () => {
     fetchCourseData();
   }, [id]);
 
-
   const saveChanges = async () => {
     try {
       await axios.put(
@@ -129,11 +128,15 @@ const Edit_course = () => {
     formDataUpload.append("course_id", courseDetail.course_id);
 
     try {
-      await axios.post("http://localhost:8080/api/v1/admin/roadmap", formDataUpload, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        "http://localhost:8080/api/v1/admin/roadmap",
+        formDataUpload,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       alert("อัปโหลดแผนการเรียนสำเร็จ");
       fetchCourseData(); // โหลดข้อมูลใหม่โดยไม่ต้อง reload หน้า
     } catch (error) {
@@ -154,7 +157,9 @@ const Edit_course = () => {
           </div>
           <div className="col-sm-8">
             <div id="group-btn-header-detail">
-              <p id="news-name">{courseDetail?.thai_course || "กำลังโหลด..."}</p>
+              <p id="news-name">
+                {courseDetail?.thai_course || "กำลังโหลด..."}
+              </p>
             </div>
 
             {/* รหัสของหลักสูตร */}
@@ -350,6 +355,72 @@ const Edit_course = () => {
                 />
               ) : (
                 courseDetail?.plo
+              )}
+            </div>
+            <hr />
+
+            {/* ค่าใช้จ่าย */}
+            <p id="text-header-coures">ค่าใช้จ่าย</p>
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="tuition"
+                  value={formData.tuition || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={5}
+                />
+              ) : (
+                courseDetail?.tuition
+              )}
+            </div>
+            <hr />
+            {/* หน่วยกิต */}
+            <p id="text-header-coures">หน่วยกิต</p>
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="credits"
+                  value={formData.credits || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={5}
+                />
+              ) : (
+                courseDetail?.credits
+              )}
+            </div>
+            <hr />
+
+            {/* อาชีพที่สามารถประกอบได้ */}
+            <p id="text-header-coures">อาชีพที่สามารถประกอบได้</p>
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="career_paths"
+                  value={formData.career_paths || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={9}
+                />
+              ) : (
+                courseDetail?.career_paths
+              )}
+            </div>
+            <hr />
+            {/* รายละเอียดเพิ่มเติม */}
+            <p id="text-header-coures">รายละเอียดเพิ่มเติม</p>
+            <div id="text-content-course2">
+              {editMode ? (
+                <textarea
+                  name="detail_url"
+                  value={formData.detail_url || ""}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={3}
+                />
+              ) : (
+                courseDetail?.detail_url
               )}
             </div>
             <hr />

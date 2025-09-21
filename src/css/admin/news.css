@@ -9,7 +9,7 @@
 
 #btn-addnew {
   color: white;
-  background-color: #18756a;
+  background-color: #1e40af;
   margin: 15px;
   display: inline-block;
   width: 14vh;
@@ -23,8 +23,8 @@
 
 #btn-addnew:hover {
   color: white;
-  background-color: #0e524a;
-  border-color: #18756a;
+  background-color: #173390;
+  border-color: #1e40af;
 }
 
 #new-all {
@@ -54,4 +54,8 @@
 
 #space {
   margin-bottom: 20px;
+}
+
+#card-news-admin{
+height: 300px;
 }

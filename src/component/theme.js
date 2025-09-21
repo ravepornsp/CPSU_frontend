@@ -10,7 +10,10 @@ function Theme() {
   };
 
   return (
-    <div className={`toggle-switch ${isDark ? "dark" : "light"}`} onClick={toggleTheme}>
+    <div
+      className={`toggle-switch ${isDark ? "dark" : "light"}`}
+      onClick={toggleTheme}
+    >
       <div className="icon moon">🌙</div>
       <div className="icon sun">☀️</div>
       <div className={`switch-thumb ${isDark ? "dark" : "light"}`}></div>

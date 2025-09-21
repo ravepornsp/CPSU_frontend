@@ -1,30 +1,29 @@
 .toggle-switch {
-  width: 100px;
-  height: 50px;
-  background-color: #1b726b;
+  width: 80px;
+  height: 40px;
+  background-color: #38419D;
   border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 10px;
   position: relative;
   cursor: pointer;
   border: 2px solid white;
 }
 
 .icon {
-  font-size: 24px;
+  font-size: 18px;
   z-index: 1;
   color: white;
 }
 
 .switch-thumb {
   position: absolute;
-  width: 45px;
-  height: 42px;
+  width: 35px;
+  height: 32px;
   border-radius: 50%;
   background-color: white;
-  /* top: 3px; */
   left: 3px;
   transition: all 0.3s ease;
 }

@@ -36,3 +36,53 @@
     transform: rotate(360deg);
   }
 }
+
+/* Mitr */
+
+/* body, html {
+  font-family: 'Mitr', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #222;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, li, button, a, .navbar, .card, .btn {
+  font-family: 'Mitr', sans-serif !important;
+} */
+
+/* Kanit */
+/* body, html {
+  font-family: 'Kanit', sans-serif;
+  line-height: 1.6;
+  color: #1e293b; 
+}
+
+h1, h2, h3, h4, h5, h6,
+p, li, button, a, .navbar, .card, .btn {
+  font-family: 'Kanit', sans-serif !important;
+} */
+
+/* Prompt */
+/* body, html {
+  font-family: 'Prompt', sans-serif;
+  line-height: 1.6;
+  color: #1e293b;  
+}
+
+h1, h2, h3, h4, h5, h6,
+p, li, button, a, .navbar, .card, .btn {
+  font-family: 'Prompt', sans-serif !important;
+} */
+
+
+body, html {
+  font-family: 'Noto Sans Thai', sans-serif;
+  line-height: 1.6;
+  color: #1e293b;  
+}
+
+h1, h2, h3, h4, h5, h6,
+p, li, button, a, .navbar, .card, .btn {
+  font-family: 'Noto Sans Thai', sans-serif !important;
+}

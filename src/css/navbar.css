@@ -1,14 +1,33 @@
 .navbar-component {
   background-color: white;
-  /* opacity: 30%; */
+  border-top-left-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 6px 16px;   /* 🔽 ปรับ padding ให้เตี้ยลง */
+  min-height: 55px;    /* 🔽 คุมความสูงขั้นต่ำ */
 }
 
 .img-logo {
   width: 50px;
 }
 
-.label-cpsu {
-  color: #18756a;
+.label-cpsu1 {
+  text-align: left;
+  margin: 0; 
+  line-height: 1.1;
+  font-size: 16px;   /* ปรับขนาดให้อ่านง่าย */
+  color: black;
+}
+
+.label-cpsu2 {
+  margin: 0;
+  line-height: 1.1;
+  font-size: 14px;
+  color: #555;  /* สีอ่อนลงหน่อยเพื่อให้บาลานซ์ */
 }
 
 .nav-position {
@@ -25,16 +44,16 @@
 
 .layout-button-nav a {
   text-decoration: none;
-  color: #18756a;
-  font-weight: 500;
+  color: black;
+  /* font-weight: 300; */
   padding: 5px 10px;
   border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
 .layout-button-nav a:hover {
-  background-color: #18756a;
-  color: white;
+  /* background-color: #18756a; */
+  color: rgb(134, 134, 134);
 }
 
 .container-fluid {
