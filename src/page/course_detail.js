@@ -5,6 +5,7 @@ import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/course_detail.css";
+import { useSearchParams } from "react-router-dom";
 
 const Course_detail = () => {
   const { course_id } = useParams();
@@ -14,65 +15,77 @@ const Course_detail = () => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  // const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "overview"; // fallback tab
+  const [activeTab, setActiveTab] = useState(initialTab);
 
-      try {
-        // ดึงข้อมูลหลักสูตรทั้งหมด
-        const courseRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/course"
-        );
-        const foundCourse = courseRes.data.find(
-          (c) => c.course_id === course_id
-        );
-        setCourse(foundCourse || null);
-
-        // ดึงข้อมูลโครงสร้างทั้งหมด
-        const structureRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/structure"
-        );
-        const foundStructure = structureRes.data.find(
-          (s) => s.course_id === course_id
-        );
-        setStructure(foundStructure || null);
-
-        // ดึงข้อมูลแผนผังทั้งหมด
-        const roadmapRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/roadmap"
-        );
-        const foundRoadmap = roadmapRes.data.find(
-          (r) => r.course_id === course_id
-        );
-        setRoadmap(foundRoadmap || null);
-
-        // ดึงข้อมูลรายวิชาทั้งหมด แล้วกรอง
-        const subjectsRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/subject"
-        );
-        const filteredSubjects = subjectsRes.data.filter(
-          (subj) => subj.course_id === course_id
-        );
-        setSubjects(filteredSubjects);
-
-        setLoading(false);
-      } catch (err) {
-        setError("ไม่พบข้อมูลหลักสูตรที่ต้องการ");
-        setLoading(false);
+  useEffect(
+    () => {
+      const tabParam = searchParams.get("tab");
+      if (tabParam && tabParam !== activeTab) {
+        setActiveTab(tabParam);
       }
-    };
+      const fetchData = async () => {
+        setLoading(true);
+        setError(null);
 
-    fetchData();
-  }, [course_id]);
+        try {
+          // ดึงข้อมูลหลักสูตรทั้งหมด
+          const courseRes = await axios.get(
+            "http://localhost:8080/api/v1/admin/course"
+          );
+          const foundCourse = courseRes.data.find(
+            (c) => c.course_id === course_id
+          );
+          setCourse(foundCourse || null);
+
+          // ดึงข้อมูลโครงสร้างทั้งหมด
+          const structureRes = await axios.get(
+            "http://localhost:8080/api/v1/admin/structure"
+          );
+          const foundStructure = structureRes.data.find(
+            (s) => s.course_id === course_id
+          );
+          setStructure(foundStructure || null);
+
+          // ดึงข้อมูลแผนผังทั้งหมด
+          const roadmapRes = await axios.get(
+            "http://localhost:8080/api/v1/admin/roadmap"
+          );
+          const foundRoadmap = roadmapRes.data.find(
+            (r) => r.course_id === course_id
+          );
+          setRoadmap(foundRoadmap || null);
+
+          // ดึงข้อมูลรายวิชาทั้งหมด แล้วกรอง
+          const subjectsRes = await axios.get(
+            "http://localhost:8080/api/v1/admin/subject"
+          );
+          const filteredSubjects = subjectsRes.data.filter(
+            (subj) => subj.course_id === course_id
+          );
+          setSubjects(filteredSubjects);
+
+          setLoading(false);
+        } catch (err) {
+          setError("ไม่พบข้อมูลหลักสูตรที่ต้องการ");
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    },
+    [course_id],
+    [searchParams]
+  );
 
   const groupSubjectsByYearSemesterAndPlan = (subjects) => {
     const grouped = {};
 
     subjects.forEach((subj) => {
-      const year = subj.study_year || "ปีที่ไม่ระบุ";
+      const year = subj.study_year || " ";
       const semester = subj.semester || "เทอมที่ไม่ระบุ";
       const plan = subj.plan_type || "ทั่วไป"; // หรือชื่อฟิลด์จริงที่มีข้อมูลประเภทแผน
 
@@ -119,10 +132,10 @@ const Course_detail = () => {
       <Headers />
       <Navbar />
       <div className="container my-5">
-        <Link to="/course" className="btn btn-secondary mb-3">
-          &larr; กลับ
-        </Link>
         <h2>
+          <Link to="/course" id="back-to-course" className="back-button">
+            &larr; กลับ
+          </Link>
           {course.thai_course} ({course.year})
         </h2>
         <h4>{course.eng_course}</h4>
@@ -319,8 +332,6 @@ const Course_detail = () => {
                               </thead>
                               <tbody>
                                 {subs.map((subj) => {
-                                  // เช็คว่า subject_id ขึ้นต้นด้วย SU หรือไม่ (ไม่สนใจ case)
-                                  // const isSU = /^su/i.test(subj.subject_id);
                                   return (
                                     <tr key={subj.subject_id}>
                                       <td>
@@ -329,9 +340,7 @@ const Course_detail = () => {
                                         subj.subject_id == "------" ? (
                                           subj.subject_id
                                         ) : (
-                                          <Link
-                                            to={`/subject/${subj.id}`}
-                                          >
+                                          <Link to={`/subject/${subj.id}`}>
                                             {subj.subject_id}
                                           </Link>
                                         )}

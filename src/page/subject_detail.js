@@ -62,8 +62,12 @@ const Subject_detail = () => {
         <Navbar />
         <div className="container text-center my-5">
           <h3 className="text-danger mb-3">{error}</h3>
-          <Link to="/course" className="btn btn-outline-primary">
-            &larr; กลับไปหน้ารายวิชา
+          <Link
+            to={`/course/${subject.course_id}?tab=subjects`}
+            className="btn btn-secondary mb-4 back-button"
+            id="btn-back-to-course"
+          >
+            &larr; กลับ
           </Link>
         </div>
         <Footer />
@@ -77,11 +81,15 @@ const Subject_detail = () => {
       <Headers />
       <Navbar />
       <div className="container my-5">
-        <Link to="/course" className="btn btn-secondary mb-4">
-          &larr; กลับ
-        </Link>
-
         <div className="card shadow-sm p-4 text-start">
+          <Link
+            to={`/course/${subject.course_id}?tab=subjects`}
+            className="btn btn-secondary mb-4 back-button"
+            id="btn-back-to-course"
+          >
+            &larr; กลับ
+          </Link>
+
           {/* ชื่อภาษาไทย */}
           <h3 className="text-primary mb-1">
             ({subject.subject_id}) {subject.thai_subject}

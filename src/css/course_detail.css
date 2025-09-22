@@ -148,3 +148,20 @@
 #roadmap-tab-name{
   text-align: center;
 }
+.back-button {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 8px 16px;
+  background-color: #0056b3; /* สีน้ำเงิน */
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #003164;
+  color: #fff;
+}
+
