@@ -139,10 +139,10 @@ const Add_course = () => {
 
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-9">
             <div className="col-md-4" id="course-all">
               เพิ่มหลักสูตร
             </div>

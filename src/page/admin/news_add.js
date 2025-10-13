@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 // Cropper import
 import Cropper from "react-easy-crop";
 import Button from "@mui/material/Button";
-import { getOrientation } from "get-orientation/browser";
+// import { getOrientation } from "get-orientation/browser";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
@@ -99,7 +99,7 @@ const Add_News = () => {
       let imageDataUrl = await readFile(file);
 
       try {
-        const orientation = await getOrientation(file);
+        // const orientation = await getOrientation(file);
       } catch (e) {
         console.warn("failed to detect the orientation");
       }
@@ -116,9 +116,13 @@ const Add_News = () => {
     newNews.append("content", content);
     newNews.append("type_id", category);
     newNews.append("detail_url", urlDetail);
-    newNews.append("images", fileImage); // รูปหน้าปก
 
-    // รูปภาพข่าวหลายไฟล์
+    // ✅ ส่ง cover_image แยก (หลัง crop แล้ว)
+    if (fileImage) {
+      newNews.append("cover_image", fileImage);
+    }
+
+    // ✅ ส่งรูปข่าวประกอบหลายรูป (ไม่รวมรูปหน้าปก)
     newsImages.forEach((file) => {
       newNews.append("images", file);
     });
@@ -131,9 +135,18 @@ const Add_News = () => {
       alert("เผยแพร่ข่าวสารสำเร็จ");
       navigate("/admin/news");
     } catch (error) {
-      console.log("Error submitting news:", error);
+      console.error("Error submitting news:", error);
       alert("ไม่สามารถเผยแพร่ข่าวสารได้");
     }
+  };
+
+  const removeImage = (index) => {
+    const newImages = [...newsImages];
+    const newPreviewUrls = [...newsPreviewUrls];
+    newImages.splice(index, 1);
+    newPreviewUrls.splice(index, 1);
+    setNewsImages(newImages);
+    setNewsPreviewUrls(newPreviewUrls);
   };
 
   return (
@@ -142,11 +155,13 @@ const Add_News = () => {
       <Navbar />
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8 text-start">
-            <p className="header-news-p">เพิ่มข่าวสาร</p>
+          <div className="col-sm-9 text-start">
+            <div>
+              <h3 className="news-title">เพิ่มข่าวสาร</h3>
+            </div>
 
             {imageSrc ? (
               <>
@@ -167,10 +182,10 @@ const Add_News = () => {
                     onClick={showCroppedImage}
                     variant="contained"
                     sx={{
-                      backgroundColor: "#18756a", // เปลี่ยนสีเป็นสีเขียว
+                      backgroundColor: "#173390", // เปลี่ยนสีเป็นสีเขียว
                       margin: "50px", // เพิ่ม margin รอบ ๆ ปุ่ม
                       "&:hover": {
-                        backgroundColor: "#135d54ff", // สีเมื่อ hover
+                        backgroundColor: "#0b1a4aff", // สีเมื่อ hover
                       },
                     }}
                   >
@@ -261,12 +276,20 @@ const Add_News = () => {
                         }}
                       >
                         {newsPreviewUrls.map((url, index) => (
-                          <img
-                            key={index}
-                            src={url}
-                            alt={`preview-${index}`}
-                            style={{ width: "150px", borderRadius: "8px" }}
-                          />
+                          <div key={index} className="image-preview-wrapper">
+                            <img
+                              src={url}
+                              alt={`preview-${index}`}
+                              className="image-preview"
+                            />
+                            <button
+                              type="button"
+                              className="remove-image-btn"
+                              onClick={() => removeImage(index)}
+                            >
+                              &times;
+                            </button>
+                          </div>
                         ))}
                       </div>
                     </div>

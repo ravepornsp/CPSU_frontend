@@ -152,10 +152,10 @@ const Edit_course = () => {
 
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-9">
             <div id="group-btn-header-detail">
               <p id="news-name">
                 {courseDetail?.thai_course || "กำลังโหลด..."}

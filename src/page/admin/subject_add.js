@@ -107,10 +107,10 @@ const Subject_add = () => {
       <Navbar />
       <div className="container mt-4">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8 text-start">
+          <div className="col-sm-9 text-start">
             <h2>เพิ่มรายวิชาใหม่</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">

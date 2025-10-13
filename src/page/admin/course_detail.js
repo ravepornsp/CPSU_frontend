@@ -25,6 +25,7 @@ const Detail_course = () => {
       const response = await axios.delete(
         `http://localhost:8080/api/v1/admin/course/${id}`
       );
+      console.log("✅ courses from API:", response.data);
       console.log("Course deleted successfully:", response.data);
       alert("ลบหลักสูตรสำเร็จ");
       navigate("/admin/course");
@@ -35,9 +36,10 @@ const Detail_course = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/v1/admin/course/${id}`)
-      .then((res) => {
-        // console.log("Course Detail:", res.data);
+    .get(`http://localhost:8080/api/v1/admin/course/${id}`)
+    .then((res) => {
+      // console.log("Course Detail:", res.data);
+      console.log("Course ID:", id);
         setCourseDetail(res.data);
       })
       .catch((err) => {
@@ -79,10 +81,10 @@ const Detail_course = () => {
 
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-9">
             <div id="group-btn-header-detail">
               <p id="course-name">
                 {courseDetail?.thai_course || "กำลังโหลด..."}

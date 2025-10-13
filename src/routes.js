@@ -6,6 +6,7 @@ import Admission from "./page/admission";
 import Personnel from "./page/personnel";
 import Course from "./page/course";
 import Subject from "./page/subject";
+
 import Add_News from "./page/admin/news_add";
 import Detail_News from "./page/admin/news_detail";
 import Edit_News from "./page/admin/news_edit";
@@ -40,6 +41,10 @@ import Subject_detail from "./page/subject_detail";
 import EditTeacherInfomation from "./page/teacher/editinfomation";
 import TeacherInfomation from "./page/teacher/infomation";
 
+import Dashboard from "./page/admin/dashboard";
+import EventFormAdd from "./page/admin/EventFormAdd";
+import EventCalendarPublic from "./page/EventCalendarPublic";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -47,7 +52,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/home" />} />
       {/* Admin Group */}
 
-      <Route path="/admin">
+      <Route path="/admin" >
         <Route path="addnews" element={<Add_News />} />
         <Route path="news" element={<News_admin />} />
         <Route path="news/:id" element={<Detail_News />} />
@@ -55,7 +60,7 @@ const AppRoutes = () => {
 
         <Route path="addcourse" element={<Add_course />} />
         <Route path="course" element={<Course_admin />} />
-        <Route path="course/:course_id" element={<Detail_course />} />
+        <Route path="course/:id" element={<Detail_course />} />
         <Route path="editcourse/:id" element={<Edit_course />} />
 
         <Route path="addsubject" element={<Add_Subject />} />
@@ -69,8 +74,11 @@ const AppRoutes = () => {
         <Route path="editpersonnel/:id" element={<Edit_Personnel />} />
 
         <Route path="calendar" element={<EventCalendarAdmin />} />
+        <Route path="calendar/add" element={<EventFormAdd />} />
 
         <Route path="userpermissions" element={<UserPermissions />} />
+
+        <Route path="dashboard" element={<Dashboard />} />
       </Route>
 
       <Route path="/teacher">
@@ -97,6 +105,8 @@ const AppRoutes = () => {
       <Route path="/staff/:id" element={<StaffDetail />} />
       <Route path="/teacher/:id" element={<TeacherDetail />} />
       <Route path="/subject/:subject_id" element={<Subject_detail />} />
+      <Route path="/calendar" element={<EventCalendarPublic />} />
+
     </Routes>
   );
 };

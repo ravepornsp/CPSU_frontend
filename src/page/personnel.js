@@ -97,6 +97,7 @@ const Personnel = () => {
                     <div className="card person-card shadow-sm h-100">
                       <img
                         src={person.file_image}
+                        loading="lazy"
                         className="card-img-top"
                         alt={person.thai_name}
                         onError={(e) =>

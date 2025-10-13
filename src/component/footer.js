@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/footer.css";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -81,6 +82,10 @@ const Footer = () => {
                 <li>ข่าวสาร</li>
                 <li>บุคลากร</li>
                 <li>หลักสูตร</li>
+                <li>
+                  เข้าสู่ระบบ
+                  {/* <Link to={`/login`}>เข้าสู่ระบบ</Link> */}
+                </li>
               </ul>
             </div>
           </div>

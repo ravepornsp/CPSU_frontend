@@ -63,10 +63,27 @@ function Detail_Personnel() {
       <Navbar />
       <div className="container-fluid">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-9">
+            {" "}
+            <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+              <div className="edit_detele-position">
+                {person && (
+                  <Link
+                    to={`/admin/editpersonnel/${id}`}
+                    className="btn btn-warning"
+                    id="btn-edit"
+                  >
+                    แก้ไข
+                  </Link>
+                )}
+                <div className="btn btn-danger" id="btn-delete">
+                  ลบ
+                </div>
+              </div>
+            </div>
             <div className="card mt-4 shadow-sm p-4">
               <div className="row">
                 <div className="col-md-4 text-center">
@@ -108,16 +125,16 @@ function Detail_Personnel() {
 
                   <h5>ประวัติการศึกษา</h5>
                   <ul>
-                    {person.education
-                      ?.split("\n")
-                      .map((line, i) => <li key={i}>{line.trim()}</li>)}
+                    {person.education?.split("\n").map((line, i) => (
+                      <li key={i}>{line.trim()}</li>
+                    ))}
                   </ul>
 
                   <h5 className="mt-3">สาขาที่เชี่ยวชาญ</h5>
                   <ul>
-                    {person.related_fields
-                      ?.split("\n")
-                      .map((line, i) => <li key={i}>{line.trim()}</li>)}
+                    {person.related_fields?.split("\n").map((line, i) => (
+                      <li key={i}>{line.trim()}</li>
+                    ))}
                   </ul>
                 </div>
               </div>

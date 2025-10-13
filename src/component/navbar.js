@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import "../css/navbar.css";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="navbar-component">
-      <div className="container-fluid">
+      <div className="container-fluid" id="navbar-component">
         <div className="nav-position">
           <Link
             to="/home"
@@ -23,16 +29,21 @@ const Navbar = () => {
               <p className="label-cpsu2">คณะวิทยาศาสตร์ มหาวิทยาลัยศิลปากร</p>
             </div>
           </Link>
+
+          {/* Hamburger icon */}
+          <div className="hamburger" onClick={toggleMenu}>
+            ☰
+          </div>
         </div>
 
-        <div className="layout-button-nav">
-          <Link to="/news">ข่าวสาร</Link>
-          <Link to="/personnel">บุคลากร</Link>
-          <Link to="/course">หลักสูตร</Link>
-          <Link to="/admission">การรับสมัคร</Link>
-          <Link to="/document">เอกสาร</Link>
-          {/* <Link to="/subject">รายวิชา</Link> */}
-          <Link to="/about">เกี่ยวกับภาควิชา</Link>
+        {/* Navigation links */}
+        <div className={`layout-button-nav ${isOpen ? "open" : ""}`}>
+          <Link to="/news" onClick={() => setIsOpen(false)}>ข่าวสาร</Link>
+          <Link to="/personnel" onClick={() => setIsOpen(false)}>บุคลากร</Link>
+          <Link to="/course" onClick={() => setIsOpen(false)}>หลักสูตร</Link>
+          <Link to="/admission" onClick={() => setIsOpen(false)}>การรับสมัคร</Link>
+          <Link to="/document" onClick={() => setIsOpen(false)}>เอกสาร</Link>
+          <Link to="/about" onClick={() => setIsOpen(false)}>เกี่ยวกับภาควิชา</Link>
         </div>
       </div>
     </div>

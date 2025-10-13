@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
 const Detail_News = () => {
   const { id } = useParams();
   const [news, setNews] = useState(null);
@@ -52,10 +51,10 @@ const Detail_News = () => {
       <Navbar />
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
+          <div className="col-sm-9">
             <div>
               <div id="group-btn-header-detail">
                 <p id="news-name">{news?.title || "กำลังโหลด..."}</p>
@@ -91,47 +90,64 @@ const Detail_News = () => {
                   </label>
                 </div>
               </div>
-       {images.length > 0 ? (
-              <div id="newsCarousel" className="carousel slide mb-3" data-bs-ride="carousel">
-                <div className="carousel-inner">
-                  {images.map((image, index) => (
-                    <div
-                      key={index}
-                      className={`carousel-item ${index === 0 ? "active" : ""}`}
-                    >
-                      <img
-                        src={image.file_image}
-                        className="d-block w-100 img-news"
-                        alt={`slide-${index}`}
-                      />
-                    </div>
-                  ))}
+              {images.length > 0 ? (
+                <div
+                  id="newsCarousel"
+                  className="carousel slide mb-3"
+                  data-bs-ride="carousel"
+                >
+                  <div className="carousel-inner">
+                    {images.map((image, index) => (
+                      <div
+                        key={index}
+                        className={`carousel-item ${
+                          index === 0 ? "active" : ""
+                        }`}
+                      >
+                        <img
+                          src={image.file_image}
+                          className="d-block w-100 img-news"
+                          alt={`slide-${index}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 👇 แสดงปุ่มควบคุมเฉพาะเมื่อมีมากกว่า 1 รูป */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        className="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#newsCarousel"
+                        data-bs-slide="prev"
+                      >
+                        <span
+                          className="carousel-control-prev-icon"
+                          aria-hidden="true"
+                        ></span>
+                      </button>
+                      <button
+                        className="carousel-control-next"
+                        type="button"
+                        data-bs-target="#newsCarousel"
+                        data-bs-slide="next"
+                      >
+                        <span
+                          className="carousel-control-next-icon"
+                          aria-hidden="true"
+                        ></span>
+                      </button>
+                    </>
+                  )}
                 </div>
-                {/* Controls */}
-                <button
-                  className="carousel-control-prev"
-                  type="button"
-                  data-bs-target="#newsCarousel"
-                  data-bs-slide="prev"
-                >
-                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                </button>
-                <button
-                  className="carousel-control-next"
-                  type="button"
-                  data-bs-target="#newsCarousel"
-                  data-bs-slide="next"
-                >
-                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                </button>
-              </div>
-            ) : (
-              <img
-                src="/images/cpsu.png"
-                className="img-news mb-3"
-                alt="default"
-              />
-            )}
+              ) : (
+                <img
+                  src="/images/cpsu.png"
+                  className="img-news mb-3"
+                  alt="default"
+                />
+              )}
 
               <div
                 className="text-start mt-3"

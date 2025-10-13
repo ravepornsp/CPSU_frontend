@@ -12,10 +12,10 @@ const AdminLayout = () => {
         <Navbar />
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8 text-start">
+          <div className="col-sm-9 text-start">
 
           </div>
         </div>

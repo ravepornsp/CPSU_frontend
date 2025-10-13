@@ -58,10 +58,10 @@ const Subject_detail = () => {
       <Navbar />
       <div className="container mt-4">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8 text-start">
+          <div className="col-sm-9 text-start">
             <div className="d-flex justify-content-between align-items-center mb-3">
               {/* ซ้าย: subject name */}
               <p id="subject-name" className="m-0 fw-bold">

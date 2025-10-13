@@ -1,3 +1,4 @@
+// ปรับปรุงแล้ว: เพิ่ม className, ปรับ UX และคำอธิบายให้โค้ดอ่านง่ายขึ้น
 import React, { useEffect, useState } from "react";
 import "../../css/admin/subject.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,7 +23,6 @@ function Subject() {
         const filtered = res.data.filter((item) => {
           const sid = item.subject_id?.trim();
           const name = item.thai_subject?.trim();
-
           return (
             sid !== "------" &&
             name !== "วิชาเลือกเสรี" &&
@@ -65,116 +65,71 @@ function Subject() {
 
   return (
     <>
-      <div>
-        <Headers />
-        <Navbar />
-        <div className="container text-center">
-          <div className="row">
-            <div className="col-sm-4">
-              <Menu />
+      <Headers />
+      <Navbar />
+      <div className="container text-center mt-4">
+        <div className="row">
+          <div className="col-sm-3">
+            <Menu />
+          </div>
+
+          <div className="col-sm-9">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h3 className="subject-title">รายวิชาทั้งหมด</h3>
+              <Link to="/admin/addsubject" className="btn-addsubject">
+                 + เพิ่มรายวิชาใหม่
+              </Link>
             </div>
-            <div className="col-sm-8 ">
-              <div className="row">
-                <div className="col-md-4" id="subject-all">
-                  รายวิชาทั้งหมด
-                </div>
-                <div className="col-md-4 offset-md-4">
-                  <Link
-                    to="/admin/addsubject"
-                    className="list-group-item"
-                    id="btn-addsubject"
-                  >
-                    เพิ่มรายวิชาใหม่
-                  </Link>
-                </div>
-              </div>
-              <div
-                className="searchbox-subject"
-                style={{
-                  position: "relative",
-                  maxWidth: "400px",
-                  marginBottom: "1rem",
+
+            <div className="searchbox-subject">
+              <input
+                type="text"
+                placeholder="ค้นหารหัสวิชา หรือ ชื่อวิชา..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowDropdown(true);
                 }}
-              >
-                <input
-                  type="text"
-                  placeholder="ค้นหารหัสวิชา หรือ ชื่อวิชา..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setShowDropdown(true);
-                  }}
-                  onBlur={() => {
-                    setTimeout(() => setShowDropdown(false), 150);
-                  }}
-                  onFocus={() => {
-                    if (searchTerm.length > 0) setShowDropdown(true);
-                  }}
-                  className="form-control"
-                  style={{ width: "100%", maxWidth: "400px" }}
-                />
-                {showDropdown && searchTerm && filteredSubjects.length > 0 && (
-                  <ul
-                    className="dropdown-menu show"
-                    style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      right: 0,
-                      maxHeight: "200px",
-                      overflowY: "auto",
-                      zIndex: 1000,
-                    }}
-                  >
-                    {filteredSubjects.map((item) => (
+                onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                onFocus={() => {
+                  if (searchTerm.length > 0) setShowDropdown(true);
+                }}
+                className="form-control"
+              />
+
+              {/* Dropdown search suggestions */}
+              {showDropdown && searchTerm && (
+                <ul className="dropdown-menu show custom-dropdown">
+                  {filteredSubjects.length > 0 ? (
+                    filteredSubjects.map((item) => (
                       <li key={item.id}>
                         <button
                           type="button"
                           className="dropdown-item"
                           onMouseDown={() => handleSelect(item.id)}
-                          style={{
-                            width: "100%",
-                            textAlign: "left",
-                            border: "none",
-                            background: "none",
-                            padding: "0.25rem 1.5rem",
-                            cursor: "pointer",
-                          }}
                         >
                           {item.subject_id} - {item.thai_subject}
                         </button>
                       </li>
-                    ))}
-                  </ul>
-                )}
-                {showDropdown &&
-                  searchTerm &&
-                  filteredSubjects.length === 0 && (
-                    <ul
-                      className="dropdown-menu show"
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        zIndex: 1000,
-                      }}
-                    >
-                      <li className="dropdown-item disabled">ไม่พบผลลัพธ์</li>
-                    </ul>
+                    ))
+                  ) : (
+                    <li className="dropdown-item disabled">ไม่พบผลลัพธ์</li>
                   )}
-              </div>
+                </ul>
+              )}
+            </div>
 
-              {/* ตารางรายวิชาแบ่งตาม course_id */}
-              {Object.keys(groupedByCourse).map((courseId) => (
-                <div key={courseId} style={{ marginBottom: "30px" }}>
-                  <h5 className="text-start mt-4">หลักสูตร: {courseId}</h5>
+            {/* แสดงตารางรายวิชา */}
+            {Object.keys(groupedByCourse).map((courseId) => (
+              <div key={courseId} className="mb-4">
+                <h5 className="text-start course-heading">หลักสูตร: {courseId}</h5>
+                <div className="table-responsive">
                   <table className="table table-bordered text-start">
                     <thead className="table-light">
                       <tr>
                         <th style={{ width: "15%" }}>รหัสวิชา</th>
                         <th>ชื่อวิชา</th>
-                        <th style={{ width: "20%" }}>หน่วยกิต</th>
+                        <th style={{ width: "15%" }}>หน่วยกิต</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -192,12 +147,12 @@ function Subject() {
                     </tbody>
                   </table>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }

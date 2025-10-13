@@ -379,7 +379,15 @@ const Homepage = () => {
       {/* บุคลากร (ดึงจาก API แบบสุ่ม) */}
       <div className="people-homepage">
         <p>บุคลากร</p>
-        <h2>แนะนำคณาจารย์ภาควิชาคอมพิวเตอร์</h2>
+        <h2>แนะนำคณาจารย์ภาควิชาคอมพิวเตอร์ |
+          <Link
+            to="/personnel"
+            className="text-primary"
+            style={{ textDecoration: "none", fontSize: "1.1rem" }}
+          >
+            บุคลากรทั้งหมด
+          </Link>
+        </h2>
         <div className="row row-cols-1 row-cols-md-5 g-4">
           {personnelList.map((personnel, personnel_id) => (
             <div className="col" key={personnel_id}>

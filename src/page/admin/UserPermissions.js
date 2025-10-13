@@ -3,6 +3,9 @@ import Headers from "../../component/header";
 import Menu from "../../component/menu";
 import Footer from "../../component/footer";
 import Navbar from "../../component/navbar";
+import "../../css/admin/user.css";
+
+import { Link } from "react-router-dom";
 
 const usersMock = [
   {
@@ -65,16 +68,15 @@ function UserPermissions() {
       <Navbar />
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8 ">
+          <div className="col-sm-9 ">
             <div className="row">
-              <div className="col-md-4" id="subject-all">
-                รายวิชาทั้งหมด
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="user-title">กำหนดสิทธิ์ผู้ใช้</h3>
+                <Link to="/admin/user">+ เพิ่มผู้ใช้</Link>
               </div>
-
-              <h4 className="mb-4 fw-bold">กำหนดสิทธิ์ผู้ใช้</h4>
 
               <table className="table table-bordered">
                 <thead className="table-light text-center">
@@ -120,6 +122,7 @@ function UserPermissions() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

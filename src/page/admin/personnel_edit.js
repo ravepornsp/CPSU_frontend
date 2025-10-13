@@ -1,103 +1,275 @@
 import React, { useEffect, useState } from "react";
-import "../../css/admin/news.css";
-import { Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../../css/admin/news.css";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 
-function Personnel_admin() {
-  const [personnel, setPersonnel] = useState([]);
+function Edit_Personnel() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [person, setPerson] = useState({
+    thai_name: "",
+    thai_academic_position: "",
+    eng_name: "",
+    eng_academic_position: "",
+    email: "",
+    website: "",
+    department_position_name: "",
+    type_personnel: "",
+    education: "",
+    related_fields: "",
+    file_image: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetchPersonnel = async () => {
+    const fetchPerson = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/api/v1/admin/personnel"
+          `http://localhost:8080/api/v1/admin/personnel/${id}`
         );
-        setPersonnel(res.data);
+        setPerson(res.data);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching personnel", err);
+        console.error("Error fetching personnel detail:", err);
+        setError("ไม่สามารถโหลดข้อมูลบุคลากรได้");
+        setLoading(false);
       }
     };
 
-    fetchPersonnel();
-  }, []);
+    fetchPerson();
+  }, [id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPerson((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await axios.put(
+        `http://localhost:8080/api/v1/admin/personnel/${id}`,
+        person
+      );
+      alert("บันทึกข้อมูลเรียบร้อย");
+      navigate("/admin/personnel");
+    } catch (err) {
+      console.error("Error updating personnel:", err);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Headers />
+        <Navbar />
+        <div className="container text-center mt-5">
+          <p>กำลังโหลดข้อมูล...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Headers />
+        <Navbar />
+        <div className="container text-center mt-5 text-danger">
+          <p>{error}</p>
+          <Link to="/admin/personnel" className="btn btn-secondary mt-3">
+            ← กลับไปหน้ารายการบุคลากร
+          </Link>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
       <Headers />
       <Navbar />
-      <div className="container text-center">
+      <div className="container-fluid">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
-            <div className="row">
-              <div className="col-md-4" id="new-all">
-                บุคลากรทั้งหมด
-              </div>
-              <div className="col-md-4 offset-md-4">
-                <Link
-                  to="/admin/addnews"
-                  className="list-group-item"
-                  id="btn-addnew"
-                >
-                  เพิ่มบุคลากร
-                </Link>
-              </div>
-            </div>
-            <div className="row row-cols-1 row-cols-md-3 g-4">
-              {personnel.map((item, index) => (
-                <div className="col" key={index}>
-                  <Link
-                    to={`/admin/personnel/${item.news_id}`}
-                    className="text-decoration-none text-dark"
-                  >
-                    <div className="card h-200">
-                      <img
-                        src={
-                          item.images && item.images.length > 0
-                            ? item.images[0].file_image
-                            : "/images/cpsu.png"
-                        }
-                        className="card-img-top"
-                        alt={item.title}
-                        style={{ height: "200px", objectFit: "cover" }}
-                      />
-                      <div className="card-body">
-                        <h5 className="card-title" id="card-title">
-                          {item.title}
-                        </h5>
-                        {/* <h5 className="card-title" id="card-title">
-                          {item.title.length > 70
-                            ? item.title.slice(0, 70) + "..."
-                            : item.title}
-                        </h5> */}
-                      </div>
+          <div className="col-sm-9">
+            <form onSubmit={handleSubmit}>
+              <h3 className="mb-4">แก้ไขข้อมูลบุคลากร</h3>
 
-                      <div className="card-footer">
-                        <small className="text-muted">
-                          {new Date(item.created_at).toLocaleString("th-TH", {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                          })}
-                        </small>
-                      </div>
-                    </div>
-                  </Link>
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  ตำแหน่งทางวิชาการ (ไทย)
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="thai_academic_position"
+                    value={person.thai_academic_position}
+                    onChange={handleChange}
+                    placeholder="เช่น ผศ.ดร."
+                    required
+                  />
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  ชื่อ-นามสกุล (ไทย)
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="thai_name"
+                    value={person.thai_name}
+                    onChange={handleChange}
+                    placeholder="เช่น สิรภัทร แก้วจำลอง"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  ตำแหน่งทางวิชาการ (อังกฤษ)
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="eng_academic_position"
+                    value={person.eng_academic_position}
+                    onChange={handleChange}
+                    placeholder="เช่น Asst.Prof.Dr."
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  ชื่อ-นามสกุล (อังกฤษ)
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="eng_name"
+                    value={person.eng_name}
+                    onChange={handleChange}
+                    placeholder="เช่น Sirak Kaewjamnong"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  อีเมล
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="email"
+                    className="form-control"
+                    name="email"
+                    value={person.email}
+                    onChange={handleChange}
+                    placeholder="example@domain.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  เว็บไซต์
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="url"
+                    className="form-control"
+                    name="website"
+                    value={person.website}
+                    onChange={handleChange}
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3 row align-items-center">
+                <label className="col-sm-3 col-form-label text-end">
+                  URL รูปภาพ
+                </label>
+                <div className="col-sm-6">
+                  <input
+                    type="url"
+                    className="form-control"
+                    name="file_image"
+                    value={person.file_image}
+                    onChange={handleChange}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <small className="text-muted">
+                    ถ้าไม่ใส่จะแสดงรูปโปรไฟล์เริ่มต้น
+                  </small>
+
+                  {person.file_image && (
+                    <div className="mt-3 text-center">
+                      <img
+                        src={person.file_image}
+                        alt="Preview"
+                        style={{
+                          maxWidth: "150px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                        }}
+                        onError={(e) => (e.target.style.display = "none")}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-end mt-4">
+                <Link
+                  to="/admin/personnel"
+                  className="btn btn-outline-secondary me-2"
+                >
+                  ยกเลิก
+                </Link>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={saving}
+                >
+                  {saving ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-      <div id="space"></div>
       <Footer />
     </>
   );
 }
 
-export default Personnel_admin;
+export default Edit_Personnel;

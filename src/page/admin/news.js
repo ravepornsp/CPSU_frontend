@@ -27,71 +27,70 @@ function News_admin() {
     <>
       <Headers />
       <Navbar />
-      <div className="container text-center">
+
+      <div className="container text-center mt-4">
         <div className="row">
-          <div className="col-sm-4">
+          {/* Sidebar Menu */}
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
-            <div className="row">
-              <div className="col-md-4" id="new-all">
-                ข่าวสารทั้งหมด
-              </div>
-              <div className="col-md-4 offset-md-4">
-                <Link
-                  to="/admin/addnews"
-                  className="list-group-item"
-                  id="btn-addnew"
-                >
-                  เพิ่มข่าวสาร
-                </Link>
-              </div>
-            </div>
-            <div className="row row-cols-1 row-cols-md-3 g-4">
-              {news.map((item, index) => (
-                <div className="col" key={index}>
-                  <Link
-                    to={`/admin/news/${item.news_id}`}
-                    className="text-decoration-none text-dark"
-                  >
-                    <div className="card h-200">
-                      <img
-                        src={
-                          item.images && item.images.length > 0
-                            ? item.images[0].file_image
-                            : "/images/cpsu.png"
-                        }
-                        className="card-img-top"
-                        alt={item.title}
-                        style={{ height: "200px", objectFit: "cover" }}
-                      />
-                      <div className="card-body">
-                        <h5 className="card-title" id="card-title">
-                          {item.title}
-                        </h5>
-                        {/* <h5 className="card-title" id="card-title">
-                          {item.title.length > 70
-                            ? item.title.slice(0, 70) + "..."
-                            : item.title}
-                        </h5> */}
-                      </div>
 
-                      <div className="card-footer">
-                        <small className="text-muted">
-                          {new Date(item.created_at).toLocaleString("th-TH", {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                          })}
-                        </small>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
+          {/* Main Content */}
+          <div className="col-sm-9">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h3 className="news-title">ข่าวสารทั้งหมด</h3>
+              <Link to="/admin/addnews" className="btn-addnews">
+                + เพิ่มข่าวสาร
+              </Link>
             </div>
+
+            {news.length === 0 ? (
+              <p className="text-muted">ยังไม่มีข่าวสาร</p>
+            ) : (
+              <div className="row row-cols-1 row-cols-md-3 g-4">
+                {news.map((item) => (
+                  <div className="col" key={item.news_id}>
+                    <Link
+                      to={`/admin/news/${item.news_id}`}
+                      className="text-decoration-none text-dark"
+                    >
+                      <div className="card h-100 shadow-sm news-card">
+                        <img
+                          src={
+                            item?.cover_image
+                              ? item.cover_image
+                              : item?.images?.length > 0
+                              ? item.images[0].file_image
+                              : "/images/cpsu.png"
+                          }
+                          className="card-img-top news-img"
+                          alt={item.title}
+                        />
+                        <div className="card-body">
+                          <h5 className="card-title news-card-title">
+                            {item.title.length > 70
+                              ? item.title.slice(0, 70) + "..."
+                              : item.title}
+                          </h5>
+                        </div>
+                        <div className="card-footer">
+                          <small className="text-muted">
+                            {new Date(item.created_at).toLocaleString("th-TH", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
+                          </small>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
+
       <div id="space"></div>
       <Footer />
     </>

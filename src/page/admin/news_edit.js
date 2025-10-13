@@ -25,19 +25,19 @@ const Edit_News = () => {
   const [urlDetail, setUrlDetail] = useState("");
 
   // รูปภาพ
-  const [fileImage, setFileImage] = useState(null); // cover
-  const [newsImages, setNewsImages] = useState([]); // multi
-  const [newsPreviewUrls, setNewsPreviewUrls] = useState([]); // preview
+  const [fileImage, setFileImage] = useState(null); // cover ใหม่ ถ้ามี
+  const [coverUrl, setCoverUrl] = useState(null);    // URL cover เดิม หรือ preview ใหม่
 
-  // cropper
+  const [newsImages, setNewsImages] = useState([]);        // File object ใหม่
+  const [newsPreviewUrls, setNewsPreviewUrls] = useState([]); // URL preview (รวมใหม่ + เดิม)
+  const [existingNewsUrls, setExistingNewsUrls] = useState([]); // URL ที่มาจาก backend เดิม
+
+  // สำหรับ cropper
   const [imageSrc, setImageSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
 
-  // โหลดข้อมูลเดิม
-  // โหลดข้อมูลเดิม
   useEffect(() => {
     if (!id) return;
 
@@ -53,22 +53,18 @@ const Edit_News = () => {
         setCategory(String(data.type_id || 1));
         setUrlDetail(data.detail_url || "");
 
-        // cover image
         if (data.images && data.images.length > 0) {
-          setPreviewUrl(data.images[0].file_image); // ใช้ไฟล์แรกเป็น cover
-        } else {
-          setPreviewUrl(null);
-        }
-
-        // multi images
-        if (data.images && data.images.length > 0) {
+          // สมมติว่า images[0] เป็น cover
           const urls = data.images.map((img) => img.file_image);
-          setNewsPreviewUrls(urls);
-        } else {
-          setNewsPreviewUrls([]);
+          const cover = urls[0];
+          const others = urls.slice(1);
+
+          setCoverUrl(cover);
+          setExistingNewsUrls(others);
+          setNewsPreviewUrls(others);
         }
       } catch (err) {
-        console.log("Error fetching news details", err);
+        console.error("Error fetching news details", err);
       }
     };
 
@@ -78,75 +74,82 @@ const Edit_News = () => {
   const onNewsImagesChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
-      setNewsImages(files);
-
-      // ✅ ถ้าเลือกไฟล์ใหม่ → ใช้ preview จากไฟล์ใหม่แทนของเก่า
-      setNewsPreviewUrls(files.map((f) => URL.createObjectURL(f)));
+      // รวมกับไฟล์เดิม
+      setNewsImages((prev) => [...prev, ...files]);
+      const newPreviews = files.map((f) => URL.createObjectURL(f));
+      setNewsPreviewUrls((prev) => [...prev, ...newPreviews]);
     }
   };
-  // show cropped image
+
   const showCroppedImage = useCallback(async () => {
     try {
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels);
       const file = new File([blob], "cover.jpg", { type: blob.type });
       setFileImage(file);
-
-      // ✅ ใช้ objectURL แทน preview เดิม
-      setPreviewUrl(URL.createObjectURL(blob));
-
+      setCoverUrl(URL.createObjectURL(blob));
       setImageSrc(null);
     } catch (e) {
       console.error(e);
     }
   }, [imageSrc, croppedAreaPixels]);
 
-  // cropper callback
   const onCropComplete = useCallback((_, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  // อ่านไฟล์ cover
   const onFileChange = async (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       let imageDataUrl = await readFile(file);
-
       try {
         await getOrientation(file);
       } catch {
         console.warn("failed to detect orientation");
       }
-
       setImageSrc(imageDataUrl);
     }
   };
 
-  // submit edit
   const handleEdit = async (e) => {
     e.preventDefault();
 
-    const editNews = new FormData();
-    editNews.append("title", title);
-    editNews.append("content", content);
-    editNews.append("type_id", category);
-    editNews.append("detail_url", urlDetail);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("type_id", category);
+    formData.append("detail_url", urlDetail);
 
-    if (fileImage) editNews.append("images", fileImage);
-    newsImages.forEach((file) => editNews.append("images", file));
+    // cover
+    if (fileImage) {
+      formData.append("cover", fileImage);
+    } else if (coverUrl) {
+      // ถ้าไม่มี file ใหม่ แต่มี URL เดิม ให้ส่ง URL เดิม
+      formData.append("existing_cover", coverUrl);
+    }
+
+    // news images
+    if (newsImages.length > 0) {
+      newsImages.forEach((file) => {
+        formData.append("images", file);
+      });
+    }
+    // ส่ง URL รูปข่าวที่ยังอยู่ (เดิม) ถ้าไม่มีไฟล์ใหม่
+    if (existingNewsUrls.length > 0) {
+      formData.append("existing_images", JSON.stringify(existingNewsUrls));
+    }
 
     try {
       await axios.put(
         `http://localhost:8080/api/v1/admin/news/${id}`,
-        editNews,
+        formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
       alert("แก้ไขข่าวสารสำเร็จ");
-      navigate(`/admin/detailnews/${id}`);
+      navigate(`/admin/news/${id}`);
     } catch (err) {
-      console.log("Error submitting news", err);
+      console.error("Error submitting news", err);
       alert("ไม่สามารถแก้ไขข่าวสารได้");
     }
   };
@@ -157,10 +160,10 @@ const Edit_News = () => {
       <Navbar />
       <div className="container text-center">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8 text-start">
+          <div className="col-sm-9 text-start">
             <p className="header-news-p">แก้ไขข่าวสาร</p>
 
             {imageSrc ? (
@@ -188,8 +191,8 @@ const Edit_News = () => {
                     onClick={showCroppedImage}
                     variant="contained"
                     sx={{
-                      backgroundColor: "#18756a",
-                      "&:hover": { backgroundColor: "#135d54ff" },
+                      backgroundColor: "#38419d",
+                      "&:hover": { backgroundColor: "#2c327cff" },
                     }}
                   >
                     ตกลง
@@ -247,37 +250,36 @@ const Edit_News = () => {
                     accept="image/*"
                     onChange={onFileChange}
                   />
-                  {previewUrl && (
+                  {coverUrl && (
                     <div
                       className="mt-3"
                       style={{ position: "relative", display: "inline-block" }}
                     >
                       <p>Preview รูปหน้าปก:</p>
                       <img
-                        src={previewUrl}
-                        alt="preview"
+                        src={coverUrl}
+                        alt="cover-preview"
                         style={{ maxWidth: "300px", borderRadius: "8px" }}
                       />
-                      {/* ปุ่มลบ */}
                       <button
                         type="button"
                         onClick={() => {
-                          setPreviewUrl(null);
+                          setCoverUrl(null);
                           setFileImage(null);
                         }}
                         style={{
                           position: "absolute",
-                          top: "50px",
+                          top: "5px",
                           right: "5px",
                           background: "rgba(0,0,0,0.4)",
                           color: "white",
                           border: "none",
-                          borderRadius: "20%",
-                          width: "30px",
-                          fontSize: "24px",
+                          borderRadius: "50%",
+                          width: "24px",
+                          height: "24px",
+                          fontSize: "18px",
                           cursor: "pointer",
                         }}
-                        aria-label="ลบรูปหน้าปก"
                         title="ลบรูปหน้าปก"
                       >
                         &times;
@@ -295,7 +297,7 @@ const Edit_News = () => {
                     onChange={onNewsImagesChange}
                   />
 
-                  {newsPreviewUrls.length > 0 && (
+                  {(newsPreviewUrls.length > 0) && (
                     <div
                       className="mt-3"
                       style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
@@ -310,19 +312,23 @@ const Edit_News = () => {
                         >
                           <img
                             src={url}
-                            alt={`preview-${idx}`}
+                            alt={`news-preview-${idx}`}
                             style={{ width: "150px", borderRadius: "8px" }}
                           />
-                          {/* ปุ่มลบ */}
                           <button
                             type="button"
                             onClick={() => {
-                              // ลบ preview และไฟล์จริงออก
-                              setNewsPreviewUrls((prev) =>
-                                prev.filter((_, i) => i !== idx)
+                              // ถ้า url นี้อยู่ใน existingNewsUrls ให้ลบออก
+                              setExistingNewsUrls((prev) =>
+                                prev.filter((u) => u !== url)
                               );
-                              setNewsImages((prev) =>
-                                prev.filter((_, i) => i !== idx)
+                              // ถ้าเป็นไฟล์ใหม่ ให้ลบออกจาก newsImages และ preview list
+                              setNewsPreviewUrls((prev) =>
+                                prev.filter((u) => u !== url)
+                              );
+                              // ลบไฟล์ที่ตรงกับ url นี้ (ถ้ามี)
+                              setNewsImages((prevFiles) =>
+                                prevFiles.filter((f) => URL.createObjectURL(f) !== url)
                               );
                             }}
                             style={{
@@ -332,11 +338,13 @@ const Edit_News = () => {
                               background: "rgba(0,0,0,0.4)",
                               color: "white",
                               border: "none",
-                              borderRadius: "20%",
+                              borderRadius: "50%",
                               width: "24px",
                               height: "24px",
+                              fontSize: "18px",
                               cursor: "pointer",
                             }}
+                            title="ลบภาพข่าว"
                           >
                             &times;
                           </button>
@@ -349,9 +357,8 @@ const Edit_News = () => {
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  id="btn-submit"
                 >
-                  อัปเดตข่าวสาร
+                  บันทึกการแก้ไข
                 </button>
               </form>
             )}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../css/admin/news.css";
+import "../../css/admin/personnel.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Headers from "../../component/header";
@@ -29,26 +29,20 @@ function Personnel_admin() {
     <>
       <Headers />
       <Navbar />
-      <div className="container text-center">
+      <div className="container text-center mt-4">
         <div className="row">
-          <div className="col-sm-4">
+          <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-8">
-            <div className="row">
-              <div className="col-md-4" id="new-all">
-                บุคลากรทั้งหมด
-              </div>
-              <div className="col-md-4 offset-md-4">
-                <Link
-                  to="/admin/addpersonnel"
-                  className="list-group-item"
-                  id="btn-addnew"
-                >
-                  เพิ่มบุคลากร
-                </Link>
-              </div>
+
+          <div className="col-sm-9">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h3 id="personnel-title">บุคลากรทั้งหมด</h3>
+              <Link to="/admin/addpersonnel" className="btn-addpersonnel">
+                 + เพิ่มบุคลากร
+              </Link>
             </div>
+
             <div className="row row-cols-1 row-cols-md-3 g-4">
               {personnel.map((item, index) => (
                 <div className="col" key={index}>
@@ -56,19 +50,18 @@ function Personnel_admin() {
                     to={`/admin/personnel/${item.personnel_id}`}
                     className="text-decoration-none text-dark"
                   >
-                    <div className="card h-200">
+                    <div className="card h-100 shadow-sm">
                       <img
                         src={item.file_image}
-                        className="card-img-top"
+                        className="card-img-top personnel-img"
                         alt={item.thai_name}
                         onError={(e) =>
                           (e.target.src = "/images/default-profile.png")
                         }
                       />
                       <div className="card-body">
-                        <h5 className="card-title" id="card-title">
-                          {item.thai_academic_position}
-                          {item.thai_name}
+                        <h5 className="card-title name-title">
+                          {item.thai_academic_position} {item.thai_name}
                         </h5>
                       </div>
                     </div>
@@ -79,6 +72,7 @@ function Personnel_admin() {
           </div>
         </div>
       </div>
+
       <div id="space"></div>
       <Footer />
     </>

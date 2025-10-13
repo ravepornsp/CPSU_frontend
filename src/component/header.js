@@ -12,11 +12,11 @@ const Headers = () => {
           <ProfileMenu />
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <Theme />
-            <Link to={`/login`}>
+            {/* <Link to={`/login`}>
               <button className="btn btn-primary" type="button">
                 เข้าสู่ระบบ
               </button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
