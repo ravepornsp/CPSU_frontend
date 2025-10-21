@@ -16,10 +16,10 @@ const TeacherDetail = () => {
   useEffect(() => {
     const fetchPerson = async () => {
       try {
-        const response = await axios.get(
+        const res = await axios.get(
           `http://localhost:8080/api/v1/admin/personnel/${id}`
         );
-        setPerson(response.data);
+        setPerson(res.data.personnel);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching personnel detail:", err);
@@ -120,7 +120,7 @@ const TeacherDetail = () => {
               <p className="mt-3">
                 <strong>เว็บไซต์ </strong>{" "}
                 <a href={person.website} target="_blank" rel="noreferrer">
-                  {person.website?person.website:"-"}
+                  {person.website ? person.website : "-"}
                 </a>
               </p>
             </div>

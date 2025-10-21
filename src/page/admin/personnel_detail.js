@@ -19,7 +19,7 @@ function Detail_Personnel() {
         const res = await axios.get(
           `http://localhost:8080/api/v1/admin/personnel/${id}`
         );
-        setPerson(res.data);
+        setPerson(res.data.personnel);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching personnel detail:", err);

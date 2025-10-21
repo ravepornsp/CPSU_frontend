@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import axios from "axios";
 import "../../css/admin/event.css";
 import { Link } from "react-router-dom";
 
@@ -18,14 +19,36 @@ function EventCalendarAdmin() {
   const [editedEvent, setEditedEvent] = useState({});
 
   useEffect(() => {
-    const storedEvents = JSON.parse(localStorage.getItem("events")) || [];
-    setEvents(storedEvents);
+    fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8080/api/v1/admin/calendar"
+      );
+      const mapped = res.data.map((event) => ({
+        id: event.calendar_id,
+        title: event.title,
+        start: event.start_date,
+        end: event.start_date === event.end_date ? null : event.end_date,
+        description: event.detail,
+        allDay: true,
+      }));
+      setEvents(mapped);
+    } catch (err) {
+      console.error("โหลดกิจกรรมล้มเหลว", err);
+    }
+  };
 
   const handleEventClick = (info) => {
     const event = events.find((e) => e.id === parseInt(info.event.id));
     setSelectedEvent(event);
-    setEditedEvent(event);
+    setEditedEvent({
+      ...event,
+      start: event.start.split("T")[0],
+      end: event.end ? event.end.split("T")[0] : event.start.split("T")[0],
+    });
     setShowModal(true);
     setIsEditing(false);
   };
@@ -41,23 +64,48 @@ function EventCalendarAdmin() {
     setEditedEvent({ ...editedEvent, [name]: value });
   };
 
-  const handleSave = () => {
-    const updatedEvents = events.map((event) =>
-      event.id === editedEvent.id ? editedEvent : event
-    );
-    setEvents(updatedEvents);
-    localStorage.setItem("events", JSON.stringify(updatedEvents));
-    setSelectedEvent(editedEvent);
-    setIsEditing(false);
+  const toISODate = (dateStr) => {
+    return new Date(dateStr).toISOString(); // "2025-10-21T00:00:00.000Z"
   };
 
-  const handleDelete = () => {
-    const confirmDelete = window.confirm("คุณต้องการลบกิจกรรมนี้หรือไม่?");
-    if (confirmDelete && selectedEvent) {
-      const updatedEvents = events.filter((e) => e.id !== selectedEvent.id);
-      setEvents(updatedEvents);
-      localStorage.setItem("events", JSON.stringify(updatedEvents));
+  const handleSave = async () => {
+    try {
+      const payload = {
+        title: editedEvent.title,
+        detail: editedEvent.description,
+        start_date: toISODate(editedEvent.start),
+        end_date: toISODate(editedEvent.end),
+      };
+
+      await axios.put(
+        `http://localhost:8080/api/v1/admin/calendar/${editedEvent.id}`,
+        payload
+      );
+
+      alert("บันทึกกิจกรรมสำเร็จ");
+      await fetchEvents();
       closeModal();
+    } catch (error) {
+      console.error("บันทึกไม่สำเร็จ", error);
+      alert("บันทึกไม่สำเร็จ กรุณาลองใหม่");
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("คุณต้องการลบกิจกรรมนี้หรือไม่?");
+    if (!confirmDelete || !selectedEvent) return;
+
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/v1/admin/calendar/${selectedEvent.id}`
+      );
+
+      alert("ลบกิจกรรมสำเร็จ");
+      await fetchEvents();
+      closeModal();
+    } catch (error) {
+      console.error("ลบกิจกรรมล้มเหลว", error);
+      alert("ไม่สามารถลบกิจกรรมได้ กรุณาลองใหม่");
     }
   };
 
@@ -92,21 +140,14 @@ function EventCalendarAdmin() {
         </div>
       </div>
 
-      {/* MODAL */}
       {showModal && selectedEvent && (
         <div
           className="modal fade show"
-          style={{
-            display: "block",
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
+          style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
           tabIndex="-1"
           role="dialog"
         >
-          <div
-            className="modal-dialog modal-dialog-centered"
-            role="document"
-          >
+          <div className="modal-dialog modal-dialog-centered" role="document">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
@@ -118,7 +159,6 @@ function EventCalendarAdmin() {
                   onClick={closeModal}
                 ></button>
               </div>
-
               <div className="modal-body">
                 {isEditing ? (
                   <>
@@ -164,25 +204,51 @@ function EventCalendarAdmin() {
                   </>
                 ) : (
                   <>
-                    <p><strong>ชื่อกิจกรรม:</strong> {selectedEvent.title}</p>
-                    <p><strong>วันเริ่ม:</strong> {selectedEvent.start}</p>
-                    <p><strong>วันสิ้นสุด:</strong> {selectedEvent.end}</p>
-                    <p><strong>รายละเอียด:</strong><br />{selectedEvent.description || "-"}</p>
+                    <p>
+                      <strong>ชื่อกิจกรรม:</strong> {selectedEvent.title}
+                    </p>
+                    <p>
+                      <strong>วันเริ่ม:</strong> {selectedEvent.start}
+                    </p>
+                    <p>
+                      <strong>วันสิ้นสุด:</strong>{" "}
+                      {selectedEvent.end || selectedEvent.start}
+                    </p>
+                    <p>
+                      <strong>รายละเอียด:</strong>
+                      <br />
+                      {selectedEvent.description || "-"}
+                    </p>
                   </>
                 )}
               </div>
-
               <div className="modal-footer">
                 {isEditing ? (
                   <>
-                    <button className="btn btn-primary" onClick={handleSave}>บันทึก</button>
-                    <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>ยกเลิก</button>
+                    <button className="btn btn-primary" onClick={handleSave}>
+                      บันทึก
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      ยกเลิก
+                    </button>
                   </>
                 ) : (
                   <>
-                    <button className="btn btn-warning" onClick={() => setIsEditing(true)}>แก้ไข</button>
-                    <button className="btn btn-danger" onClick={handleDelete}>ลบ</button>
-                    <button className="btn btn-secondary" onClick={closeModal}>ปิด</button>
+                    <button
+                      className="btn btn-warning"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      แก้ไข
+                    </button>
+                    <button className="btn btn-danger" onClick={handleDelete}>
+                      ลบ
+                    </button>
+                    <button className="btn btn-secondary" onClick={closeModal}>
+                      ปิด
+                    </button>
                   </>
                 )}
               </div>

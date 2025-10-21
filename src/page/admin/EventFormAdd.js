@@ -1,36 +1,47 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function EventFormAdd() {
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const storedEvents = JSON.parse(localStorage.getItem("events")) || [];
-    const endDatePlusOne = new Date(endDate);
-    endDatePlusOne.setDate(endDatePlusOne.getDate() + 1);
+    // ตรวจสอบข้อมูล
+    if (!title || !startDate || !endDate) {
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
 
-    // แปลงกลับเป็น YYYY-MM-DD
-    const endDateFormatted = endDatePlusOne.toISOString().split("T")[0];
+    if (new Date(startDate) > new Date(endDate)) {
+      alert("วันเริ่มต้นต้องไม่มากกว่าวันสิ้นสุด");
+      return;
+    }
 
-    const newEvent = {
-      id: Date.now(),
-      title,
-      start: startDate, // FullCalendar ใช้ key ว่า start และ end
-      end: endDateFormatted,
-      description,
+    const toISODate = (dateStr) => {
+      return new Date(dateStr).toISOString(); // "2025-10-21T00:00:00.000Z"
     };
 
-    const updatedEvents = [...storedEvents, newEvent];
-    localStorage.setItem("events", JSON.stringify(updatedEvents));
-
-    navigate("/admin/calendar");
+    const newEvent = {
+      title,
+      detail: description,
+      start_date: toISODate(startDate),
+      end_date: toISODate(endDate),
+    };
+    console.log(newEvent);
+    try {
+      await axios.post("http://localhost:8080/api/v1/admin/calendar", newEvent);
+      alert("เพิ่มกิจกรรมสำเร็จ");
+      navigate("/admin/calendar");
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการเพิ่มกิจกรรม:", error);
+      alert("ไม่สามารถเพิ่มกิจกรรมได้ กรุณาลองใหม่อีกครั้ง");
+    }
   };
 
   return (

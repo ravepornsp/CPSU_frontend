@@ -86,9 +86,7 @@ const Detail_course = () => {
           </div>
           <div className="col-sm-9">
             <div id="group-btn-header-detail">
-              <p id="course-name">
-                {courseDetail?.thai_course || "กำลังโหลด..."}
-              </p>
+              
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <div className="edit_detele-position">
                   {courseDetail && (
@@ -109,6 +107,9 @@ const Detail_course = () => {
                   </div>
                 </div>
               </div>
+              <h3 id="course-name">
+                {courseDetail?.thai_course || "กำลังโหลด..."}
+              </h3>
             </div>
 
             {/* ชื่อหลักสูตร */}

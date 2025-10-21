@@ -12,14 +12,16 @@ const TeacherDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [researches, setResearches] = useState([]);
+  const [researchLoading, setResearchLoading] = useState(true);
 
   useEffect(() => {
     const fetchPerson = async () => {
       try {
-        const response = await axios.get(
+        const res = await axios.get(
           `http://localhost:8080/api/v1/admin/personnel/${id}`
         );
-        setPerson(response.data);
+        setPerson(res.data.personnel);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching personnel detail:", err);
@@ -29,6 +31,32 @@ const TeacherDetail = () => {
     };
 
     fetchPerson();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchResearch = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/v1/admin/personnel/research`
+        );
+
+        const filteredResearches = res.data?.filter(
+          (item) => item.personnel_id === Number(id)
+        );
+
+      //   const sortedResearches = (filteredResearches || []).sort(
+      //   (a, b) => b.year - a.year
+      // );
+
+        setResearches(filteredResearches || []);
+      } catch (err) {
+        console.error("Error fetching research data:", err);
+      } finally {
+        setResearchLoading(false);
+      }
+    };
+
+    fetchResearch();
   }, [id]);
 
   const handleCopyEmail = () => {
@@ -72,8 +100,8 @@ const TeacherDetail = () => {
     <>
       <Headers />
       <Navbar />
-      <h4>บุคลากร</h4>
       <div className="container my-5">
+        <h3>บุคลากร</h3>
         <div className="teacher-card mx-auto bg-white shadow rounded p-4">
           <div className="row">
             {/* Left: Image and Email */}
@@ -143,78 +171,44 @@ const TeacherDetail = () => {
               </p>
             </div>
           </div>
-
-          {/* Office Hours */}
-          <hr className="my-4" />
-          <h5 className="text-center mb-3">เวลาที่สะดวก (Office Hours)</h5>
-          <div className="table-responsive">
-            <table className="table table-bordered text-center office-hours">
-              <thead className="table-light">
-                <tr>
-                  <th>จันทร์</th>
-                  <th>อังคาร</th>
-                  <th>พุธ</th>
-                  <th>พฤหัสบดี</th>
-                  <th>ศุกร์</th>
-                  <th>เสาร์</th>
-                  <th>อาทิตย์</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>10:00 - 12:00</td>
-                  <td>13:00 - 15:00</td>
-                  <td>10:00 - 12:00</td>
-                  <td>13:00 - 15:00</td>
-                  <td>09:00 - 11:00</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
 
+      {/* Research Section */}
       <div className="teacher-research mx-auto bg-white shadow-sm rounded p-4 mt-4">
-        <h5 className="mb-3">ผลงานวิจัย (Research Publications)</h5>
-        <ul className="research-list">
-          <li>
-            Suphachai Phawiakkharakun, Sunee Pongpinigpinyo, (2024).{" "}
-            <em>
-              Enhanced non-destructive of degree of pineapple juiciness using
-              ensemble learning model based on tapping sound sensing
-            </em>
-            , International Journal of Applied Science and Engineering, Volume
-            21, No. 1, March 2024.
-          </li>
-          <li className="mt-3">
-            Zhang, Y., Li, X., Wang, J., & Chen, Q. (2023).{" "}
-            <em>
-              Deep learning-based method for early diagnosis of lung cancer
-              using CT images
-            </em>
-            . Computers in Biology and Medicine, 153, 106388.{" "}
-          </li>
-          <li className="mt-3">
-            Smith, A., Johnson, R., & Lee, M. (2022).{" "}
-            <em>
-              Optimization of photovoltaic panels using hybrid metaheuristic
-              algorithms
-            </em>
-            . Renewable Energy, 185, 757-769.{" "}
-          </li>
-          <li className="mt-3">
-            Garcia, L., Kumar, P., & Martinez, F. (2021).{" "}
-            <em>
-              A novel IoT-based smart irrigation system for precision
-              agriculture
-            </em>
-            . Sensors, 21(18), 6200.{" "}
-          </li>
-        </ul>
-      </div>
+        <h5 className="mb-3">ผลงานวิจัย (Scopus)</h5>
 
+        {researchLoading ? (
+          <p>กำลังโหลดผลงานวิจัย...</p>
+        ) : researches.length > 0 ? (
+          <ul className="research-list">
+            {researches.map((research, index) => (
+              <li key={index} className="mb-3">
+                {research.authors && <strong>{research.authors}, </strong>}
+                {research.year && `(${research.year}). `}
+                <em>{research.title}</em>
+                {research.journal && `, ${research.journal}`}
+                {research.volume && `, Volume ${research.volume}`}
+                {research.pages && `, ${research.pages}`}
+                {research.doi && (
+                  <>
+                    . DOI:{" "}
+                    <a
+                      href={`https://doi.org/${research.doi}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {research.doi}
+                    </a>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>ไม่มีข้อมูลผลงานวิจัย</p>
+        )}
+      </div>
       <Footer />
     </>
   );

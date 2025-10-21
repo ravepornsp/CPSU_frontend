@@ -15,6 +15,11 @@ const Homepage = () => {
   const [personnelList, setPersonnelList] = useState([]);
   const [loadingPersonnel, setLoadingPersonnel] = useState(true);
   const [errorPersonnel, setErrorPersonnel] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [calendarEvents, setCalendarEvents] = useState([]);
+  const [loadingCalendar, setLoadingCalendar] = useState(true);
+  const [errorCalendar, setErrorCalendar] = useState(null);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -52,9 +57,8 @@ const Homepage = () => {
               uniqueImages.add(person.file_image);
               uniquePersonnel.push(person);
             }
-            if (uniquePersonnel.length === 5) break;
+            // if (uniquePersonnel.length === 5) break;
           }
-
           setPersonnelList(uniquePersonnel);
         }
       } catch (err) {
@@ -64,37 +68,66 @@ const Homepage = () => {
         setLoadingPersonnel(false);
       }
     };
+const fetchCalendarEvents = async () => {
+  try {
+    const res = await axios.get("http://localhost:8080/api/v1/admin/calendar");
+    if (Array.isArray(res.data)) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // ตั้งเวลาวันนี้เป็นเที่ยงคืน (เริ่มต้นวัน)
+
+      // กรองเฉพาะกิจกรรมที่ start_date >= วันนี้
+      const filteredEvents = res.data.filter(event => {
+        const eventDate = new Date(event.start_date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= today;
+      });
+
+      // เรียงตามวันที่เริ่มต้น (start_date) จากน้อยไปมาก
+      const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+      setCalendarEvents(sortedEvents);
+    } else {
+      throw new Error("ข้อมูลปฏิทินไม่ถูกต้อง");
+    }
+  } catch (err) {
+    console.error("Error fetching calendar:", err);
+    setErrorCalendar("ไม่สามารถโหลดปฏิทินกิจกรรมได้");
+  } finally {
+    setLoadingCalendar(false);
+  }
+};
+
 
     fetchNews();
     fetchPersonnel();
+    fetchCalendarEvents();
   }, []);
 
-  const events = [
-    {
-      shortDate: "6 ก.ย.",
-      fullDate: "6 ก.ย. - 14 ก.ย. 2568",
-      title: "มหกรรมการสอบกลางภาค",
-    },
-    {
-      shortDate: "10 ก.ย.",
-      fullDate: "10 กันยายน 2568",
-      title: "ประชุมคณะกรรมการภาควิชา",
-    },
-    {
-      shortDate: "15 ก.ย.",
-      fullDate: "15 ก.ย. - 20 ก.ย. 2568",
-      title: "กิจกรรมอบรมเชิงปฏิบัติการ",
-    },
-    {
-      shortDate: "25 ก.ย.",
-      fullDate: "25 กันยายน 2568",
-      title: "สัมมนานักศึกษาใหม่",
-    },
-  ];
+  if (loadingNews || loadingPersonnel || loadingCalendar)
+    return <p>กำลังโหลดข้อมูล...</p>;
 
-  if (loadingNews || loadingPersonnel) return <p>กำลังโหลดข้อมูล...</p>;
   if (errorNews) return <p>{errorNews}</p>;
   if (errorPersonnel) return <p>{errorPersonnel}</p>;
+  if (errorCalendar) return <p>{errorCalendar}</p>;
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => {
+      const newIndex = prev - 5;
+      return newIndex < 0
+        ? Math.max(0, personnelList.length - (personnelList.length % 5 || 5))
+        : newIndex;
+    });
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => {
+      const newIndex = prev + 5;
+      return newIndex >= personnelList.length ? 0 : newIndex;
+    });
+  };
+
+  // slice บุคลากร 5 คนจาก currentIndex
+  const currentPersonnel = personnelList.slice(currentIndex, currentIndex + 5);
 
   return (
     <div className="app-container">
@@ -188,7 +221,7 @@ const Homepage = () => {
 
               <div className="row row-cols-1 row-cols-md-2 g-4">
                 {newsList.slice(0, 2).map((item) => (
-                  <div className="col" key={item.id}>
+                  <div className="col" key={item.news_id}>
                     <div className="card h-300" id="news-homepage">
                       <img
                         src={
@@ -216,19 +249,37 @@ const Homepage = () => {
             </div>
 
             <div className="col-4">
-              <h3>ปฏิทินกิจกรรม</h3>
+              <h3>
+                ปฏิทินกิจกรรม |
+                <Link
+                  to="/calendar"
+                  className="text-primary"
+                  style={{ textDecoration: "none", fontSize: "1.1rem" }}
+                >
+                  ดูทั้งหมด
+                </Link>
+              </h3>
               <ul className="list-group" id="list-color">
-                {events.map((event, index) => (
-                  <li className="list-group-item" key={index}>
-                    <div id="box-calendar">
-                      <p>{event.shortDate}</p>
-                    </div>
-                    <div>
-                      <p id="calendar-date">{event.fullDate}</p>
-                      <p id="calendar-title">{event.title}</p>
-                    </div>
-                  </li>
-                ))}
+                {calendarEvents.slice(0, 5).map((event) => {
+                  const startDate = new Date(event.start_date);
+                  const shortDate = startDate.toLocaleDateString("th-TH", {
+                    day: "numeric",
+                    month: "short",
+                  });
+
+                  return (
+                    // เพิ่ม return ตรงนี้
+                    <li className="list-group-item" key={event.calendar_id}>
+                      <div id="box-calendar">
+                        <p>{shortDate}</p>
+                      </div>
+                      <div>
+                        {/* <p id="calendar-date">{fullDate}</p> */}
+                        <p id="calendar-title">{event.title}</p>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
@@ -379,7 +430,8 @@ const Homepage = () => {
       {/* บุคลากร (ดึงจาก API แบบสุ่ม) */}
       <div className="people-homepage">
         <p>บุคลากร</p>
-        <h2>แนะนำคณาจารย์ภาควิชาคอมพิวเตอร์ |
+        <h2>
+          แนะนำคณาจารย์ภาควิชาคอมพิวเตอร์ |
           <Link
             to="/personnel"
             className="text-primary"
@@ -388,20 +440,33 @@ const Homepage = () => {
             บุคลากรทั้งหมด
           </Link>
         </h2>
-        <div className="row row-cols-1 row-cols-md-5 g-4">
-          {personnelList.map((personnel, personnel_id) => (
-            <div className="col" key={personnel_id}>
-              <div className="card-people">
-                <Link to={`/teacher/${personnel.personnel_id}`}>
-                  <img src={personnel.file_image} alt={personnel.thai_name} />
-                </Link>
-                <h5 className="card-title" id="name-people">
-                  {personnel.thai_academic_position}
-                  {personnel.thai_name}
-                </h5>
+        <div className="personnel-carousel d-flex align-items-center justify-content-between">
+          {/* ปุ่มย้อนกลับ */}
+          <button className="arrow-button" onClick={prevSlide}>
+            &#8592;
+          </button>
+
+          {/* คาร์ดบุคลากร */}
+          <div className="row row-cols-1 row-cols-md-5 g-4 flex-grow-1 mx-3">
+            {currentPersonnel.map((personnel, personnel_id) => (
+              <div className="col" key={personnel_id}>
+                <div className="card-people">
+                  <Link to={`/teacher/${personnel.personnel_id}`}>
+                    <img src={personnel.file_image} alt={personnel.thai_name} />
+                  </Link>
+                  <h5 className="card-title" id="name-people">
+                    {personnel.thai_academic_position}
+                    {personnel.thai_name}
+                  </h5>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* ปุ่มถัดไป */}
+          <button className="arrow-button" onClick={nextSlide}>
+            &#8594;
+          </button>
         </div>
       </div>
 
