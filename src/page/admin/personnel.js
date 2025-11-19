@@ -39,7 +39,7 @@ function Personnel_admin() {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h3 id="personnel-title">บุคลากรทั้งหมด</h3>
               <Link to="/admin/addpersonnel" className="btn-addpersonnel">
-                 + เพิ่มบุคลากร
+                + เพิ่มบุคลากร
               </Link>
             </div>
 
@@ -52,12 +52,13 @@ function Personnel_admin() {
                   >
                     <div className="card h-100 shadow-sm">
                       <img
-                        src={item.file_image}
+                        src={
+                          item.file_image && item.file_image.trim() !== ""
+                            ? item.file_image
+                            : "/images/default-profile.png"
+                        }
                         className="card-img-top personnel-img"
                         alt={item.thai_name}
-                        onError={(e) =>
-                          (e.target.src = "/images/default-profile.png")
-                        }
                       />
                       <div className="card-body">
                         <h5 className="card-title name-title">

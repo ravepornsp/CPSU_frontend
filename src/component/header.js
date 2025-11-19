@@ -10,7 +10,7 @@ const Headers = () => {
       <div>
         <div className="header-component">
           <ProfileMenu />
-          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <div className="d-grid gap-2 d-md-flex justify-content-md-end">
             <Theme />
             {/* <Link to={`/login`}>
               <button className="btn btn-primary" type="button">

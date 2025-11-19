@@ -44,10 +44,6 @@ const TeacherDetail = () => {
           (item) => item.personnel_id === Number(id)
         );
 
-      //   const sortedResearches = (filteredResearches || []).sort(
-      //   (a, b) => b.year - a.year
-      // );
-
         setResearches(filteredResearches || []);
       } catch (err) {
         console.error("Error fetching research data:", err);
@@ -174,41 +170,41 @@ const TeacherDetail = () => {
         </div>
       </div>
 
-      {/* Research Section */}
-      <div className="teacher-research mx-auto bg-white shadow-sm rounded p-4 mt-4">
-        <h5 className="mb-3">ผลงานวิจัย (Scopus)</h5>
+      {researches.length > 0 && (
+        <div className="teacher-research mx-auto bg-white shadow-sm rounded p-4 mt-4">
+          <h5 className="mb-3">ผลงานวิจัย (Scopus)</h5>
 
-        {researchLoading ? (
-          <p>กำลังโหลดผลงานวิจัย...</p>
-        ) : researches.length > 0 ? (
-          <ul className="research-list">
-            {researches.map((research, index) => (
-              <li key={index} className="mb-3">
-                {research.authors && <strong>{research.authors}, </strong>}
-                {research.year && `(${research.year}). `}
-                <em>{research.title}</em>
-                {research.journal && `, ${research.journal}`}
-                {research.volume && `, Volume ${research.volume}`}
-                {research.pages && `, ${research.pages}`}
-                {research.doi && (
-                  <>
-                    . DOI:{" "}
-                    <a
-                      href={`https://doi.org/${research.doi}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {research.doi}
-                    </a>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>ไม่มีข้อมูลผลงานวิจัย</p>
-        )}
-      </div>
+          {researchLoading ? (
+            <p>กำลังโหลดผลงานวิจัย...</p>
+          ) : (
+            <ul className="research-list">
+              {researches.map((research, index) => (
+                <li key={index} className="mb-3">
+                  {research.authors && <strong>{research.authors}, </strong>}
+                  {research.year && `(${research.year}). `}
+                  <em>{research.title}</em>
+                  {research.journal && `, ${research.journal}`}
+                  {research.volume && `, Volume ${research.volume}`}
+                  {research.pages && `, ${research.pages}`}
+                  {research.doi && (
+                    <>
+                      . DOI:{" "}
+                      <a
+                        href={`https://doi.org/${research.doi}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {research.doi}
+                      </a>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <Footer />
     </>
   );

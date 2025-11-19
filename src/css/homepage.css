@@ -30,7 +30,7 @@
 
 .carousel-caption {
   position: fixed; /* ใช้ fixed แทน absolute */
-  top:30%;
+  top: 30%;
   /* right: 50%; */
   left: 50%;
   transform: translate(0%, -40%);
@@ -43,8 +43,6 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   z-index: 9999; /* อยู่บนสุด */
 }
-
-
 
 .carousel-caption h5 {
   font-size: 2.2rem;
@@ -114,7 +112,6 @@
     margin-top: 10px;
   }
 }
-
 
 /* 🔷 Calendar */
 #list-color {
@@ -186,7 +183,7 @@
   flex-grow: 1;
 }
 .card-title {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   color: #1e293b;
   text-align: left;
@@ -243,6 +240,8 @@
   color: white;
   border-color: #1e40af;
 }
+@media screen {
+}
 
 /* 🔷 Cards: Course Section */
 .card-body ul {
@@ -259,33 +258,6 @@
   margin-right: auto;
 }
 
-/* 🔷 บุคลากร */
-.card-people {
-  text-align: center;
-  background: transparent;
-  box-shadow: none;
-  border: none;
-  padding: 10px;
-}
-.card-people img {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin: 0 auto 10px auto;
-  display: block;
-  border: 4px solid #e5e7eb;
-  transition: transform 0.3s ease;
-}
-.card-people img:hover {
-  transform: scale(1.05);
-}
-.card-people .card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin-top: 5px;
-}
 #name-people {
   font-size: 0.9rem;
   text-align: center;
@@ -348,11 +320,6 @@
     width: 50px;
     height: 50px;
     font-size: 0.9rem;
-  }
-
-  .card-people img {
-    width: 120px;
-    height: 120px;
   }
 }
 
@@ -432,16 +399,6 @@
   transition: all 0.3s ease;
 }
 
-/* 🔷 ปรับ Layout ของคณาจารย์ให้ Balance ขึ้น */
-.card-people {
-  padding: 20px 10px;
-  transition: all 0.3s ease;
-}
-.card-people:hover {
-  background-color: #f3f4f6;
-  border-radius: 12px;
-}
-
 /* 🔷 ปรับลิสต์ปฏิทิน */
 #list-color .list-group-item {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -472,7 +429,7 @@
   }
 
   .carousel-caption h5 {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 }
 
@@ -507,22 +464,152 @@
 }
 
 .arrow-button {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  font-size: 2rem;
-  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  transition: background-color 0.3s ease;
+  color: rgb(124, 124, 124);
+  font-size: 2rem;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
 }
 
+/* Hover & Active Effects */
 .arrow-button:hover:not(:disabled) {
-  background-color: #0056b3;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.arrow-button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .arrow-button:disabled {
-  background-color: #cccccc;
+  background: rgba(255, 255, 255, 0.05);
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .arrow-button {
+    font-size: 1.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .arrow-button {
+    font-size: 1.2rem;
+    width: 3rem;
+    height: 3rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+#degree-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 5px;
+}
+
+/* 🔷 Card People Layout */
+.card-people {
+  text-align: center;
+  background: #ffffff;
+  padding: 20px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card-people:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 🔷 Image */
+.card-people-img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 12px auto;
+  display: block;
+  border: 4px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-people-img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔷 Name & Position */
+.card-people-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* 🔷 Responsive */
+@media (max-width: 768px) {
+  .card-people-img {
+    width: 120px;
+    height: 120px;
+  }
+  .card-people {
+    padding: 15px 10px;
+  }
+}
+
+.card-people {
+  padding: 20px 10px;
+  transition: all 0.3s ease;
+}
+.card-people:hover {
+  background-color: #f3f4f6;
+  border-radius: 12px;
+} /* 🔷 บุคลากร */
+.card-people {
+  text-align: center;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 10px;
+}
+.card-people img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 10px auto;
+  display: block;
+  border: 4px solid #e5e7eb;
+  transition: transform 0.3s ease;
+}
+.card-people img:hover {
+  transform: scale(1.05);
+}
+.card-people .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 5px;
 }

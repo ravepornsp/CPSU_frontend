@@ -268,13 +268,11 @@ const fetchCalendarEvents = async () => {
                   });
 
                   return (
-                    // เพิ่ม return ตรงนี้
                     <li className="list-group-item" key={event.calendar_id}>
                       <div id="box-calendar">
                         <p>{shortDate}</p>
                       </div>
                       <div>
-                        {/* <p id="calendar-date">{fullDate}</p> */}
                         <p id="calendar-title">{event.title}</p>
                       </div>
                     </li>
@@ -289,13 +287,13 @@ const fetchCalendarEvents = async () => {
       {/* Courses */}
       <div className="course-homepage">
         <p>หลักสูตร</p>
-        <h2>หลักสูตรที่เปิดสอน</h2>
+        <h4>หลักสูตรที่เปิดสอน</h4>
 
         <div className="row row-cols-1 row-cols-md-3 g-4">
           <div className="col card-wrapper">
             <div className="card h-100 d-flex flex-column justify-content-between">
               <div className="card-body">
-                <h5>ปริญญาตรี</h5>
+                <p id="degree-name">ปริญญาตรี</p>
                 <ul>
                   <li>สาขาเทคโนโลยีสารสนเทศ</li>
                   <li>สาขาวิชาวิทยาการคอมพิวเตอร์</li>
@@ -312,7 +310,7 @@ const fetchCalendarEvents = async () => {
           <div className="col card-wrapper">
             <div className="card h-100">
               <div className="card-body">
-                <h5>ปริญญาโท</h5>
+                <p id="degree-name">ปริญญาโท</p>
                 <ul>
                   <li>สาขาเทคโนโลยีสารสนเทศ</li>
                   <li>สาขาเทคโนโลยีสารสนเทศ และนวัตกรรมดิจิทัล</li>
@@ -328,7 +326,7 @@ const fetchCalendarEvents = async () => {
           <div className="col card-wrapper">
             <div className="card h-100">
               <div className="card-body">
-                <h5>ปริญญาเอก</h5>
+                <p id="degree-name">ปริญญาเอก</p>
                 <ul>
                   <li>สาขาเทคโนโลยีสารสนเทศ</li>
                   <li>สาขาเทคโนโลยีสารสนเทศ และนวัตกรรมดิจิทัล</li>
@@ -365,7 +363,7 @@ const fetchCalendarEvents = async () => {
               .slice(0, 3)
               .map((item) => (
                 <div className="col" key={item.news_id}>
-                  <div className="card h-300">
+                  <div className="card h-300" id="news-homepage">
                     <img
                       src={
                         item.images && item.images.length > 0
@@ -399,7 +397,7 @@ const fetchCalendarEvents = async () => {
                 .slice(0, 4)
                 .map((item) => (
                   <div className="col" key={item.news_id}>
-                    <div className="card h-300">
+                    <div className="card h-300" id="news-homepage">
                       <img
                         src={
                           item.images && item.images.length > 0
@@ -443,10 +441,10 @@ const fetchCalendarEvents = async () => {
         <div className="personnel-carousel d-flex align-items-center justify-content-between">
           {/* ปุ่มย้อนกลับ */}
           <button className="arrow-button" onClick={prevSlide}>
-            &#8592;
+            {"<"}
           </button>
 
-          {/* คาร์ดบุคลากร */}
+          {/* การ์ดบุคลากร */}
           <div className="row row-cols-1 row-cols-md-5 g-4 flex-grow-1 mx-3">
             {currentPersonnel.map((personnel, personnel_id) => (
               <div className="col" key={personnel_id}>
@@ -465,7 +463,7 @@ const fetchCalendarEvents = async () => {
 
           {/* ปุ่มถัดไป */}
           <button className="arrow-button" onClick={nextSlide}>
-            &#8594;
+          {">"}
           </button>
         </div>
       </div>

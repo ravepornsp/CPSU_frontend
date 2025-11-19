@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/login.css";
 import Navbar from "../component/navbar";
 import Headers from "../component/header";
@@ -7,10 +8,22 @@ import Footer from "../component/footer";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 👉 ตรงนี้สามารถใส่ logic ตรวจสอบ / call API ได้
+
+    // 👉 ตรวจสอบ username และ password
+    if (username === "test" && password === "test") {
+      console.log("Login success!");
+      navigate("/teacher/information");
+
+      const userId = 13;
+      navigate("/teacher/information", { state: { userId } });
+    } else {
+      alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+    }
+
     console.log("Username:", username);
     console.log("Password:", password);
   };

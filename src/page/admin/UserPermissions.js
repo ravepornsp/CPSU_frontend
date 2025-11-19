@@ -12,7 +12,7 @@ const usersMock = [
     id: 1,
     name: "กานต์พิชชา ธรรมรักษ์",
     username: "Karnpitcha",
-    role: "teacher",
+    role: "admin",
   },
   {
     id: 2,
@@ -36,14 +36,15 @@ const usersMock = [
     id: 5,
     name: "วิชญ์พล พรหมพิทักษ์",
     username: "Witphol",
-    role: "student",
+    role: "staff",
   },
 ];
 
 const roleOptions = [
   // { value: "admin", label: "Admin" },
   { value: "teacher", label: "อาจารย์" },
-  { value: "student", label: "นักศึกษา" },
+  { value: "staff", label: "เจ้าหน้าที่" },
+  { value: "admin", label: "แอดมิน" },
 ];
 
 function UserPermissions() {
@@ -75,7 +76,7 @@ function UserPermissions() {
             <div className="row">
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="user-title">กำหนดสิทธิ์ผู้ใช้</h3>
-                <Link to="/admin/user">+ เพิ่มผู้ใช้</Link>
+                <Link to="/admin/user" className="btn-user">+ เพิ่มผู้ใช้</Link>
               </div>
 
               <table className="table table-bordered">

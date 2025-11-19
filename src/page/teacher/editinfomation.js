@@ -1,51 +1,113 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "../../component/footer";
 import Header from "../../component/header";
 import Navbar from "../../component/navbar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const EditTeacherInformation = () => {
-  // ข้อมูล mock ของครู
-  const initialData = {
-    personnel_id: 1,
-    type_personnel: "สายวิชาการ",
-    department_position_name: "หัวหน้าภาควิชา",
-    thai_academic_position: "ผศ.ดร.",
-    eng_academic_position: "Asst.Prof.Dr.",
-    thai_name: "สิรักข์ แก้วจำนงค์",
-    eng_name: "Sirak Kaewjamnong",
-    education: `Ph.D. (Computer Science) Lancaster University, UK (2015)
-วศ.ม. (วิศวกรรมคอมพิวเตอร์) มหาวิทยาลัยเกษตรศาสตร์ (2544)
-วท.บ. (วิทยาการคอมพิวเตอร์) สถาบันเทคโนโลยีราชมงคล (2540)`,
-    related_fields: `Computer Network Architectures
-Algorithms and Protocols`,
-    email: "kaewjamnong_s@su.ac.th",
-    website: "https://webserv.cp.su.ac.th/lecturer/sirak",
-    file_image:
-      "https://cpsu-website.s3.ap-southeast-2.amazonaws.com/images/personnel/Sirak.jpg",
-  };
-
-  const [formData, setFormData] = useState(initialData);
+  const location = useLocation();
+  const id = location.state?.userId;
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/v1/admin/personnel/${id}`
+        );
+        const personnel = res.data.personnel;
+        setFormData(personnel);
+        setPreviewImage(personnel.file_image || null);
+      } catch (err) {
+        console.error("Error fetching personnel:", err);
+        alert("ไม่สามารถโหลดข้อมูลบุคลากรได้");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "department_position_id" ? Number(value) : value,
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("บันทึกข้อมูลเรียบร้อย");
-    navigate("/teacher/information");
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewImage(reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(formData.file_image || null);
+    }
   };
 
-  const handleCancel = () => {
-    // reset ข้อมูลกลับเป็นต้นฉบับ
-    setFormData(initialData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const formDataObj = new FormData();
+
+      // Append ทุก field ยกเว้น file_image
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== "file_image") {
+          formDataObj.append(key, value || "");
+        }
+      });
+
+      // Append file_image
+      if (selectedFile) {
+        // ถ้ามีไฟล์ใหม่ ให้ส่งไฟล์
+        formDataObj.append("file_image", selectedFile);
+      } else if (formData.file_image) {
+        // ถ้าไม่มีไฟล์ใหม่ ให้ส่ง URL เดิม
+        formDataObj.append("file_image", formData.file_image);
+      }
+
+      await axios.put(
+        `http://localhost:8080/api/v1/teacher/personnel/${id}`,
+        formDataObj,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      alert("บันทึกข้อมูลเรียบร้อย");
+      navigate("/teacher/information", { state: { userId: id } });
+    } catch (err) {
+      console.error("Error updating personnel:", err);
+      alert("ไม่สามารถบันทึกข้อมูลได้");
+    }
   };
+
+  const handleCancel = () =>
+    navigate("/teacher/information", { state: { userId: id } });
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <Navbar />
+        <div className="container text-center my-5">
+          <div className="spinner-border text-primary" role="status"></div>
+          <p className="mt-3">กำลังโหลดข้อมูล...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -60,7 +122,7 @@ Algorithms and Protocols`,
               type="text"
               className="form-control"
               name="department_position_name"
-              value={formData.department_position_name}
+              value={formData.department_position_name || ""}
               onChange={handleChange}
               required
             />
@@ -72,7 +134,7 @@ Algorithms and Protocols`,
               type="text"
               className="form-control"
               name="thai_academic_position"
-              value={formData.thai_academic_position}
+              value={formData.thai_academic_position || ""}
               onChange={handleChange}
             />
           </div>
@@ -83,7 +145,7 @@ Algorithms and Protocols`,
               type="text"
               className="form-control"
               name="eng_academic_position"
-              value={formData.eng_academic_position}
+              value={formData.eng_academic_position || ""}
               onChange={handleChange}
             />
           </div>
@@ -94,7 +156,7 @@ Algorithms and Protocols`,
               type="text"
               className="form-control"
               name="thai_name"
-              value={formData.thai_name}
+              value={formData.thai_name || ""}
               onChange={handleChange}
               required
             />
@@ -106,7 +168,7 @@ Algorithms and Protocols`,
               type="text"
               className="form-control"
               name="eng_name"
-              value={formData.eng_name}
+              value={formData.eng_name || ""}
               onChange={handleChange}
             />
           </div>
@@ -117,12 +179,9 @@ Algorithms and Protocols`,
               className="form-control"
               rows={4}
               name="education"
-              value={formData.education}
+              value={formData.education || ""}
               onChange={handleChange}
             ></textarea>
-            <small className="form-text text-muted">
-              กรอกข้อมูลโดยเว้นบรรทัดใหม่สำหรับแต่ละบรรทัด
-            </small>
           </div>
 
           <div className="mb-3">
@@ -131,12 +190,9 @@ Algorithms and Protocols`,
               className="form-control"
               rows={2}
               name="related_fields"
-              value={formData.related_fields}
+              value={formData.related_fields || ""}
               onChange={handleChange}
             ></textarea>
-            <small className="form-text text-muted">
-              กรอกข้อมูลโดยเว้นบรรทัดใหม่สำหรับแต่ละบรรทัด
-            </small>
           </div>
 
           <div className="mb-3">
@@ -145,7 +201,7 @@ Algorithms and Protocols`,
               type="email"
               className="form-control"
               name="email"
-              value={formData.email}
+              value={formData.email || ""}
               onChange={handleChange}
               required
             />
@@ -157,20 +213,28 @@ Algorithms and Protocols`,
               type="url"
               className="form-control"
               name="website"
-              value={formData.website}
+              value={formData.website || ""}
               onChange={handleChange}
             />
           </div>
 
           <div className="mb-3">
-            <label className="form-label">URL รูปภาพ</label>
+            <label className="form-label">ไฟล์รูปภาพ</label>
             <input
-              type="url"
+              type="file"
               className="form-control"
               name="file_image"
-              value={formData.file_image}
-              onChange={handleChange}
+              onChange={handleFileChange}
             />
+            {previewImage && (
+              <div className="mt-3">
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  style={{ maxWidth: "200px", maxHeight: "200px" }}
+                />
+              </div>
+            )}
           </div>
 
           <button type="submit" className="btn btn-primary me-2">

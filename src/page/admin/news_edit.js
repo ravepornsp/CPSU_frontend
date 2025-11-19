@@ -54,9 +54,8 @@ const Edit_News = () => {
         setUrlDetail(data.detail_url || "");
 
         if (data.images && data.images.length > 0) {
-          // สมมติว่า images[0] เป็น cover
           const urls = data.images.map((img) => img.file_image);
-          const cover = urls[0];
+          const cover = data.cover_image
           const others = urls.slice(1);
 
           setCoverUrl(cover);
