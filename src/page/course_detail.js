@@ -11,14 +11,14 @@ import Breadcrumb from "../component/Breadcrumb";
 const Course_detail = () => {
   const { course_id } = useParams();
   const [course, setCourse] = useState(null);
-  const [structure, setStructure] = useState(null);
+  const [structure, setStructure] = useState([]);
   const [roadmap, setRoadmap] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "overview"; // fallback tab
+  const initialTab = searchParams.get("tab") || "overview";
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
@@ -27,53 +27,40 @@ const Course_detail = () => {
       setError(null);
       try {
         // ดึงข้อมูลหลักสูตร
-        const courseRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/course"
-        );
-        const foundCourse = courseRes.data.find(
-          (c) => c.course_id === course_id
-        );
+        const courseRes = await axios.get("http://localhost:8080/api/v1/admin/course");
+        const courses = Array.isArray(courseRes.data) ? courseRes.data : [];
+        const foundCourse = courses.find((c) => c.course_id === course_id);
         setCourse(foundCourse || null);
 
         // ดึงข้อมูลโครงสร้างหลักสูตร
-        const structureRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/structure"
-        );
-        const foundStructure = structureRes.data.find(
-          (s) => s.course_id === course_id
-        );
+        const structureRes = await axios.get("http://localhost:8080/api/v1/admin/structure");
+        const structures = Array.isArray(structureRes.data) ? structureRes.data : [];
+        const foundStructure = structures.find((s) => s.course_id === course_id);
         if (foundStructure && foundStructure.detail) {
-          const parsedStructure = foundStructure.detail
-            .split("\n")
-            .map((line) => {
-              const [no, name, plan, credit, level] = line.split("|");
-              return { no, name, plan, credit, level: Number(level) };
-            });
+          const parsedStructure = foundStructure.detail.split("\n").map((line) => {
+            const [no, name, plan, credit, level] = line.split("|");
+            return { no, name, plan, credit, level: Number(level) };
+          });
           setStructure(parsedStructure);
         } else {
           setStructure([]);
         }
 
         // ดึงข้อมูล roadmap
-        const roadmapRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/roadmap"
-        );
-        const foundRoadmap = roadmapRes.data.find(
-          (r) => r.course_id === course_id
-        );
+        const roadmapRes = await axios.get("http://localhost:8080/api/v1/admin/roadmap");
+        const roadmaps = Array.isArray(roadmapRes.data) ? roadmapRes.data : [];
+        const foundRoadmap = roadmaps.find((r) => r.course_id === course_id);
         setRoadmap(foundRoadmap || null);
 
         // ดึงข้อมูลรายวิชา
-        const subjectsRes = await axios.get(
-          "http://localhost:8080/api/v1/admin/subject"
-        );
-        const filteredSubjects = subjectsRes.data.filter(
-          (subj) => subj.course_id === course_id
-        );
+        const subjectsRes = await axios.get("http://localhost:8080/api/v1/admin/subject");
+        const subjectsData = Array.isArray(subjectsRes.data) ? subjectsRes.data : [];
+        const filteredSubjects = subjectsData.filter((subj) => subj.course_id === course_id);
         setSubjects(filteredSubjects);
 
         setLoading(false);
       } catch (err) {
+        console.error(err);
         setError("ไม่พบข้อมูลหลักสูตรที่ต้องการ");
         setLoading(false);
       }
@@ -86,8 +73,8 @@ const Course_detail = () => {
   const groupSubjectsByYearSemesterAndPlan = (subjects) => {
     const grouped = {};
     subjects.forEach((subj) => {
-      const year = subj.study_year || " ";
-      const semester = subj.semester || "เทอมที่ไม่ระบุ";
+      const year = subj.study_year || "ปีไม่ระบุ";
+      const semester = subj.semester || "เทอมไม่ระบุ";
       const plan = subj.plan_type || "ทั่วไป";
       if (!grouped[year]) grouped[year] = {};
       if (!grouped[year][semester]) grouped[year][semester] = {};
@@ -99,27 +86,13 @@ const Course_detail = () => {
 
   const groupedSubjects = groupSubjectsByYearSemesterAndPlan(subjects);
 
-  // กำหนด tab ที่มีข้อมูล
   const tabs = [
     { key: "overview", label: "ภาพรวมหลักสูตร", show: course !== null },
-    {
-      key: "structure",
-      label: "โครงสร้างหลักสูตร",
-      show: structure && structure.length > 0,
-    },
-    {
-      key: "roadmap",
-      label: "แผนผังหลักสูตร",
-      show: roadmap && roadmap.roadmap_url,
-    },
-    {
-      key: "subjects",
-      label: "รายวิชา",
-      show: subjects && subjects.length > 0,
-    },
+    { key: "structure", label: "โครงสร้างหลักสูตร", show: structure.length > 0 },
+    { key: "roadmap", label: "แผนผังหลักสูตร", show: roadmap && roadmap.roadmap_url },
+    { key: "subjects", label: "รายวิชา", show: subjects.length > 0 },
   ].filter((tab) => tab.show);
 
-  // เปลี่ยน activeTab ถ้า tab ปัจจุบันไม่มีข้อมูล
   useEffect(() => {
     if (!tabs.find((tab) => tab.key === activeTab)) {
       setActiveTab(tabs[0]?.key || "overview");
@@ -145,7 +118,7 @@ const Course_detail = () => {
         <Headers />
         <Navbar />
         <div className="container text-center my-5">
-          <h3>ไม่พบหลักสูตรที่คุณเลือก</h3>
+          <h3>{error || "ไม่พบหลักสูตรที่คุณเลือก"}</h3>
           <Link to="/course">กลับไปหน้ารายการหลักสูตร</Link>
         </div>
         <Footer />
@@ -163,14 +136,12 @@ const Course_detail = () => {
         ]}
       />
       <div className="container my-5">
-        <h2>
-          {course.thai_course} ({course.year})
-        </h2>
+        <h2>{course.thai_course} ({course.year})</h2>
         <h4>{course.eng_course}</h4>
         <h5>{course.degree}</h5>
 
         {/* Tab navigation */}
-        <ul className="nav nav-tabs" id="tab-course">
+        <ul className="nav nav-tabs">
           {tabs.map((tab) => (
             <li className="nav-item" key={tab.key}>
               <button
@@ -183,59 +154,48 @@ const Course_detail = () => {
           ))}
         </ul>
 
-        {/* Tab content */}
-        <div className="tab-content mt-3" id="course-tab-content">
+        <div className="tab-content mt-3">
+          {/* Overview */}
           {activeTab === "overview" && (
             <div>
               <div className="mb-3">
                 <h4>ชื่อหลักสูตร</h4>
-
-                <div style={{ display: "flex", marginBottom: "0.5rem" }}>
-                  <h5 style={{ width: "150px", margin: 0 }}>ภาษาไทย</h5>
-                  <p style={{ margin: 0, paddingLeft: "1rem" }}>
-                    {course.thai_course}
-                  </p>
+                <div style={{ display: "flex" }}>
+                  <h5 style={{ width: "150px" }}>ภาษาไทย</h5>
+                  <p>{course.thai_course}</p>
                 </div>
-
-                <div style={{ display: "flex", marginBottom: "0.5rem" }}>
-                  <h5 style={{ width: "150px", margin: 0 }}>ภาษาอังกฤษ</h5>
-                  <p style={{ margin: 0, paddingLeft: "1rem" }}>
-                    {course.eng_course}
-                  </p>
+                <div style={{ display: "flex" }}>
+                  <h5 style={{ width: "150px" }}>ภาษาอังกฤษ</h5>
+                  <p>{course.eng_course}</p>
                 </div>
               </div>
 
               <hr />
               <div className="mb-3">
                 <h4>ชื่อปริญญา</h4>
-
-                <div style={{ display: "flex", marginBottom: "0.5rem" }}>
-                  <h5 style={{ width: "150px", margin: 0 }}>ภาษาไทย</h5>
-                  <p style={{ margin: 0, paddingLeft: "1rem" }}>
-                    {course.thai_degree}
-                  </p>
+                <div style={{ display: "flex" }}>
+                  <h5 style={{ width: "150px" }}>ภาษาไทย</h5>
+                  <p>{course.thai_degree}</p>
                 </div>
-
-                <div style={{ display: "flex", marginBottom: "0.5rem" }}>
-                  <h5 style={{ width: "150px", margin: 0 }}>ภาษาอังกฤษ</h5>
-                  <p style={{ margin: 0, paddingLeft: "1rem" }}>
-                    {course.eng_degree}
-                  </p>
+                <div style={{ display: "flex" }}>
+                  <h5 style={{ width: "150px" }}>ภาษาอังกฤษ</h5>
+                  <p>{course.eng_degree}</p>
                 </div>
               </div>
 
               <hr />
-              <div className="text-overview">
-                <h4>เกณท์การเข้าศึกษาและเกณท์การสำเร็จการศึกษา</h4>
-                <div className="text-start">
+              <div className="mb-3">
+                <h4>เกณฑ์การเข้าศึกษาและเกณฑ์การสำเร็จการศึกษา</h4>
+                <div>
                   <h5>เกณฑ์การเข้าศึกษา</h5>
                   <p>{course.admission_req}</p>
                 </div>
-                <div className="text-start">
+                <div>
                   <h5>เกณฑ์การสำเร็จการศึกษา</h5>
                   <p>{course.graduation_req}</p>
                 </div>
               </div>
+
               <hr />
               <div className="mb-3">
                 <h5>ปรัชญาของหลักสูตร</h5>
@@ -258,33 +218,32 @@ const Course_detail = () => {
               </div>
               <hr />
               <div className="mb-3">
-                <h5>อาชีพที่สามารถประกอบได้หลังสําเร็จการศึกษา</h5>
-                {course.career_paths.split("\n").map((item, index) => (
+                <h5>อาชีพที่สามารถประกอบได้หลังสำเร็จการศึกษา</h5>
+                {course.career_paths?.split("\n").map((item, index) => (
                   <p key={index}>{item}</p>
                 ))}
               </div>
               <hr />
               <div className="mb-3">
                 <h5>รายละเอียดผลการเรียนรู้ที่คาดหวังของหลักสูตร (PLOs)</h5>
-                {course.plo.split("\n").map((item, index) => (
+                {course.plo?.split("\n").map((item, index) => (
                   <p key={index}>{item}</p>
                 ))}
               </div>
               <hr />
               <div className="mb-3">
                 <h5>รายละเอียดเพิ่มเติม</h5>
-                <a
-                  href={course.detail_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {course.detail_url}
-                </a>
+                {course.detail_url && (
+                  <a href={course.detail_url} target="_blank" rel="noopener noreferrer">
+                    {course.detail_url}
+                  </a>
+                )}
               </div>
             </div>
           )}
 
-          {activeTab === "structure" && structure && structure.length > 0 && (
+          {/* Structure */}
+          {activeTab === "structure" && structure.length > 0 && (
             <div>
               <h4>โครงสร้างหลักสูตร</h4>
               <div style={{ fontSize: "18px", margin: "30px" }}>
@@ -295,23 +254,12 @@ const Course_detail = () => {
                       display: "flex",
                       justifyContent: "space-between",
                       marginLeft: `${(row.level - 1) * 35}px`,
-                      fontWeight: [1, 2].includes(row.level)
-                        ? "bold"
-                        : "normal",
+                      fontWeight: [1, 2].includes(row.level) ? "bold" : "normal",
                       marginBottom: "4px",
                     }}
                   >
-                    <div style={{ whiteSpace: "nowrap" }}>
-                      {row.no} {row.name}
-                    </div>
-                    <div
-                      style={{
-                        width: "150px",
-                        whiteSpace: "nowrap",
-                        fontWeight: "bold",
-                        textAlign: "left",
-                      }}
-                    >
+                    <div>{row.no} {row.name}</div>
+                    <div style={{ width: "150px", textAlign: "left", fontWeight: "bold" }}>
                       {row.credit}
                     </div>
                   </div>
@@ -320,6 +268,7 @@ const Course_detail = () => {
             </div>
           )}
 
+          {/* Roadmap */}
           {activeTab === "roadmap" && roadmap && roadmap.roadmap_url && (
             <div>
               <h4>แผนผังหลักสูตร</h4>
@@ -333,7 +282,8 @@ const Course_detail = () => {
             </div>
           )}
 
-          {activeTab === "subjects" && subjects && subjects.length > 0 && (
+          {/* Subjects */}
+          {activeTab === "subjects" && subjects.length > 0 && (
             <div>
               <h4>รายวิชาในหลักสูตร</h4>
               {Object.entries(groupedSubjects).map(([year, semesters]) => (
@@ -357,15 +307,10 @@ const Course_detail = () => {
                               {subs.map((subj) => (
                                 <tr key={subj.subject_id}>
                                   <td>
-                                    {["SUxxx", "SUXXX", "------"].includes(
-                                      subj.subject_id
-                                    ) ? (
-                                      subj.subject_id
-                                    ) : (
-                                      <Link to={`/subject/${subj.id}`}>
-                                        {subj.subject_id}
-                                      </Link>
-                                    )}
+                                    {["SUxxx", "SUXXX", "------"].includes(subj.subject_id)
+                                      ? subj.subject_id
+                                      : <Link to={`/subject/${subj.id}`}>{subj.subject_id}</Link>
+                                    }
                                   </td>
                                   <td>{subj.thai_subject}</td>
                                   <td>{subj.credits}</td>

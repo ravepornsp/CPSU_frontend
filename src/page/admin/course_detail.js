@@ -36,10 +36,10 @@ const Detail_course = () => {
 
   useEffect(() => {
     axios
-    .get(`http://localhost:8080/api/v1/admin/course/${id}`)
-    .then((res) => {
-      // console.log("Course Detail:", res.data);
-      console.log("Course ID:", id);
+      .get(`http://localhost:8080/api/v1/admin/course/${id}`)
+      .then((res) => {
+        // console.log("Course Detail:", res.data);
+        console.log("Course ID:", id);
         setCourseDetail(res.data);
       })
       .catch((err) => {
@@ -86,7 +86,6 @@ const Detail_course = () => {
           </div>
           <div className="col-sm-9">
             <div id="group-btn-header-detail">
-              
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <div className="edit_detele-position">
                   {courseDetail && (
@@ -232,20 +231,7 @@ const Detail_course = () => {
             <hr />
             <p id="text-header-coures">โครงสร้างหลักสูตร</p>
             <div className="structure-images">
-              {/* {structures.length > 0 ? (
-              structures.map((item) => (
-                <div key={item.structure_id} className="mb-3">
-                  <img
-                    src={item.course_structure_url}
-                    alt={item.thai_course}
-                    style={{ maxWidth: "100%", maxHeight: "400px" }}
-                  />
-                </div>
-              ))
-            ) : (
-              <p>ยังไม่มีไฟล์โครงสร้างหลักสูตร</p>
-            )} */}
-              {structures
+              {(structures || [])
                 .filter((st) => st.course_id === courseDetail?.course_id) // กรองตาม course_id
                 .map((st) => (
                   <div
@@ -268,7 +254,7 @@ const Detail_course = () => {
 
             <p id="text-header-coures">แผนการศึกษา</p>
             <div className="structure-images">
-              {roadmap
+              {(roadmap || [])
                 .filter((rp) => rp.course_id === courseDetail?.course_id)
                 .map((rp) => (
                   <div key={rp.roadmap_id} style={{ marginBottom: "20px" }}>
