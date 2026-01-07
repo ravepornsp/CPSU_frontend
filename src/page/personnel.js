@@ -5,6 +5,7 @@ import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/people.css";
 import { Link } from "react-router-dom";
+import Breadcrumb from "../component/Breadcrumb";
 
 const Personnel = () => {
   const [personnelList, setPersonnelList] = useState([]);
@@ -58,8 +59,13 @@ const Personnel = () => {
     <>
       <Headers />
       <Navbar />
+      <Breadcrumb
+        items={[
+          { label: "บุคลากร", path: "/personnel" },
+        ]}
+      />
       <div className="container my-5">
-        <h3 className="text-center mb-4">บุคลากร</h3>
+        {/* <h3 className="text-center mb-4">บุคลากร</h3> */}
 
         {/* Tabs */}
         <ul className="nav nav-tabs justify-content-center mb-4">

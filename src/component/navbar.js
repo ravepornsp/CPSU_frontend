@@ -17,16 +17,25 @@ const Navbar = () => {
             to="/home"
             className="d-flex align-items-center text-decoration-none"
           >
-            <div className="navbar-brand">
+            <div className="d-flex align-items-center gap-3">
               <img
                 src="/images/cpsu.png"
-                className="img-logo"
                 alt="CPSU Logo"
+                className="img-fluid"
+                style={{ maxWidth: "50px" }}
               />
-            </div>
-            <div>
-              <h5 className="label-cpsu1">ภาควิชาคอมพิวเตอร์</h5>
-              <p className="label-cpsu2">คณะวิทยาศาสตร์ มหาวิทยาลัยศิลปากร</p>
+
+              <div>
+                <h5
+                  className="mb-0 text-muted text-start"
+                  // style={{ margin: "5px" }}
+                >
+                ภาควิชาคอมพิวเตอร์
+                </h5>
+                <p className="mb-0 text-muted">
+                คณะวิทยาศาสตร์ มหาวิทยาลัยศิลปากร
+                </p>
+              </div>
             </div>
           </Link>
 
@@ -38,12 +47,24 @@ const Navbar = () => {
 
         {/* Navigation links */}
         <div className={`layout-button-nav ${isOpen ? "open" : ""}`}>
-          <Link to="/news" onClick={() => setIsOpen(false)}>ข่าวสาร</Link>
-          <Link to="/personnel" onClick={() => setIsOpen(false)}>บุคลากร</Link>
-          <Link to="/course" onClick={() => setIsOpen(false)}>หลักสูตร</Link>
-          <Link to="/admission" onClick={() => setIsOpen(false)}>การรับสมัคร</Link>
-          <Link to="/document" onClick={() => setIsOpen(false)}>เอกสาร</Link>
-          <Link to="/about" onClick={() => setIsOpen(false)}>เกี่ยวกับภาควิชา</Link>
+          <Link to="/news" onClick={() => setIsOpen(false)}>
+            ข่าวสาร
+          </Link>
+          <Link to="/personnel" onClick={() => setIsOpen(false)}>
+            บุคลากร
+          </Link>
+          <Link to="/course" onClick={() => setIsOpen(false)}>
+            หลักสูตร
+          </Link>
+          <Link to="/admission" onClick={() => setIsOpen(false)}>
+            การรับสมัคร
+          </Link>
+          <Link to="/document" onClick={() => setIsOpen(false)}>
+            เอกสาร
+          </Link>
+          <Link to="/about" onClick={() => setIsOpen(false)}>
+            เกี่ยวกับภาควิชา
+          </Link>
         </div>
       </div>
     </div>

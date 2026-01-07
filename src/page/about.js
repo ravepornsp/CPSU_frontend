@@ -3,6 +3,7 @@ import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/about.css";
+import Breadcrumb from "../component/Breadcrumb";
 
 const About = () => {
   useEffect(() => {
@@ -32,11 +33,16 @@ const About = () => {
     <>
       <Headers />
       <Navbar />
+       <Breadcrumb
+        items={[
+          { label: "เกี่ยวกับภาควิชา", path: "/about" },
+        ]}
+      />
 
       <div className="container about-container">
         <div className="row justify-content-center">
           <div className="col-md-10">
-            <h2 className="section-title">เกี่ยวกับภาควิชาคอมพิวเตอร์</h2>
+            {/* <h2 className="section-title">เกี่ยวกับภาควิชาคอมพิวเตอร์</h2> */}
 
             {/* Section: ประวัติภาควิชา */}
             <section className="about-section">

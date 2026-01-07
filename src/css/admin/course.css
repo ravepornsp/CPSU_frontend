@@ -27,14 +27,14 @@
 }
 
 /* หัวข้อระดับปริญญาแบบขีดเส้นใต้ */
-.degree-header {
+/* .degree-header {
   font-size: 20px;
   font-weight: 600;
   margin: 30px 0 15px;
   padding-bottom: 6px;
   border-bottom: 3px solid currentColor;
   display: inline-block;
-}
+} */
 
 /* สีเฉพาะแต่ละระดับ */
 #header-bachelor {

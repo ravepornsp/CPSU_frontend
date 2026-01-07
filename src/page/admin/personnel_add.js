@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Headers from "../../component/header";
@@ -9,7 +9,6 @@ import "../../css/admin/personnel.css";
 
 function PersonnelAdd() {
   const navigate = useNavigate();
-  const [positions, setPositions] = useState([]);
 
   const academicPositions = [
     { id: 1, thai: "รศ.ดร.", eng: "Assoc.Prof.Dr." },
@@ -18,6 +17,7 @@ function PersonnelAdd() {
     { id: 4, thai: "อ.ดร.", eng: "Dr." },
     { id: 5, thai: "อ.", eng: "" },
   ];
+
   const departmentPositions = [
     { id: 1, name: "หัวหน้าภาควิชา" },
     { id: 2, name: "รองหัวหน้าภาควิชาฯ ฝ่ายบริหาร" },
@@ -31,11 +31,15 @@ function PersonnelAdd() {
     { id: 10, name: "นักคอมพิวเตอร์" },
     { id: 11, name: "พนักงานทั่วไป" },
   ];
+
+  const academicDeptIds = [1, 2, 3, 4];
+  const supportDeptIds = [5, 6, 7, 8, 9, 10, 11];
+
   const [formData, setFormData] = useState({
-    type_personnel: "สายวิชาการ",
+    type_personnel: "",
     department_position_id: "",
     department_position_name: "",
-    academic_position_id: null,
+    academic_position_id: "",
     thai_academic_position: "",
     eng_academic_position: "",
     thai_name: "",
@@ -51,33 +55,10 @@ function PersonnelAdd() {
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchPositions = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:8080/api/v1/admin/personnel"
-        );
-        const personnelList = res.data.personnel
-          ? [res.data.personnel]
-          : res.data;
-
-        // ดึง department_position_id + department_position_name แบบ unique
-        const uniquePositions = [
-          ...new Map(
-            personnelList.map((p) => [
-              p.department_position_id,
-              p.department_position_name,
-            ])
-          ).entries(),
-        ].map(([id, name]) => ({ id: Number(id), name }));
-
-        setPositions(uniquePositions);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchPositions();
-  }, []);
+  const filteredDepartmentPositions =
+    formData.type_personnel === "สายวิชาการ"
+      ? departmentPositions.filter((p) => academicDeptIds.includes(p.id))
+      : departmentPositions.filter((p) => supportDeptIds.includes(p.id));
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -86,64 +67,68 @@ function PersonnelAdd() {
       const file = files[0];
       setFormData({ ...formData, file_image: file });
       setPreviewImage(URL.createObjectURL(file));
-    } else if (name === "department_position_id") {
+      return;
+    }
+
+    if (name === "type_personnel") {
+      setFormData({
+        ...formData,
+        type_personnel: value,
+        department_position_id: "",
+        department_position_name: "",
+        academic_position_id: "",
+        thai_academic_position: "",
+        eng_academic_position: "",
+        thai_name: "",
+        eng_name: "",
+        education: "",
+        related_fields: "",
+        email: "",
+        website: "",
+        scopus_id: "",
+        file_image: null,
+      });
+      return;
+    }
+
+    if (name === "department_position_id") {
       const selected = departmentPositions.find((p) => p.id === Number(value));
       setFormData({
         ...formData,
         department_position_id: Number(value),
-        department_position_name: selected ? selected.name : "",
+        department_position_name: selected?.name || "",
       });
-    } else if (name === "academic_position_id") {
+      return;
+    }
+
+    if (name === "academic_position_id") {
       const selected = academicPositions.find((p) => p.id === Number(value));
       setFormData({
         ...formData,
         academic_position_id: Number(value),
-        thai_academic_position: selected ? selected.thai : "",
-        eng_academic_position: selected ? selected.eng : "",
+        thai_academic_position: selected?.thai || "",
+        eng_academic_position: selected?.eng || "",
       });
-    } else {
-      setFormData({ ...formData, [name]: value });
+      return;
     }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ตรวจสอบค่า department_position_id
-    console.log("Submitting data:", formData);
-
-    const pdata = {
-      type_personnel: formData.type_personnel,
-      department_position_id: formData.department_position_id,
-      department_position_name: formData.department_position_name,
-      academic_position_id: formData.academic_position_id || null,
-      thai_academic_position: formData.thai_academic_position,
-      eng_academic_position: formData.eng_academic_position,
-      thai_name: formData.thai_name,
-      eng_name: formData.eng_name,
-      education: formData.education,
-      related_fields: formData.related_fields,
-      email: formData.email,
-      website: formData.website,
-    };
-
     const data = new FormData();
-    data.append(
-      "personnel",
-      new Blob([JSON.stringify(pdata)], { type: "application/json" })
-    );
 
-    if (formData.file_image) {
-      data.append("file_image", formData.file_image);
-    }
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== "" && value !== null) data.append(key, value);
+    });
 
     try {
-      await axios.post("http://localhost:8080/api/v1/admin/personnel", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.post("http://localhost:8080/api/v1/admin/personnel", data);
+      alert("บันทึกข้อมูลบุคลากรสำเร็จ!");
       navigate("/admin/personnel");
     } catch (err) {
-      console.error("Error adding personnel:", err.response?.data || err);
+      console.error(err.response?.data || err);
       setError("เกิดข้อผิดพลาดในการเพิ่มบุคลากร");
     }
   };
@@ -157,195 +142,273 @@ function PersonnelAdd() {
           <div className="col-sm-3">
             <Menu />
           </div>
+
           <div className="col-sm-9">
             <div className="card shadow-sm">
               <div className="card-body">
-                <h4 className="card-title mb-4">เพิ่มบุคลากร</h4>
+                <h4 className="mb-4">เพิ่มบุคลากร</h4>
+
                 {error && <div className="alert alert-danger">{error}</div>}
+
                 <form onSubmit={handleSubmit} encType="multipart/form-data">
-                  <div className="col-md-6 mb-3">
-                    <input
-                      type="hidden"
+                  {/* ประเภทบุคลากร */}
+                  <div className="mb-3">
+                    <label>ประเภทบุคลากร</label>
+                    <select
+                      className="form-select"
                       name="type_personnel"
                       value={formData.type_personnel}
-                    />
-                    <label>ประเภทบุคลากร</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={formData.type_personnel}
-                      readOnly
-                    />
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">เลือกประเภท</option>
+                      <option value="สายวิชาการ">สายวิชาการ</option>
+                      <option value="สายสนับสนุนวิชาการ">
+                        สายสนับสนุนวิชาการ
+                      </option>
+                    </select>
                   </div>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label>ตำแหน่งในภาควิชา</label>
-                      <select
-                        className="form-select"
-                        name="department_position_id"
-                        value={formData.department_position_id || ""}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="">เลือกตำแหน่ง</option>
-                        {departmentPositions.map((pos) => (
-                          <option key={pos.id} value={pos.id}>
-                            {pos.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label>ตำแหน่งวิชาการ</label>
-                      <select
-                        className="form-select"
-                        name="academic_position_id"
-                        value={formData.academic_position_id || ""}
-                        onChange={handleChange}
-                      >
-                        <option value="">เลือกตำแหน่ง</option>
-                        {academicPositions.map((pos) => (
-                          <option key={pos.id} value={pos.id}>
-                            {pos.thai} {pos.eng && `(${pos.eng})`}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* ตำแหน่งในภาควิชา */}
+                  <div className="mb-3">
+                    <label>ตำแหน่งในภาควิชา</label>
+                    <select
+                      className="form-select"
+                      name="department_position_id"
+                      value={formData.department_position_id}
+                      onChange={handleChange}
+                      required
+                      disabled={!formData.type_personnel}
+                    >
+                      <option value="">เลือกตำแหน่ง</option>
+                      {filteredDepartmentPositions.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label>คำนำหน้าทางวิชาการ (TH)</label>
-                      <input
-                        type="text"
-                        name="thai_academic_position"
-                        className="form-control"
-                        value={formData.thai_academic_position}
-                        readOnly
-                      />
-                    </div>
+                  {/* สายวิชาการ */}
+                  {formData.type_personnel === "สายวิชาการ" && (
+                    <>
+                      <div className="mb-3">
+                        <label>ตำแหน่งวิชาการ</label>
+                        <select
+                          className="form-select"
+                          name="academic_position_id"
+                          value={formData.academic_position_id}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">เลือกตำแหน่ง</option>
+                          {academicPositions.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.thai} {p.eng && `(${p.eng})`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label>Academic Title (EN) Auto-fill</label>
-                      <input
-                        type="text"
-                        name="eng_academic_position"
-                        className="form-control"
-                        value={formData.eng_academic_position}
-                        readOnly
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label>ชื่อ-นามสกุล (TH)</label>
-                      <input
-                        type="text"
-                        name="thai_name"
-                        className="form-control"
-                        value={formData.thai_name}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label>Name (EN)</label>
-                      <input
-                        type="text"
-                        name="eng_name"
-                        className="form-control"
-                        value={formData.eng_name}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-12 mb-3">
-                      <label>ประวัติการศึกษา</label>
-                      <textarea
-                        name="education"
-                        className="form-control"
-                        rows={3}
-                        value={formData.education}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="col-12 mb-3">
-                      <label>สาขาที่เชี่ยวชาญ</label>
-                      <textarea
-                        name="related_fields"
-                        className="form-control"
-                        rows={2}
-                        value={formData.related_fields}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label>Email</label>
-                      <input
-                        type="email"
-                        name="email"
-                        className="form-control"
-                        value={formData.email}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label>เว็บไซต์ส่วนตัว</label>
-                      <input
-                        type="text"
-                        name="website"
-                        className="form-control"
-                        value={formData.website}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label>Scopus ID</label>
-                      <input
-                        type="text"
-                        name="scopus_id"
-                        className="form-control"
-                        value={formData.scopus_id}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label>อัปโหลดรูปภาพ</label>
-                      <input
-                        type="file"
-                        name="file_image"
-                        className="form-control"
-                        accept="image/*"
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3 text-center">
-                      {previewImage && (
-                        <img
-                          src={previewImage}
-                          alt="Preview"
-                          className="img-fluid rounded shadow"
-                          style={{ maxHeight: "200px" }}
+                      <div className="mb-3">
+                        <label>คำนำหน้าทางวิชาการ (TH)</label>
+                        <input
+                          className="form-control"
+                          value={formData.thai_academic_position}
+                          readOnly
                         />
-                      )}
-                    </div>
-                  </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label>Academic Title (EN)</label>
+                        <input
+                          className="form-control"
+                          value={formData.eng_academic_position}
+                          readOnly
+                        />
+                      </div>
+
+                      {/* ส่วนอื่นๆ สำหรับสายวิชาการ */}
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label>ชื่อ-นามสกุล (TH)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="thai_name"
+                            value={formData.thai_name}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label>Name (EN)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="eng_name"
+                            value={formData.eng_name}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label>ประวัติการศึกษา</label>
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          name="education"
+                          value={formData.education}
+                          onChange={handleChange}
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label>สาขาที่เชี่ยวชาญ</label>
+                        <textarea
+                          className="form-control"
+                          rows={2}
+                          name="related_fields"
+                          value={formData.related_fields}
+                          onChange={handleChange}
+                        />
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-4 mb-3">
+                          <label>Email</label>
+                          <input
+                            type="email"
+                            className="form-control"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                          />
+                        </div>
+                        <div className="col-md-4 mb-3">
+                          <label>เว็บไซต์ส่วนตัว</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="website"
+                            value={formData.website}
+                            onChange={handleChange}
+                          />
+                        </div>
+                        <div className="col-md-4 mb-3">
+                          <label>Scopus ID</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="scopus_id"
+                            value={formData.scopus_id}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label>อัปโหลดรูปภาพ</label>
+                          <input
+                            type="file"
+                            className="form-control"
+                            name="file_image"
+                            accept="image/*"
+                            onChange={handleChange}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3 text-center">
+                          {previewImage && (
+                            <img
+                              src={previewImage}
+                              alt="Preview"
+                              className="img-fluid rounded shadow"
+                              style={{ maxHeight: "200px" }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* สายสนับสนุนวิชาการ */}
+                  {/* สายสนับสนุนวิชาการ */}
+                  {formData.type_personnel === "สายสนับสนุนวิชาการ" && (
+                    <>
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label>ชื่อ-นามสกุล (TH)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="thai_name"
+                            value={formData.thai_name}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label>Name (EN)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="eng_name"
+                            value={formData.eng_name}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <label>Email</label>
+                        <input
+                          type="email"
+                          className="form-control"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      {/* เพิ่มช่องอัปโหลดรูปภาพ */}
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label>อัปโหลดรูปภาพ</label>
+                          <input
+                            type="file"
+                            className="form-control"
+                            name="file_image"
+                            accept="image/*"
+                            onChange={handleChange}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3 text-center">
+                          {previewImage && (
+                            <img
+                              src={previewImage}
+                              alt="Preview"
+                              className="img-fluid rounded shadow"
+                              style={{ maxHeight: "200px" }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <div className="d-flex justify-content-between mt-4">
                     <button
                       type="button"
-                      className="btn btn-secondary px-4"
+                      className="btn btn-secondary"
                       onClick={() => navigate("/admin/personnel")}
                     >
                       ยกเลิก
                     </button>
-                    <button type="submit" className="btn btn-success px-4">
+                    <button type="submit" className="btn btn-success">
                       บันทึก
                     </button>
                   </div>
@@ -355,7 +418,6 @@ function PersonnelAdd() {
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );

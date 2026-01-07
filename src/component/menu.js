@@ -12,6 +12,7 @@ const Menu = () => {
     { path: "/admin/course", label: "หลักสูตร", icon: "fas fa-book-open" },
     { path: "/admin/subject", label: "รายวิชา", icon: "fas fa-book" },
     { path: "/admin/calendar", label: "ปฏิทินกิจกรรม", icon: "fas fa-calendar-alt" },
+    { path: "/admin/admission", label: "การรับสมัคร", icon: "fas fa-bullhorn" },
     { path: "/admin/userpermissions", label: "กำหนดสิทธิ์ผู้ใช้", icon: "fas fa-user-shield" },
   ];
 

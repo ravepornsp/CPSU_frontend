@@ -5,6 +5,7 @@ import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/course.css";
 import { Link } from "react-router-dom";
+import Breadcrumb from "../component/Breadcrumb";
 
 const DEGREE_ORDER = ["ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"];
 
@@ -15,7 +16,9 @@ const Course = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/admin/course");
+        const res = await axios.get(
+          "http://localhost:8080/api/v1/admin/course"
+        );
         setCourses(res.data);
       } catch (err) {
         console.error("Error fetching courses:", err);
@@ -32,7 +35,8 @@ const Course = () => {
   const grouped = {};
   sortedCourses.forEach((course) => {
     if (!grouped[course.degree]) grouped[course.degree] = {};
-    if (!grouped[course.degree][course.major]) grouped[course.degree][course.major] = [];
+    if (!grouped[course.degree][course.major])
+      grouped[course.degree][course.major] = [];
     grouped[course.degree][course.major].push(course);
   });
 
@@ -41,6 +45,7 @@ const Course = () => {
       <>
         <Headers />
         <Navbar />
+
         <div className="container text-center my-5">
           <div className="spinner-border text-primary" role="status"></div>
           <p className="mt-3">กำลังโหลดข้อมูลหลักสูตร...</p>
@@ -54,16 +59,17 @@ const Course = () => {
     <>
       <Headers />
       <Navbar />
-
+      <Breadcrumb
+        items={[
+          { label: "หลักสูตร", path: "/course" },
+        ]}
+      />
       <div className="container my-5">
-        <h2 id="course-title" className="mb-4 text-center">
-          หลักสูตรทั้งหมด
-        </h2>
 
         {DEGREE_ORDER.map((degree) =>
           grouped[degree] ? (
             <div key={degree} className="degree-section mb-4">
-              <h3 className="degree-header mb-3">{degree}</h3>
+              <h2 className="degree-header mb-3">{"หลักสูตร"}{degree}</h2>
 
               {Object.entries(grouped[degree]).map(([major, courseList]) => (
                 <div key={major} className="major-section mb-3">

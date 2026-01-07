@@ -60,13 +60,13 @@
 }
 
 .degree-header {
-  background: linear-gradient(90deg, #38419d, #1e3a8a);
-  color: white;
+  /* background: linear-gradient(90deg, #38419d, #1e3a8a); */
+  /* color: white; */
   padding: 0.6rem 1rem;
   border-radius: 4px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-align: left;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center !important;
 }
 
 @media (max-width: 768px) {

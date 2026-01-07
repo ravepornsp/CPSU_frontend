@@ -12,12 +12,12 @@
   margin-bottom: 2rem;
 }
 
-.degree-header {
+/* .degree-header {
   font-weight: bold;
   font-size: 1.8rem;
   border-bottom: 2px solid #007bff;
   padding-bottom: 0.5rem;
-}
+} */
 
 /* Major Section */
 .major-section {
@@ -108,9 +108,11 @@
 
 .text-course-overview2 {
   display: flex;
-  justify-content: space-evenly;
-  /* text-align: left; */
+  justify-content: space-between; /* space-evenly จะทำให้ช่องห่างเกินไป */
+  text-align: left;
+  font-family: inherit;  /* ใช้ฟ้อนต์จาก root */
 }
+
 
 /* #course-tab-content{
   width: 70%;
@@ -165,3 +167,7 @@
   color: #fff;
 }
 
+.course-structure-table th,
+.course-structure-table td {
+  text-align: left !important;
+}

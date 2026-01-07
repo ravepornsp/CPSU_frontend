@@ -5,6 +5,7 @@ import Headers from "../component/header";
 import Navbar from "../component/navbar";
 import Footer from "../component/footer";
 import "../css/news_detail.css";
+import Breadcrumb from "../component/Breadcrumb";
 
 const NewsDetail = () => {
   const { news_id } = useParams();
@@ -35,51 +36,46 @@ const NewsDetail = () => {
     <>
       <Headers />
       <Navbar />
+      <Breadcrumb
+        items={[
+          { label: "ข่าวสาร", path: "/news" },
+          { label: news?.title || "รายละเอียดข่าว" },
+        ]}
+      />
       <div className="container py-5">
-    <h4>ข่าวสาร</h4>
-        <div className="row justify-content-center">
-          <div className="col-md-10">
-            <h2 className="mb-4">{news.title}</h2>
-            <p className="text-muted">
-              เผยแพร่เมื่อ{" "}
-              {new Date(news.created_at).toLocaleString("th-TH", {
-                dateStyle: "long",
-                timeStyle: "short",
-              })}
-            </p>
-
-            {/* แสดงรูปแบบ Carousel หากมีมากกว่า 1 รูป */}
+        {/* <h4>ข่าวสาร</h4> */}
+        <div className="row">
+          {/* ซ้าย : รูป / Carousel */}
+          <div className="col-md-5 mb-4">
+            {/* กรณีมีหลายรูป */}
             {news.images && news.images.length > 1 && (
               <div
                 id="newsCarousel"
-                className="carousel slide mb-4"
+                className="carousel slide"
                 data-bs-ride="carousel"
               >
                 <div className="carousel-inner">
                   {news.images.map((image, index) => (
                     <div
-                      className={`carousel-item ${index === 0 ? "active" : ""}`}
                       key={index}
+                      className={`carousel-item ${index === 0 ? "active" : ""}`}
                     >
                       <img
                         src={image.file_image}
-                        className="d-block w-100 carousel-img"
-                        alt={`News Image ${index + 1}`}
+                        className="d-block w-100 rounded"
+                        alt={`News ${index + 1}`}
                       />
                     </div>
                   ))}
                 </div>
+
                 <button
                   className="carousel-control-prev"
                   type="button"
                   data-bs-target="#newsCarousel"
                   data-bs-slide="prev"
                 >
-                  <span
-                    className="carousel-control-prev-icon"
-                    aria-hidden="true"
-                  ></span>
-                  <span className="visually-hidden">Previous</span>
+                  <span className="carousel-control-prev-icon" />
                 </button>
                 <button
                   className="carousel-control-next"
@@ -87,11 +83,7 @@ const NewsDetail = () => {
                   data-bs-target="#newsCarousel"
                   data-bs-slide="next"
                 >
-                  <span
-                    className="carousel-control-next-icon"
-                    aria-hidden="true"
-                  ></span>
-                  <span className="visually-hidden">Next</span>
+                  <span className="carousel-control-next-icon" />
                 </button>
               </div>
             )}
@@ -101,11 +93,23 @@ const NewsDetail = () => {
               <img
                 src={news.images[0].file_image}
                 alt={news.title}
-                className="img-fluid rounded mb-4 single-img"
+                className="img-fluid rounded"
               />
             )}
+          </div>
 
-            {/* เนื้อหาข่าว */}
+          {/* ขวา : เนื้อหาข่าว */}
+          <div className="col-md-7 text-start">
+            <h2 className="mb-3">{news.title}</h2>
+
+            <p className="text-muted mb-4 text-start">
+              เผยแพร่เมื่อ{" "}
+              {new Date(news.created_at).toLocaleString("th-TH", {
+                dateStyle: "long",
+                timeStyle: "short",
+              })}
+            </p>
+
             <div className="news-content">
               <p>{news.content || "ไม่มีเนื้อหาข่าวเพิ่มเติม"}</p>
             </div>

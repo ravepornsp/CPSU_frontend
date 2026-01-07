@@ -94,6 +94,7 @@ const Subject_add = () => {
         plan_type_id: "",
       });
 
+      alert("เพิ่มรายวิชาสำเร็จ")
       navigate("/admin/subject");
     } catch (err) {
       console.error(err);

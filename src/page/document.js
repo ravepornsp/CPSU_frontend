@@ -4,6 +4,7 @@ import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/document.css";
+import Breadcrumb from "../component/Breadcrumb";
 
 const petitionGroups = {
   "แบบฟอร์มทั่วไป": [
@@ -65,9 +66,14 @@ const Document = () => {
     <>
       <Headers />
       <Navbar />
+       <Breadcrumb
+        items={[
+          { label: "เอกสาร", path: "/document" },
+        ]}
+      />
 
       <div className="container document-container my-5">
-        <h2 className="section-title text-center mb-4">เอกสารคำร้องและแบบฟอร์ม</h2>
+        {/* <h2 className="section-title text-center mb-4">เอกสารคำร้องและแบบฟอร์ม</h2> */}
 
         <input
           type="text"

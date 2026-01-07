@@ -85,6 +85,13 @@ function Detail_Personnel() {
               </div>
             </div>
             <div className="card mt-4 shadow-sm p-4">
+              <div className="d-flex align-items-center mb-3">
+                <Link to="/admin/personnel" className="back-arrow me-2">
+                  &lt;
+                </Link>
+                <h4 className="mb-0">แก้ไขข้อมูลบุคลากร</h4>
+              </div>
+
               <div className="row">
                 <div className="col-md-4 text-center">
                   <img
@@ -96,57 +103,50 @@ function Detail_Personnel() {
                     }
                   />
                   <p className="mt-3">
-                    <strong>อีเมล:</strong> <br />
+                    <strong>อีเมล</strong> <br />
                     <a href={`mailto:${person.email}`}>{person.email}</a>
                   </p>
                   <p>
-                    <strong>เว็บไซต์:</strong> <br />
+                    <strong>เว็บไซต์</strong> <br />
                     <a href={person.website} target="_blank" rel="noreferrer">
                       {person.website}
                     </a>
                   </p>
                 </div>
                 <div className="col-md-8">
-                  <h4>
+                  <h4 className="text-start">
                     {person.thai_academic_position} {person.thai_name}
                   </h4>
-                  <p className="text-muted">
+                  <p className="text-muted text-start">
                     {person.eng_academic_position} {person.eng_name}
                   </p>
-                  <p>
-                    <strong>ตำแหน่งในภาควิชา:</strong>{" "}
+                  <p className="text-start">
+                    <strong>ตำแหน่งในภาควิชา</strong>{" "}
                     {person.department_position_name}
                   </p>
-                  <p>
-                    <strong>ประเภทบุคลากร:</strong> {person.type_personnel}
+                  <p className="text-start">
+                    <strong>ประเภทบุคลากร</strong> {person.type_personnel}
                   </p>
 
                   <hr />
 
-                  <h5>ประวัติการศึกษา</h5>
-                  <ul>
+                  <h5 className="text-start">ประวัติการศึกษา</h5>
+                  <ul className="list-unstyled text-start">
                     {person.education?.split("\n").map((line, i) => (
-                      <li key={i}>{line.trim()}</li>
+                      <li key={i}>- {line.trim()}</li>
                     ))}
                   </ul>
 
-                  <h5 className="mt-3">สาขาที่เชี่ยวชาญ</h5>
-                  <ul>
+                  <h5 className="mt-3 text-start">สาขาที่เชี่ยวชาญ</h5>
+                  <ul className="list-unstyled text-start">
                     {person.related_fields?.split("\n").map((line, i) => (
-                      <li key={i}>{line.trim()}</li>
+                      <li key={i}>- {line.trim()}</li>
                     ))}
                   </ul>
                 </div>
               </div>
 
-              <div className="text-end mt-4">
-                <Link
-                  to="/admin/personnel"
-                  className="btn btn-secondary btn-sm"
-                >
-                  ← กลับไปหน้ารายการบุคลากร
-                </Link>
-              </div>
+              <div className="text-end mt-4"></div>
             </div>
           </div>
         </div>

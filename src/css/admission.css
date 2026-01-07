@@ -1,14 +1,99 @@
-.accordion-button {
+/* ปุ่ม Tab */
+.nav-tabs .nav-link {
   font-weight: bold;
   background-color: #f8f9fa;
   color: #003366;
+  border: 1px solid #dee2e6;
+  margin-right: 4px;
 }
 
-.accordion-body h5 {
+/* Tab ที่ active */
+.nav-tabs .nav-link.active {
+  background-color: #ffffff;
+  color: #003366;
+  border-bottom: 1px solid transparent;
+}
+
+/* Hover tab */
+.nav-tabs .nav-link:hover {
+  background-color: #e9ecef;
+  color: #003366;
+}
+
+/* กล่องเนื้อหา Tab */
+.tab-content2 {
+  background-color: #ffffff;
+}
+
+/* หัวข้อภายใน tab (แทน .accordion-body h5) */
+.tab-content2 h5 {
   color: #1a237e;
 }
 
-.accordion-body ul {
+/* list ภายใน tab */
+.tab-content2 ul {
   padding-left: 1.2rem;
   list-style: square;
 }
+
+.tab-content2 {
+  margin: 0 auto;     /* จัดให้อยู่ตรงกลาง */
+  font-size: 0.9rem;  /* ลดขนาดตัวอักษร */
+  text-align: center; /* ให้ container กลาง แต่ข้อความในบล็อกจะชิดซ้ายอีกที */
+}
+
+.tab-content2 h4,
+.tab-content2 h5 {
+  text-align: left;  /* หัวข้อชิดซ้าย */
+  margin-bottom: 0.3rem;
+}
+
+.tab-content2 p {
+  text-align: left;  /* ข้อความปกติชิดซ้าย */
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.tab-content2 {
+  background-color: #ffffff;
+  margin: 0 auto;
+  font-size: 0.9rem;
+  text-align: left;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 6px;
+  min-height: 200px; /* ป้องกัน box กระโดด */
+}
+.tab-content2 .tab-pane {
+  display: none;
+}
+.tab-content2 .tab-pane.show.active {
+  display: block;
+}
+
+.admission-detail p {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+
+.admission-detail ul {
+  padding-left: 1.2rem;
+}
+
+.admission-detail a {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+
+.admission-detail ul {
+  padding-left: 1.2rem;
+}
+
+.admission-detail h5,
+.admission-detail h6 {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+

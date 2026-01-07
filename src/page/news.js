@@ -5,6 +5,7 @@ import axios from "axios";
 import Headers from "../component/header";
 import Navbar from "../component/navbar";
 import Footer from "../component/footer";
+import Breadcrumb from "../component/Breadcrumb";
 
 function News() {
   const [news, setNews] = useState([]);
@@ -38,15 +39,20 @@ function News() {
       ? news
       : news.filter((item) => item.type_id === activeTab);
 
-  function truncateText(text, maxLength = 35) {
-    if (!text) return "";
-    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
-  }
+  // function truncateText(text, maxLength = 35) {
+  //   if (!text) return "";
+  //   return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  // }
 
   return (
     <>
       <Headers />
       <Navbar />
+      <Breadcrumb
+        items={[
+          { label: "ข่าวสาร", path: "/news" },
+        ]}
+      />
       <div className="container text-center py-4">
         <div className="row mb-4">
           <div className="col">
@@ -89,11 +95,11 @@ function News() {
                     alt={item.title}
                     style={{ height: "200px", objectFit: "cover" }}
                   />
-                   <div className="card-body">
-                        <h5 className="card-title" id="card-title">
-                          {item.title}
-                        </h5>
-                      </div>
+                  <div className="card-body">
+                    <h5 className="card-title" id="card-title">
+                      {item.title}
+                    </h5>
+                  </div>
                   <div className="card-footer">
                     <small className="text-muted">
                       {new Date(item.created_at).toLocaleString("th-TH", {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
@@ -6,39 +6,38 @@ import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/course_add.css";
 import { useNavigate } from "react-router-dom";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const Add_course = () => {
-  const [structureFile, setStructureFile] = useState(null);
+  const [structure, setStructure] = useState("");
   const [roadmapFile, setRoadmapFile] = useState(null);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     course_id: "",
-    degree_id: "",
-    major_id: "",
-    degree_name_id: "",
-    career_paths: "",
-    plo: "",
+    degree: "",
+    major: "",
+    year: "",
     thai_course: "",
     eng_course: "",
     thai_degree: "",
     eng_degree: "",
-    year: "",
     admission_req: "",
     graduation_req: "",
     philosophy: "",
     objective: "",
     tuition: "",
     credits: "",
+    career_paths: "",
+    plo: "",
     detail_url: "",
     status: "แสดง",
   });
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    if (name === "structure") {
-      setStructureFile(files[0]);
-    } else if (name === "roadmap") {
+    if (name === "roadmap") {
       setRoadmapFile(files[0]);
     }
   };
@@ -54,80 +53,71 @@ const Add_course = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.major_id) {
-      alert("กรุณาเลือกสาขาให้ถูกต้องก่อนบันทึก");
+    if (!formData.major) {
+      alert("กรุณากรอกสาขาก่อนบันทึก");
       return;
     }
 
+    const payload = {
+      course_id: formData.course_id,
+      degree: formData.degree,
+      major: formData.major,
+      year: Number(formData.year),
+      thai_course: formData.thai_course,
+      eng_course: formData.eng_course,
+      thai_degree: formData.thai_degree,
+      eng_degree: formData.eng_degree,
+      admission_req: formData.admission_req,
+      graduation_req: formData.graduation_req,
+      philosophy: formData.philosophy,
+      objective: formData.objective,
+      tuition: formData.tuition,
+      credits: formData.credits,
+      career_paths: formData.career_paths,
+      plo: formData.plo,
+      detail_url: formData.detail_url,
+      status: formData.status,
+    };
+
+    console.log("Payload to create course:", payload);
+
     try {
-      const coursePayload = {
-        course_id: formData.course_id,
-        degree_id: parseInt(formData.degree_id) || null,
-        major_id: parseInt(formData.major_id) || null,
-        degree_name_id: parseInt(formData.degree_name_id) || null,
-        year: parseInt(formData.year) || 0,
-        thai_course: formData.thai_course,
-        eng_course: formData.eng_course,
-        thai_degree: formData.thai_degree,
-        eng_degree: formData.eng_degree,
-        admission_req: formData.admission_req,
-        graduation_req: formData.graduation_req,
-        philosophy: formData.philosophy,
-        objective: formData.objective,
-        tuition: formData.tuition,
-        credits: formData.credits,
-        career_paths: formData.career_paths,
-        plo: formData.plo,
-        detail_url: formData.detail_url,
-      };
-
-      console.log("Payload to create course:", coursePayload);
-
-      // ส่งข้อมูลสร้าง course
-
+      // POST course
       const courseRes = await axios.post(
         "http://localhost:8080/api/v1/admin/course",
-        coursePayload
+        payload
       );
 
-      if (structureFile) {
-        const structureForm = new FormData();
-        structureForm.append("course_structure_url", structureFile);
-        structureForm.append("thai_course", structureFile.name);
-        structureForm.append("course_id", courseRes.data.course_id);
+      const courseId = courseRes.data.course_id;
 
+      // POST structure (HTML content)
+      if (structure) {
         await axios.post(
           "http://localhost:8080/api/v1/admin/structure",
-          structureForm,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            course_id: courseId,
+            detail: structure,
           }
         );
       }
 
+      // POST roadmap (file)
       if (roadmapFile) {
-        const roadmapForm = new FormData();
-        roadmapForm.append("roadmap_url", roadmapFile);
-        roadmapForm.append("thai_course", roadmapFile.name);
-        roadmapForm.append("course_id", courseRes.data.course_id);
+        const form = new FormData();
+        form.append("course_id", courseId);
+        form.append("roadmap", roadmapFile);
 
         await axios.post(
           "http://localhost:8080/api/v1/admin/roadmap",
-          roadmapForm,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          form,
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
       }
 
-      alert("บันทึกข้อมูลหลักสูตรสำเร็จ!");
+      alert("บันทึกข้อมูลหลักสูตรสำเร็จ");
       navigate("/admin/course");
-    } catch (error) {
-      console.error("Error:", error.response?.data || error);
+    } catch (err) {
+      console.error(err.response?.data || err);
       alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };
@@ -148,6 +138,7 @@ const Add_course = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
+              {/* Status */}
               <div className="mb-3">
                 <p id="text-header-coures">สถานะ (Status)</p>
                 <select
@@ -162,6 +153,7 @@ const Add_course = () => {
                 </select>
               </div>
 
+              {/* Course ID */}
               <p id="text-header-coures">รหัสของหลักสูตร</p>
               <input
                 className="form-control mb-3"
@@ -171,24 +163,21 @@ const Add_course = () => {
                 required
               />
 
+              {/* Degree */}
               <p id="text-header-coures">ระดับปริญญา</p>
               <select
                 className="form-control mb-3"
-                name="degree_id"
-                value={formData.degree_id}
-                onChange={(e) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    degree_id: e.target.value,
-                    degree_name_id: "",
-                  }));
-                }}
+                name="degree"
+                value={formData.degree}
+                onChange={handleChange}
               >
                 <option value="">-- เลือกระดับปริญญา --</option>
-                <option value="1">ปริญญาตรี</option>
-                <option value="2">ปริญญาโท</option>
-                <option value="3">ปริญญาเอก</option>
+                <option value="ปริญญาตรี">ปริญญาตรี</option>
+                <option value="ปริญญาโท">ปริญญาโท</option>
+                <option value="ปริญญาเอก">ปริญญาเอก</option>
               </select>
+
+              {/* Year */}
               <p id="text-header-coures">หลักสูตรของปี</p>
               <input
                 className="form-control mb-3"
@@ -200,15 +189,17 @@ const Add_course = () => {
                 required
               />
 
+              {/* Major */}
               <p id="text-header-coures">สาขา</p>
               <input
                 className="form-control mb-3"
-                name="major_id"
-                value={formData.major_id}
+                name="major"
+                value={formData.major}
                 onChange={handleChange}
                 required
-              ></input>
+              />
 
+              {/* Course Name */}
               <p id="text-header-coures">ชื่อหลักสูตร</p>
               <div className="mb-3">
                 <label className="form-label" id="input-course">
@@ -234,6 +225,7 @@ const Add_course = () => {
                 />
               </div>
 
+              {/* Degree Name */}
               <p id="text-header-coures">ชื่อปริญญา</p>
               <div className="mb-3">
                 <label className="form-label" id="input-course">
@@ -246,7 +238,6 @@ const Add_course = () => {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="mb-3">
                 <label className="form-label" id="input-course">
                   ชื่อภาษาอังกฤษ
@@ -259,7 +250,7 @@ const Add_course = () => {
                 />
               </div>
 
-              {/* Textarea fields */}
+              {/* Textareas */}
               <div className="mb-3">
                 <p id="text-header-coures">เกณฑ์การเข้าศึกษา</p>
                 <textarea
@@ -270,7 +261,6 @@ const Add_course = () => {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="mb-3">
                 <p id="text-header-coures">เกณฑ์สำเร็จการศึกษา</p>
                 <textarea
@@ -281,7 +271,6 @@ const Add_course = () => {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="mb-3">
                 <p id="text-header-coures">ปรัชญาของหลักสูตร</p>
                 <textarea
@@ -292,7 +281,6 @@ const Add_course = () => {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="mb-3">
                 <p id="text-header-coures">วัตถุประสงค์ของหลักสูตร</p>
                 <textarea
@@ -303,7 +291,6 @@ const Add_course = () => {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="mb-3">
                 <p id="text-header-coures">PLOs</p>
                 <textarea
@@ -314,7 +301,6 @@ const Add_course = () => {
                   onChange={handleChange}
                 />
               </div>
-
               <div className="mb-3">
                 <p id="text-header-coures">อาชีพที่ประกอบได้</p>
                 <textarea
@@ -326,6 +312,7 @@ const Add_course = () => {
                 />
               </div>
 
+              {/* Tuition & Credits */}
               <p id="text-header-coures">ค่าใช้จ่าย</p>
               <input
                 className="form-control mb-3"
@@ -333,7 +320,6 @@ const Add_course = () => {
                 value={formData.tuition}
                 onChange={handleChange}
               />
-
               <p id="text-header-coures">หน่วยกิต</p>
               <input
                 className="form-control mb-3"
@@ -342,6 +328,7 @@ const Add_course = () => {
                 onChange={handleChange}
               />
 
+              {/* Detail */}
               <p id="text-header-coures">รายละเอียดเพิ่มเติม</p>
               <input
                 className="form-control mb-3"
@@ -350,14 +337,15 @@ const Add_course = () => {
                 onChange={handleChange}
               />
 
+              {/* Structure */}
               <p id="text-header-coures">โครงสร้างหลักสูตร</p>
-              <input
-                type="file"
-                className="form-control mb-3"
-                name="structure"
-                onChange={handleFileChange}
+              <CKEditor
+                editor={ClassicEditor}
+                data={structure}
+                onChange={(event, editor) => setStructure(editor.getData())}
               />
 
+              {/* Roadmap */}
               <p id="text-header-coures">แผนการศึกษา</p>
               <input
                 type="file"

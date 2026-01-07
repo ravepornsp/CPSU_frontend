@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
+import Breadcrumb from "../component/Breadcrumb";
 
 const Subject_detail = () => {
   const { subject_id } = useParams();
@@ -80,14 +81,14 @@ const Subject_detail = () => {
     <>
       <Headers />
       <Navbar />
+      <Breadcrumb items={[{ label: "หลักสูตร", path: "/course" }]} />
       <div className="container my-5">
         <div className="card shadow-sm p-4 text-start">
           <Link
             to={`/course/${subject.course_id}?tab=subjects`}
-            className="btn btn-secondary mb-4 back-button"
-            id="btn-back-to-course"
+            className="  p-0 mb-4 fs-6 fw-semibold"
           >
-            &larr; กลับ
+            &lt; กลับ
           </Link>
 
           {/* ชื่อภาษาไทย */}

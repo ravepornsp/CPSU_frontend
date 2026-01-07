@@ -133,7 +133,7 @@
   min-height: 80px;
 }
 #box-calendar {
-  width: 60px;
+  width: auto;
   height: 60px;
   background-color: white;
   color: #200e3a;

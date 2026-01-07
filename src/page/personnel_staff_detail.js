@@ -5,6 +5,7 @@ import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/people_staff_detail.css";
+import Breadcrumb from "../component/Breadcrumb";
 
 const TeacherDetail = () => {
   const { id } = useParams();
@@ -72,6 +73,12 @@ const TeacherDetail = () => {
     <>
       <Headers />
       <Navbar />
+      <Breadcrumb
+        items={[
+          { label: "บุคลากร", path: "/personnel" },
+          { label: "บุคลากรสายสนับสนุนวิชาการ" },
+        ]}
+      />
 
       <div className="container my-5">
         <div className="teacher-card mx-auto bg-white shadow rounded p-4">

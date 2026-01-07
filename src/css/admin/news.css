@@ -169,3 +169,14 @@ form select {
     justify-content: center;
   }
 }
+
+.back-arrow {
+  text-decoration: none;   /* ไม่ให้มีขีดเส้นใต้ */
+  color: #000;             /* สีลูกศร */
+  font-size: 24px;         /* ขนาดลูกศร */
+  font-weight: bold;
+}
+
+.back-arrow:hover {
+  color: #0d6efd;          /* hover เป็นสีฟ้า */
+}

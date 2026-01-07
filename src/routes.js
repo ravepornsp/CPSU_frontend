@@ -2,7 +2,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import News from "./page/news";
 import NewsDetail from "./page/news_detail";
-import Admission from "./page/admission";
+// import Admission from "./page/admission";
 import Personnel from "./page/personnel";
 import Course from "./page/course";
 import Subject from "./page/subject";
@@ -44,6 +44,10 @@ import TeacherInfomation from "./page/teacher/infomation";
 import Dashboard from "./page/admin/dashboard";
 import EventFormAdd from "./page/admin/EventFormAdd";
 import EventCalendarPublic from "./page/EventCalendarPublic";
+import Admission from "./page/admission";
+import Admission_admin from "./page/admin/admission";
+import AddAdmission from "./page/admin/addAdmission";
+import EditAdmission from "./page/admin/editAdmission";
 
 const AppRoutes = () => {
   return (
@@ -52,7 +56,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/home" />} />
       {/* Admin Group */}
 
-      <Route path="/admin" >
+      <Route path="/admin">
         <Route path="addnews" element={<Add_News />} />
         <Route path="news" element={<News_admin />} />
         <Route path="news/:id" element={<Detail_News />} />
@@ -79,6 +83,10 @@ const AppRoutes = () => {
         <Route path="userpermissions" element={<UserPermissions />} />
 
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="admission" element={<Admission_admin />} />
+
+        <Route path="/admin/admission/add" element={<AddAdmission />} />
+        <Route path="/admin/admission/edit/:id" element={<EditAdmission />} />
       </Route>
 
       <Route path="/teacher">
@@ -93,7 +101,6 @@ const AppRoutes = () => {
       </Route> */}
       <Route path="/login" element={<Login />}></Route>
       <Route path="/home" element={<Homepage />}></Route>
-      <Route path="/admission" element={<Admission />} />
       <Route path="/personnel" element={<Personnel />} />
       <Route path="/course" element={<Course />} />
       <Route path="/course/:course_id" element={<Course_detail />} />
@@ -106,6 +113,7 @@ const AppRoutes = () => {
       <Route path="/teacher/:id" element={<TeacherDetail />} />
       <Route path="/subject/:subject_id" element={<Subject_detail />} />
       <Route path="/calendar" element={<EventCalendarPublic />} />
+      <Route path="/admission" element={<Admission />} />
 
     </Routes>
   );
