@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../css/admin/personnel.css";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -13,9 +13,7 @@ function Personnel_admin() {
   useEffect(() => {
     const fetchPersonnel = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8080/api/v1/admin/personnel"
-        );
+        const res = await api.get("/admin/personnel");
         setPersonnel(res.data);
       } catch (err) {
         console.error("Error fetching personnel", err);

@@ -4,7 +4,7 @@ import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -15,10 +15,10 @@ const EditAdmission = () => {
 
   const [round, setRound] = useState("");
   const [detail, setDetail] = useState("");
-  const [fileImage, setFileImage] = useState(null);
 
-  const [previewImage, setPreviewImage] = useState(null);
-  const [oldImage, setOldImage] = useState(null);
+  const [fileImage, setFileImage] = useState(null); // รูปใหม่ (File)
+  const [oldImage, setOldImage] = useState("");     // รูปเดิม (URL string)
+  const [previewImage, setPreviewImage] = useState(""); // ไว้โชว์
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,14 +26,14 @@ const EditAdmission = () => {
 
   // 🔹 โหลดข้อมูลเดิม
   useEffect(() => {
-    axios
-      .get(`http://localhost:8080/api/v1/admin/admission/${id}`)
+    api
+      .get(`/admin/admission/${id}`)
       .then((res) => {
         const data = res.data;
         setRound(data.round || "");
         setDetail(data.detail || "");
-        setOldImage(data.file_image || null);
-        setPreviewImage(data.file_image || null);
+        setOldImage(data.file_image || "");
+        setPreviewImage(data.file_image || "");
         setLoading(false);
       })
       .catch(() => {
@@ -46,7 +46,7 @@ const EditAdmission = () => {
     e.preventDefault();
 
     if (!round) {
-      alert("กรุณาเลือกรอบ");
+      alert("กรุณาใส่รอบการรับสมัคร");
       return;
     }
 
@@ -54,17 +54,16 @@ const EditAdmission = () => {
     formData.append("round", round);
     formData.append("detail", detail);
 
-    // ✅ ส่งรูปใหม่เฉพาะตอนเลือกใหม่
+    // ✅ ส่งรูปเฉพาะกรณีเลือกใหม่
     if (fileImage) {
       formData.append("file_image", fileImage);
     }
 
     try {
       setSaving(true);
-      await axios.put(
-        `http://localhost:8080/api/v1/admin/admission/${id}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+      await api.put(
+        `/admin/admission/${id}`,
+        formData
       );
 
       alert("บันทึกการแก้ไขสำเร็จ");
@@ -102,22 +101,24 @@ const EditAdmission = () => {
                   className="form-control"
                   value={round}
                   onChange={(e) => setRound(e.target.value)}
-                ></input>
+                />
               </div>
 
-              {/* CKEditor (สูง 6 บรรทัด) */}
+              {/* รายละเอียด */}
               <div className="mb-3">
                 <label className="form-label">รายละเอียดการรับสมัคร</label>
                 <div style={{ minHeight: "220px" }}>
                   <CKEditor
                     editor={ClassicEditor}
                     data={detail}
-                    onChange={(event, editor) => setDetail(editor.getData())}
+                    onChange={(event, editor) =>
+                      setDetail(editor.getData())
+                    }
                   />
                 </div>
               </div>
 
-              {/* รูปภาพ */}
+              {/* รูป */}
               <div className="mb-3">
                 <label className="form-label">รูปภาพ</label>
                 <input
@@ -126,8 +127,10 @@ const EditAdmission = () => {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files[0];
+                    if (!file) return;
+
                     setFileImage(file);
-                    if (file) setPreviewImage(URL.createObjectURL(file));
+                    setPreviewImage(URL.createObjectURL(file)); // preview ใหม่
                   }}
                 />
               </div>
@@ -139,7 +142,10 @@ const EditAdmission = () => {
                   <img
                     src={previewImage}
                     alt="preview"
-                    style={{ maxWidth: "60%", borderRadius: "8px" }}
+                    style={{
+                      maxWidth: "60%",
+                      borderRadius: "8px",
+                    }}
                   />
                 </div>
               )}

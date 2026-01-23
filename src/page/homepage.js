@@ -24,7 +24,7 @@ const Homepage = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/admin/news");
+        const res = await axios.get("http://localhost:8080/api/v1/news");
         setNewsList(res.data); // สมมติ API คืน array ของข่าว
       } catch (err) {
         console.error("Error fetching news:", err);
@@ -37,7 +37,7 @@ const Homepage = () => {
     const fetchPersonnel = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/api/v1/admin/personnel"
+          "http://localhost:8080/api/v1/personnel"
         );
         if (res.data && Array.isArray(res.data)) {
           // กรองเฉพาะที่มีรูป
@@ -70,7 +70,7 @@ const Homepage = () => {
     };
 const fetchCalendarEvents = async () => {
   try {
-    const res = await axios.get("http://localhost:8080/api/v1/admin/calendar");
+    const res = await axios.get("http://localhost:8080/api/v1/calendar");
     if (Array.isArray(res.data)) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // ตั้งเวลาวันนี้เป็นเที่ยงคืน (เริ่มต้นวัน)

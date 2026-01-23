@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import "../../css/admin/subject.css";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -17,8 +17,8 @@ function Subject() {
   useEffect(() => {
     const fetchSubject = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8080/api/v1/admin/subject"
+        const res = await api.get(
+          "/admin/subject"
         );
         const filtered = res.data.filter((item) => {
           const sid = item.subject_id?.trim();

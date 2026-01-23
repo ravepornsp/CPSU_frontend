@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -18,8 +18,8 @@ const Subject_detail = () => {
   useEffect(() => {
     const fetchSubjectDetail = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/subject/${id}`
+        const res = await api.get(
+          `/admin/subject/${id}`
         );
         setSubject(res.data);
       } catch (err) {
@@ -39,7 +39,7 @@ const Subject_detail = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/v1/admin/subject/${id}`);
+      await api.delete(`/admin/subject/${id}`);
       alert("ลบรายวิชาสำเร็จ");
       navigate("/admin/subject");
     } catch (err) {

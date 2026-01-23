@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -83,35 +83,24 @@ const Add_course = () => {
 
     try {
       // POST course
-      const courseRes = await axios.post(
-        "http://localhost:8080/api/v1/admin/course",
-        payload
-      );
+      const courseRes = await api.post("/admin/course", payload);
 
       const courseId = courseRes.data.course_id;
 
       // POST structure (HTML content)
       if (structure) {
-        await axios.post(
-          "http://localhost:8080/api/v1/admin/structure",
-          {
-            course_id: courseId,
-            detail: structure,
-          }
-        );
+        await api.post("/admin/structure", {
+          course_id: courseId,
+          detail: structure,
+        });
       }
 
-      // POST roadmap (file)
+      // POST roadmap (multipart/form-data)
       if (roadmapFile) {
-        const form = new FormData();
-        form.append("course_id", courseId);
-        form.append("roadmap", roadmapFile);
-
-        await axios.post(
-          "http://localhost:8080/api/v1/admin/roadmap",
-          form,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
+        const formData = new FormData();
+        formData.append("course_id", courseId);
+        formData.append("roadmap_url", roadmapFile);
+        await api.post("/admin/roadmap", formData);
       }
 
       alert("บันทึกข้อมูลหลักสูตรสำเร็จ");

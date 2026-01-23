@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -18,26 +18,8 @@ function PersonnelAdd() {
     { id: 5, thai: "อ.", eng: "" },
   ];
 
-  const departmentPositions = [
-    { id: 1, name: "หัวหน้าภาควิชา" },
-    { id: 2, name: "รองหัวหน้าภาควิชาฯ ฝ่ายบริหาร" },
-    { id: 3, name: "รองหัวหน้าภาควิชาฯ" },
-    { id: 4, name: "อาจารย์ประจำภาควิชา" },
-    { id: 5, name: "นักวิชาการอุดมศึกษาชำนาญการ" },
-    { id: 6, name: "นักวิชาการอุดมศึกษาปฏิบัติการ" },
-    { id: 7, name: "นักวิชาการอุดมศึกษา (ประจำหลักสูตรวิทยาการข้อมูล)" },
-    { id: 8, name: "นักวิชาการอุดมศึกษา" },
-    { id: 9, name: "นักเทคโนโลยีสารสนเทศ" },
-    { id: 10, name: "นักคอมพิวเตอร์" },
-    { id: 11, name: "พนักงานทั่วไป" },
-  ];
-
-  const academicDeptIds = [1, 2, 3, 4];
-  const supportDeptIds = [5, 6, 7, 8, 9, 10, 11];
-
   const [formData, setFormData] = useState({
     type_personnel: "",
-    department_position_id: "",
     department_position_name: "",
     academic_position_id: "",
     thai_academic_position: "",
@@ -55,26 +37,15 @@ function PersonnelAdd() {
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState("");
 
-  const filteredDepartmentPositions =
-    formData.type_personnel === "สายวิชาการ"
-      ? departmentPositions.filter((p) => academicDeptIds.includes(p.id))
-      : departmentPositions.filter((p) => supportDeptIds.includes(p.id));
+  const DEFAULT_DEPARTMENT_POSITION_ID = 1;
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
-    if (name === "file_image") {
-      const file = files[0];
-      setFormData({ ...formData, file_image: file });
-      setPreviewImage(URL.createObjectURL(file));
-      return;
-    }
 
     if (name === "type_personnel") {
       setFormData({
         ...formData,
         type_personnel: value,
-        department_position_id: "",
         department_position_name: "",
         academic_position_id: "",
         thai_academic_position: "",
@@ -88,16 +59,8 @@ function PersonnelAdd() {
         scopus_id: "",
         file_image: null,
       });
-      return;
-    }
-
-    if (name === "department_position_id") {
-      const selected = departmentPositions.find((p) => p.id === Number(value));
-      setFormData({
-        ...formData,
-        department_position_id: Number(value),
-        department_position_name: selected?.name || "",
-      });
+      setPreviewImage(null);
+      setError("");
       return;
     }
 
@@ -112,19 +75,49 @@ function PersonnelAdd() {
       return;
     }
 
+    if (name === "file_image") {
+      const file = files[0];
+
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+
+      setFormData({ ...formData, file_image: file });
+      setPreviewImage(URL.createObjectURL(file));
+      return;
+    }
+
     setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
 
+    setError("");
+
+    if (!formData.type_personnel) {
+      setError("กรุณาเลือกประเภทบุคลากร");
+      return;
+    }
+
+    if (
+      formData.type_personnel === "สายวิชาการ" &&
+      !formData.academic_position_id
+    ) {
+      setError("กรุณาเลือกตำแหน่งวิชาการ");
+      return;
+    }
+
+    const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value !== "" && value !== null) data.append(key, value);
     });
 
+    data.append("department_position_id", DEFAULT_DEPARTMENT_POSITION_ID);
+
+    console.log(data)
     try {
-      await axios.post("http://localhost:8080/api/v1/admin/personnel", data);
+      await api.post("/admin/personnel", data);
       alert("บันทึกข้อมูลบุคลากรสำเร็จ!");
       navigate("/admin/personnel");
     } catch (err) {
@@ -172,21 +165,16 @@ function PersonnelAdd() {
                   {/* ตำแหน่งในภาควิชา */}
                   <div className="mb-3">
                     <label>ตำแหน่งในภาควิชา</label>
-                    <select
-                      className="form-select"
-                      name="department_position_id"
-                      value={formData.department_position_id}
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="department_position_name"
+                      value={formData.department_position_name}
                       onChange={handleChange}
+                      placeholder="กรอกตำแหน่งในภาควิชา"
                       required
                       disabled={!formData.type_personnel}
-                    >
-                      <option value="">เลือกตำแหน่ง</option>
-                      {filteredDepartmentPositions.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
 
                   {/* สายวิชาการ */}
@@ -228,7 +216,6 @@ function PersonnelAdd() {
                         />
                       </div>
 
-                      {/* ส่วนอื่นๆ สำหรับสายวิชาการ */}
                       <div className="row">
                         <div className="col-md-6 mb-3">
                           <label>ชื่อ-นามสกุล (TH)</label>

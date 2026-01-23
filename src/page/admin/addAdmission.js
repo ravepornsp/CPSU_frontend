@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../css/admin/course.css";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -12,12 +12,19 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 const AddAdmission = () => {
   const [round, setRound] = useState("");
   const [detail, setDetail] = useState("");
-  const [files, setFiles] = useState([]); // สำหรับเก็บหลายไฟล์
-  const [previews, setPreviews] = useState([]); // สำหรับ preview หลายไฟล์
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  // ฟังก์ชันตรวจสอบค่าก่อน submit
+  // clear preview url เมื่อ component unmount
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   const validateForm = () => {
     if (!round) {
       alert("กรุณาใส่รอบการรับสมัคร");
@@ -27,20 +34,11 @@ const AddAdmission = () => {
       alert("กรุณากรอกรายละเอียดการรับสมัคร");
       return false;
     }
-    if (files.some((file) => !file.type.startsWith("image/"))) {
+    if (file && !file.type.startsWith("image/")) {
       alert("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น");
       return false;
     }
     return true;
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setFiles(selectedFiles);
-
-    // สร้าง preview สำหรับแต่ละไฟล์
-    const previewUrls = selectedFiles.map((file) => URL.createObjectURL(file));
-    setPreviews(previewUrls);
   };
 
   const handleSubmit = async (e) => {
@@ -49,30 +47,20 @@ const AddAdmission = () => {
 
     const formData = new FormData();
     formData.append("round", round);
-    formData.append("detail", detail); // HTML จาก CKEditor
+    formData.append("detail", detail);
 
-    // append ทุกไฟล์
-    files.forEach((file, index) => {
-      formData.append("file_images", file); // backend ต้องรองรับหลายไฟล์ใน key เดียว
-    });
+    if (file) {
+      formData.append("file_image", file); // ⭐ สำคัญ: ชื่อต้องตรง backend
+    }
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/admission",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      console.log("Response:", response.data);
+      await api.post("/admin/admission", formData);
       alert("เพิ่มข้อมูลสำเร็จ!");
       navigate("/admin/admission");
     } catch (error) {
-      console.error("Error response:", error.response?.data || error);
-      alert(
-        "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " +
-          (error.response?.data?.error || error.message)
-      );
+      console.error(error.response?.data || error);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     } finally {
       setLoading(false);
     }
@@ -82,13 +70,16 @@ const AddAdmission = () => {
     <>
       <Headers />
       <Navbar />
+
       <div className="container mt-4">
         <div className="row">
           <div className="col-sm-3">
             <Menu />
           </div>
+
           <div className="col-sm-9">
             <h3>เพิ่มข้อมูลการรับสมัคร</h3>
+
             <form onSubmit={handleSubmit}>
               {/* รอบการรับสมัคร */}
               <div className="mb-3">
@@ -102,41 +93,49 @@ const AddAdmission = () => {
                 />
               </div>
 
-              {/* รายละเอียดการรับสมัคร (CKEditor) */}
+              {/* รายละเอียด (CKEditor) */}
               <div className="mb-3">
                 <label className="form-label">รายละเอียดการรับสมัคร</label>
                 <div style={{ minHeight: "220px" }}>
                   <CKEditor
                     editor={ClassicEditor}
                     data={detail}
-                    onChange={(event, editor) => setDetail(editor.getData())}
+                    onChange={(event, editor) =>
+                      setDetail(editor.getData())
+                    }
                   />
                 </div>
               </div>
 
-              {/* รูปภาพหลายไฟล์ */}
+              {/* รูปภาพ */}
               <div className="mb-3">
                 <label className="form-label">รูปภาพ</label>
                 <input
                   type="file"
                   className="form-control"
                   accept="image/*"
-                  multiple
-                  onChange={handleFileChange}
+                  onChange={(e) => {
+                    const selected = e.target.files[0];
+                    if (!selected) return;
+
+                    setFile(selected);
+                    setPreview(URL.createObjectURL(selected));
+                  }}
                 />
               </div>
 
-              {/* Preview หลายไฟล์ */}
-              {previews.length > 0 && (
-                <div className="mb-3 d-flex flex-wrap gap-3">
-                  {previews.map((src, idx) => (
-                    <img
-                      key={idx}
-                      src={src}
-                      alt={`preview-${idx}`}
-                      style={{ maxWidth: "150px", borderRadius: "8px" }}
-                    />
-                  ))}
+              {/* Preview */}
+              {preview && (
+                <div className="mb-3">
+                  <img
+                    src={preview}
+                    alt="preview"
+                    style={{
+                      maxWidth: "200px",
+                      borderRadius: "8px",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                    }}
+                  />
                 </div>
               )}
 
@@ -151,6 +150,7 @@ const AddAdmission = () => {
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

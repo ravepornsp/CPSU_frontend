@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 
 function EventFormAdd() {
   const [title, setTitle] = useState("");
@@ -12,35 +12,30 @@ function EventFormAdd() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ตรวจสอบข้อมูล
     if (!title || !startDate || !endDate) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
-    if (new Date(startDate) > new Date(endDate)) {
+    if (startDate > endDate) {
       alert("วันเริ่มต้นต้องไม่มากกว่าวันสิ้นสุด");
       return;
     }
 
-    const toISODate = (dateStr) => {
-      return new Date(dateStr).toISOString(); // "2025-10-21T00:00:00.000Z"
-    };
-
     const newEvent = {
       title,
       detail: description,
-      start_date: toISODate(startDate),
-      end_date: toISODate(endDate),
+      start_date: startDate,
+      end_date: endDate,
     };
-    console.log(newEvent);
+
     try {
-      await axios.post("http://localhost:8080/api/v1/admin/calendar", newEvent);
+      await api.post("/admin/calendar", newEvent);
       alert("เพิ่มกิจกรรมสำเร็จ");
       navigate("/admin/calendar");
     } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการเพิ่มกิจกรรม:", error);
-      alert("ไม่สามารถเพิ่มกิจกรรมได้ กรุณาลองใหม่อีกครั้ง");
+      console.error(error);
+      alert("ไม่สามารถเพิ่มกิจกรรมได้");
     }
   };
 

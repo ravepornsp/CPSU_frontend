@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import axios from "axios";
+import api from "../../api/axios";
 import "../../css/admin/event.css";
-import { Link } from "react-router-dom";
 
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
@@ -16,23 +15,27 @@ function EventCalendarAdmin() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [editedEvent, setEditedEvent] = useState({});
 
+  /* ================= Utils ================= */
+  const toDateOnly = (iso) => iso.split("T")[0];
+  const toISODate = (dateStr) => new Date(dateStr).toISOString();
+
+  /* ================= Load Events ================= */
   useEffect(() => {
     fetchEvents();
   }, []);
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:8080/api/v1/admin/calendar"
-      );
-      const mapped = res.data.map((event) => ({
-        id: event.calendar_id,
-        title: event.title,
-        start: event.start_date,
-        end: event.start_date === event.end_date ? null : event.end_date,
-        description: event.detail,
+      const res = await api.get("/admin/calendar");
+      const mapped = res.data.map((e) => ({
+        id: e.calendar_id,
+        title: e.title,
+        start: e.start_date,
+        end: e.start_date === e.end_date ? null : e.end_date,
+        description: e.detail,
         allDay: true,
       }));
       setEvents(mapped);
@@ -41,31 +44,67 @@ function EventCalendarAdmin() {
     }
   };
 
-  const handleEventClick = (info) => {
-    const event = events.find((e) => e.id === parseInt(info.event.id));
-    setSelectedEvent(event);
-    setEditedEvent({
-      ...event,
-      start: event.start.split("T")[0],
-      end: event.end ? event.end.split("T")[0] : event.start.split("T")[0],
-    });
-    setShowModal(true);
-    setIsEditing(false);
-  };
-
+  /* ================= Modal ================= */
   const closeModal = () => {
     setShowModal(false);
     setSelectedEvent(null);
     setIsEditing(false);
+    setIsAdding(false);
+    setEditedEvent({});
   };
 
-  const handleEditChange = (e) => {
+  const openAddModal = () => {
+    const today = new Date().toISOString().split("T")[0];
+    setEditedEvent({
+      title: "",
+      start: today,
+      end: today,
+      description: "",
+    });
+    setIsAdding(true);
+    setShowModal(true);
+  };
+
+  const handleEventClick = (info) => {
+    const event = events.find((e) => e.id === Number(info.event.id));
+    setSelectedEvent(event);
+    setEditedEvent({
+      ...event,
+      start: toDateOnly(event.start),
+      end: event.end ? toDateOnly(event.end) : toDateOnly(event.start),
+    });
+    setShowModal(true);
+  };
+
+  /* ================= Form ================= */
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedEvent({ ...editedEvent, [name]: value });
+    setEditedEvent((prev) => ({ ...prev, [name]: value }));
   };
 
-  const toISODate = (dateStr) => {
-    return new Date(dateStr).toISOString(); // "2025-10-21T00:00:00.000Z"
+  /* ================= CRUD ================= */
+  const handleAdd = async () => {
+    if (!editedEvent.title || !editedEvent.start) {
+      alert("กรุณากรอกชื่อกิจกรรมและวันเริ่ม");
+      return;
+    }
+
+    try {
+      const payload = {
+        title: editedEvent.title,
+        detail: editedEvent.description,
+        start_date: toISODate(editedEvent.start),
+        end_date: toISODate(editedEvent.end || editedEvent.start),
+      };
+
+      await api.post("/admin/calendar", payload);
+      alert("เพิ่มกิจกรรมสำเร็จ");
+      fetchEvents();
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      alert("เพิ่มกิจกรรมไม่สำเร็จ");
+    }
   };
 
   const handleSave = async () => {
@@ -77,35 +116,27 @@ function EventCalendarAdmin() {
         end_date: toISODate(editedEvent.end),
       };
 
-      await axios.put(
-        `http://localhost:8080/api/v1/admin/calendar/${editedEvent.id}`,
-        payload
-      );
-
+      await api.put(`/admin/calendar/${editedEvent.id}`, payload);
       alert("บันทึกกิจกรรมสำเร็จ");
-      await fetchEvents();
+      fetchEvents();
       closeModal();
-    } catch (error) {
-      console.error("บันทึกไม่สำเร็จ", error);
-      alert("บันทึกไม่สำเร็จ กรุณาลองใหม่");
+    } catch (err) {
+      console.error(err);
+      alert("บันทึกไม่สำเร็จ");
     }
   };
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("คุณต้องการลบกิจกรรมนี้หรือไม่?");
-    if (!confirmDelete || !selectedEvent) return;
+    if (!window.confirm("ต้องการลบกิจกรรมนี้หรือไม่?")) return;
 
     try {
-      await axios.delete(
-        `http://localhost:8080/api/v1/admin/calendar/${selectedEvent.id}`
-      );
-
+      await api.delete(`/admin/calendar/${selectedEvent.id}`);
       alert("ลบกิจกรรมสำเร็จ");
-      await fetchEvents();
+      fetchEvents();
       closeModal();
-    } catch (error) {
-      console.error("ลบกิจกรรมล้มเหลว", error);
-      alert("ไม่สามารถลบกิจกรรมได้ กรุณาลองใหม่");
+    } catch (err) {
+      console.error(err);
+      alert("ลบไม่สำเร็จ");
     }
   };
 
@@ -113,20 +144,22 @@ function EventCalendarAdmin() {
     <>
       <Headers />
       <Navbar />
+
       <div className="container mt-4">
         <div className="row">
           <div className="col-sm-3">
             <Menu />
           </div>
+
           <div className="col-sm-9">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 className="event-title">ปฏิทินกิจกรรม</h3>
-              <Link to="/admin/calendar/add" className="btn-addnews">
+            <div className="d-flex justify-content-between mb-3">
+              <h3>ปฏิทินกิจกรรม</h3>
+              <button className="btn-addsubject" onClick={openAddModal}>
                 + เพิ่มกิจกรรม
-              </Link>
+              </button>
             </div>
 
-            <div className="calendar-wrapper bg-white p-3 shadow rounded mb-4">
+            <div className="bg-white p-3 shadow rounded">
               <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
@@ -140,90 +173,92 @@ function EventCalendarAdmin() {
         </div>
       </div>
 
-      {showModal && selectedEvent && (
+      {showModal && (
         <div
           className="modal fade show"
           style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
-          tabIndex="-1"
-          role="dialog"
         >
-          <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  {isEditing ? "แก้ไขกิจกรรม" : "รายละเอียดกิจกรรม"}
+                  {isAdding
+                    ? "เพิ่มกิจกรรม"
+                    : isEditing
+                    ? "แก้ไขกิจกรรม"
+                    : "รายละเอียดกิจกรรม"}
                 </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeModal}
-                ></button>
+                <button className="btn-close" onClick={closeModal}></button>
               </div>
+
               <div className="modal-body">
-                {isEditing ? (
+                {isAdding || isEditing ? (
                   <>
-                    <div className="mb-2">
-                      <label>ชื่อกิจกรรม</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="title"
-                        value={editedEvent.title}
-                        onChange={handleEditChange}
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label>วันเริ่ม</label>
-                      <input
-                        type="date"
-                        className="form-control"
-                        name="start"
-                        value={editedEvent.start}
-                        onChange={handleEditChange}
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label>วันสิ้นสุด</label>
-                      <input
-                        type="date"
-                        className="form-control"
-                        name="end"
-                        value={editedEvent.end}
-                        onChange={handleEditChange}
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label>รายละเอียด</label>
-                      <textarea
-                        className="form-control"
-                        name="description"
-                        value={editedEvent.description || ""}
-                        onChange={handleEditChange}
-                      />
-                    </div>
+                    <label>ชื่อกิจกรรม</label>
+                    <input
+                      className="form-control mb-2"
+                      name="title"
+                      value={editedEvent.title}
+                      onChange={handleChange}
+                    />
+
+                    <label>วันเริ่ม</label>
+                    <input
+                      type="date"
+                      className="form-control mb-2"
+                      name="start"
+                      value={editedEvent.start}
+                      onChange={handleChange}
+                    />
+
+                    <label>วันสิ้นสุด</label>
+                    <input
+                      type="date"
+                      className="form-control mb-2"
+                      name="end"
+                      value={editedEvent.end}
+                      onChange={handleChange}
+                    />
+
+                    <label>รายละเอียด</label>
+                    <textarea
+                      className="form-control"
+                      name="description"
+                      value={editedEvent.description || ""}
+                      onChange={handleChange}
+                    />
                   </>
                 ) : (
                   <>
+                    <p><b>ชื่อกิจกรรม : </b> {selectedEvent.title}</p>
+                    <p><b>วันเริ่ม : </b> {toDateOnly(selectedEvent.start)}</p>
                     <p>
-                      <strong>ชื่อกิจกรรม:</strong> {selectedEvent.title}
+                      <b>วันสิ้นสุด : </b>{" "}
+                      {selectedEvent.end
+                        ? toDateOnly(selectedEvent.end)
+                        : toDateOnly(selectedEvent.start)}
                     </p>
                     <p>
-                      <strong>วันเริ่ม:</strong> {selectedEvent.start}
-                    </p>
-                    <p>
-                      <strong>วันสิ้นสุด:</strong>{" "}
-                      {selectedEvent.end || selectedEvent.start}
-                    </p>
-                    <p>
-                      <strong>รายละเอียด:</strong>
-                      <br />
+                      <b>รายละเอียด</b><br />
                       {selectedEvent.description || "-"}
                     </p>
                   </>
                 )}
               </div>
+
               <div className="modal-footer">
-                {isEditing ? (
+                {isAdding && (
+                  <>
+                    <button className="btn btn-primary" onClick={handleAdd}>
+                      บันทึก
+                    </button>
+                    <button className="btn btn-secondary" onClick={closeModal}>
+                      ยกเลิก
+                    </button>
+                  </>
+                )}
+
+                {isEditing && (
                   <>
                     <button className="btn btn-primary" onClick={handleSave}>
                       บันทึก
@@ -235,7 +270,9 @@ function EventCalendarAdmin() {
                       ยกเลิก
                     </button>
                   </>
-                ) : (
+                )}
+
+                {!isAdding && !isEditing && (
                   <>
                     <button
                       className="btn btn-warning"

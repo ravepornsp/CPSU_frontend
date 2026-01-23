@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -47,24 +47,23 @@ function EditPersonnel() {
     email: "",
     website: "",
     scopus_id: "",
-    file_image: null,
+    // file_image: null,
   });
 
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [existingImage, setExistingImage] = useState("");
 
   useEffect(() => {
     const fetchPersonnel = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
-        );
+        const res = await api.get(`/admin/personnel/${id}`);
         const p = res.data.personnel;
 
         // หา academic_position_id จากข้อมูลที่มี (ถ้ามี)
         const academic = academicPositions.find(
-          (a) => a.id === p.academic_position_id
+          (a) => a.id === p.academic_position_id,
         );
 
         setFormData({
@@ -127,42 +126,27 @@ function EditPersonnel() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const pdata = {
-      type_personnel: formData.type_personnel,
-      department_position_id: formData.department_position_id,
-      department_position_name: formData.department_position_name,
-      academic_position_id: formData.academic_position_id || null,
-      thai_academic_position: formData.thai_academic_position,
-      eng_academic_position: formData.eng_academic_position,
-      thai_name: formData.thai_name,
-      eng_name: formData.eng_name,
-      education: formData.education,
-      related_fields: formData.related_fields,
-      email: formData.email,
-      website: formData.website,
-      scopus_id: formData.scopus_id,
-    };
+    setError("");
 
     const data = new FormData();
-    data.append(
-      "personnel",
-      new Blob([JSON.stringify(pdata)], { type: "application/json" })
-    );
 
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "file_image") return;
+      if (value !== "" && value !== null) {
+        data.append(key, value);
+      }
+    });
+
+    // ✅ ส่งไฟล์ เฉพาะเมื่อ user เลือกใหม่
     if (formData.file_image) {
       data.append("file_image", formData.file_image);
     }
 
     try {
-      await axios.put(
-        `http://localhost:8080/api/v1/admin/personnel/${id}`,
-        data,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      await api.put(`/admin/personnel/${id}`, data);
       navigate("/admin/personnel");
     } catch (err) {
-      console.error(err);
+      console.error(err.response?.data || err);
       setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };

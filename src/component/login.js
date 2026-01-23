@@ -1,48 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import "../css/login.css";
 import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // 👉 ตรวจสอบ username และ password
-    if (username === "test" && password === "test") {
-      console.log("Login success!");
-      navigate("/teacher/information");
-
-      const userId = 13;
-      navigate("/teacher/information", { state: { userId } });
-    } else {
-      alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+  // 🔐 ถ้า login แล้ว ไม่ให้เข้าหน้า login
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      navigate("/admin/dashboard");
     }
+  }, [navigate]);
 
-    console.log("Username:", username);
-    console.log("Password:", password);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await axios.post("http://localhost:8080/api/v1/auth/login", {
+        email: email,
+        password: password,
+      });
+
+      const { access_token, refresh_token, user } = res.data;
+
+      // 1️⃣ เก็บ token
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", refresh_token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      console.log("Login success:", user);
+
+      // 2️⃣ redirect
+      if (user?.roles?.includes("admin") || user?.roles?.includes("staff")) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/teacher/information", {
+          state: { userId: user.user_id },
+        });
+      }
+    } catch (err) {
+      alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <Headers />
       <Navbar />
+
       <div className="container login-container">
         <div className="login-box">
           <h2>เข้าสู่ระบบ</h2>
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>อีเมล</label>
               <input
-                type="text"
+                type="email"
                 className="form-control"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="กรอกอีเมล"
                 required
               />
@@ -60,12 +89,13 @@ const Login = () => {
               />
             </div>
 
-            <button type="submit" className="btn-login">
-              เข้าสู่ระบบ
+            <button type="submit" className="btn-login" disabled={loading}>
+              {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </button>
           </form>
         </div>
       </div>
+
       <Footer />
     </>
   );

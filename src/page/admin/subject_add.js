@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
@@ -14,8 +14,8 @@ const Subject_add = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8080/api/v1/admin/course"
+        const response = await api.get(
+          "/admin/course"
         );
         setCourseOptions(response.data);
       } catch (error) {
@@ -77,7 +77,7 @@ const Subject_add = () => {
       };
 
       console.log(cleanData);
-      await axios.post("http://localhost:8080/api/v1/admin/subject", cleanData);
+      await api.post("/admin/subject", cleanData);
       setSuccess("เพิ่มรายวิชาสำเร็จ!");
       setFormData({
         subject_id: "",

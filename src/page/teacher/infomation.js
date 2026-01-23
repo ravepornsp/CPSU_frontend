@@ -2,73 +2,62 @@ import React, { useState, useEffect } from "react";
 import Footer from "../../component/footer";
 import Header from "../../component/header";
 import Navbar from "../../component/navbar";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 
 const TeacherInformation = () => {
-  // const { id } = useParams();
   const navigate = useNavigate();
-  const [person, setPerson] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [copied, setCopied] = useState(false);
-  const [researches, setResearches] = useState([]);
-  const [researchLoading, setResearchLoading] = useState(true);
-  const location = useLocation();
-  const id = location.state?.userId;
 
-  console.log("User ID from login:", id);
+  const [person, setPerson] = useState(null);
+  const [researches, setResearches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [researchLoading, setResearchLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  /* 🔐 ดึง user จาก localStorage */
+  const [user] = useState(() => {
+    const u = localStorage.getItem("user");
+    return u ? JSON.parse(u) : null;
+  });
+
+  const roles = Array.isArray(user?.roles) ? user.roles : [];
+
+  /* ❌ ถ้าไม่ใช่ teacher ออกทันที */
+  useEffect(() => {
+    if (!user || !user.roles?.includes("teacher")) {
+      localStorage.clear();
+      navigate("/login", { replace: true });
+    }
+  }, [navigate, user]);
 
   useEffect(() => {
+    if (!user?.user_id) return;
+
     const fetchPerson = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
-        );
+        const res = await api.get(`/personnel/${user.user_id}`);
         setPerson(res.data.personnel);
-        setLoading(false);
       } catch (err) {
-        console.error("Error fetching personnel detail:", err);
-        setError(err);
+        setError(true);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchPerson();
-  }, [id]);
+  }, [user?.user_id]);
 
-  useEffect(() => {
-    const fetchResearch = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/research`
-        );
-
-        const filteredResearches = res.data?.filter(
-          (item) => item.personnel_id === Number(id)
-        );
-
-        setResearches(filteredResearches || []);
-      } catch (err) {
-        console.error("Error fetching research data:", err);
-      } finally {
-        setResearchLoading(false);
-      }
-    };
-
-    fetchResearch();
-  }, [id]);
 
   const handleEdit = () => {
-    navigate("/teacher/informationedit", { state: { userId: id } });
+    navigate("/teacher/informationedit");
   };
 
   const handleCopyEmail = () => {
     if (!person?.email) return;
-    navigator.clipboard.writeText(person.email).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard.writeText(person.email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (loading) {
@@ -77,7 +66,7 @@ const TeacherInformation = () => {
         <Header />
         <Navbar />
         <div className="container text-center my-5">
-          <div className="spinner-border text-primary" role="status"></div>
+          <div className="spinner-border text-primary" />
           <p className="mt-3">กำลังโหลดข้อมูล...</p>
         </div>
         <Footer />
@@ -92,7 +81,7 @@ const TeacherInformation = () => {
         <Navbar />
         <div className="container my-5">
           <div className="alert alert-danger text-center">
-            <strong>เกิดข้อผิดพลาด:</strong> ไม่สามารถโหลดข้อมูลได้
+            ไม่สามารถโหลดข้อมูลได้
           </div>
         </div>
         <Footer />
@@ -104,127 +93,85 @@ const TeacherInformation = () => {
     <>
       <Header />
       <Navbar />
-      <h4 className="text-center my-4">บุคลากร</h4>
+
+      <h4 className="text-center my-4">ข้อมูลอาจารย์ของฉัน</h4>
+
       <div className="container my-5">
         <div className="teacher-card mx-auto bg-white shadow rounded p-4 position-relative">
           <button
             onClick={handleEdit}
-            className="btn btn-outline-secondary position-absolute top-0 end-0 m-3 d-flex align-items-center gap-1"
-            title="แก้ไขข้อมูล"
-            style={{ zIndex: 10 }}
+            className="btn btn-outline-secondary position-absolute top-0 end-0 m-3"
           >
             <i className="bi bi-pencil"></i> แก้ไข
           </button>
 
           <div className="row">
-            <div className="col-md-4 text-center mb-4 mb-md-0">
+            <div className="col-md-4 text-center">
               <img
-                src={
-                  person.file_image
-                    ? person.file_image
-                    : "/images/default-profile.png"
-                }
+                src={person.file_image || "/images/default-profile.png"}
                 alt={person.thai_name}
                 className="img-fluid img-profile"
-                onError={(e) => (e.target.src = "/images/default-profile.png")}
               />
 
-              <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
-                <div>
-                  <strong>อีเมล</strong>
-                  <br />
-                  <a href={`mailto:${person.email}`}>{person.email}</a>
-                </div>
+              <div className="mt-3">
+                <strong>อีเมล</strong>
+                <br />
+                <a href={`mailto:${person.email}`}>{person.email}</a>
+                <br />
                 <button
-                  className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 copy-btn"
+                  className="btn btn-outline-primary btn-sm mt-2"
                   onClick={handleCopyEmail}
-                  title="คัดลอกอีเมล"
                 >
-                  <i className="bi bi-clipboard"></i> คัดลอก
+                  คัดลอกอีเมล
                 </button>
+                {copied && (
+                  <small className="text-success d-block">คัดลอกแล้ว</small>
+                )}
               </div>
-              {copied && (
-                <small className="text-success d-block mt-1">คัดลอกแล้ว!</small>
-              )}
             </div>
 
-            <div className="col-md-8 text-start">
+            <div className="col-md-8">
               <h5 className="text-primary">
                 {person.department_position_name}
               </h5>
               <hr />
-              <h4 className="fw-bold mt-2">
+              <h4>
                 {person.thai_academic_position} {person.thai_name}
               </h4>
-              <p className="text-muted mb-1">
+              <p className="text-muted">
                 {person.eng_academic_position} {person.eng_name}
               </p>
+
               <hr />
-              <h5 className="mt-4">ประวัติการศึกษา</h5>
+              <h5>ประวัติการศึกษา</h5>
               <ul>
-                {person.education
-                  ?.split("\n")
-                  .filter((line) => line.trim() !== "")
-                  .map((line, index) => (
-                    <li key={index}>{line.trim()}</li>
-                  ))}
+                {person.education?.split("\n").map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
               </ul>
+
               <hr />
-              <h5 className="mt-4">สาขาที่เชี่ยวชาญ</h5>
+              <h5>สาขาที่เชี่ยวชาญ</h5>
               <ul>
-                {person.related_fields
-                  ?.split("\n")
-                  .filter((line) => line.trim() !== "")
-                  .map((line, index) => (
-                    <li key={index}>{line.trim()}</li>
-                  ))}
+                {person.related_fields?.split("\n").map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
               </ul>
-              <hr />
-              {person.website && (
-                <p className="mt-3">
-                  <strong>เว็บไซต์ </strong>{" "}
-                  <a href={person.website} target="_blank" rel="noreferrer">
-                    {person.website}
-                  </a>
-                </p>
-              )}
             </div>
           </div>
         </div>
       </div>
 
       {researches.length > 0 && (
-        <div className="teacher-research mx-auto bg-white shadow-sm rounded p-4 mt-4">
-          <h5 className="mb-3">ผลงานวิจัย (Scopus)</h5>
-
-          {researchLoading ? (
-            <p>กำลังโหลดผลงานวิจัย...</p>
-          ) : (
-            <ul className="research-list">
-              {researches.map((research, index) => (
-                <li key={index} className="mb-3">
-                  {research.authors && <strong>{research.authors}, </strong>}
-                  {research.year && `(${research.year}). `}
-                  <em>{research.title}</em>
-                  {research.journal && `, ${research.journal}`}
-                  {research.volume && `, Volume ${research.volume}`}
-                  {research.pages && `, ${research.pages}`}
-                  {research.doi && (
-                    <>
-                      . DOI:{" "}
-                      <a
-                        href={`https://doi.org/${research.doi}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {research.doi}
-                      </a>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className="container my-4">
+          <h5>ผลงานวิจัย</h5>
+          <ul>
+            {researches.map((r, i) => (
+              <li key={i}>
+                <strong>{r.authors}</strong> ({r.year}) <em>{r.title}</em>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

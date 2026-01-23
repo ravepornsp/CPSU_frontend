@@ -6,7 +6,7 @@ import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
 const Detail_News = () => {
@@ -19,22 +19,24 @@ const Detail_News = () => {
     if (!confirmDelete) return;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/api/v1/admin/news/${id}`
-      );
-      console.log("News deleted successfully:", response.data);
+      await api.delete(`/admin/news/${id}`);
       alert("ลบข่าวสารสำเร็จ");
       navigate("/admin/news");
     } catch (error) {
       console.error("Error deleting news:", error);
+
+      if (error.response?.status === 401) {
+        alert("กรุณาเข้าสู่ระบบใหม่");
+        localStorage.clear();
+        navigate("/login");
+      }
     }
   };
+
   useEffect(() => {
     const detailNews = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/v1/admin/news/${id}`
-        );
+        const response = await api.get(`/admin/news/${id}`);
         const data = response.data;
         setNews(data);
       } catch (error) {

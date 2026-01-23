@@ -1,61 +1,83 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
-import "../../css/admin/personnel.css";
+import "../../css/admin/subject.css";
 
 const Subject_edit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [courseOptions, setCourseOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     subject_id: "",
-    course_id: "",
-    thai_course: "",
-    plan_type: "",
-    semester: "",
     thai_subject: "",
     eng_subject: "",
     credits: "",
+    semester_id: "",
     compulsory_subject: "",
     condition: "",
-    description_id: "",
     description_thai: "",
     description_eng: "",
-    clo_id: "",
     clo: "",
+    course_id: "",
+    plan_type_id: "",
   });
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const semesterReverseMap = {
+    "ปีที่ 1 ภาคการศึกษาที่ 1": "11",
+    "ปีที่ 1 ภาคการศึกษาที่ 2": "12",
+    "ปีที่ 2 ภาคการศึกษาที่ 1": "21",
+    "ปีที่ 2 ภาคการศึกษาที่ 2": "22",
+    "ปีที่ 3 ภาคการศึกษาที่ 1": "31",
+    "ปีที่ 3 ภาคการศึกษาที่ 2": "32",
+    "ปีที่ 4 ภาคการศึกษาที่ 1": "41",
+    "ปีที่ 4 ภาคการศึกษาที่ 2": "42",
+  };
+
+  const planTypeReverseMap = {
+    โครงงานวิจัย: "1",
+    สหกิจศึกษา: "2",
+  };
+
+  useEffect(() => {
+    api
+      .get("/admin/course")
+      .then((res) => setCourseOptions(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
     const fetchSubject = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/v1/admin/subject/${id}`);
+        const res = await api.get(`/admin/subject/${id}`);
+        const s = res.data;
+
         setFormData({
-          subject_id: res.data.subject_id || "",
-          course_id: res.data.course_id || "",
-          thai_course: res.data.thai_course || "",
-          plan_type: res.data.plan_type || "",
-          semester: res.data.semester || "",
-          thai_subject: res.data.thai_subject || "",
-          eng_subject: res.data.eng_subject || "",
-          credits: res.data.credits || "",
-          compulsory_subject: res.data.compulsory_subject || "",
-          condition: res.data.condition || "",
-          description_id: res.data.description_id || "",
-          description_thai: res.data.description_thai || "",
-          description_eng: res.data.description_eng || "",
-          clo_id: res.data.clo_id || "",
-          clo: res.data.clo || "",
+          subject_id: s.subject_id || "",
+          thai_subject: s.thai_subject || "",
+          eng_subject: s.eng_subject || "",
+          credits: s.credits || "",
+
+          semester_id: semesterReverseMap[s.semester] || "",
+          plan_type_id: planTypeReverseMap[s.plan_type] || "",
+
+          compulsory_subject: s.compulsory_subject || "",
+          condition: s.condition || "",
+          description_thai: s.description_thai || "",
+          description_eng: s.description_eng || "",
+          clo: s.clo || "",
+          course_id: s.course_id || "",
         });
       } catch (err) {
-        console.error("Error loading subject data", err);
-        setError("ไม่พบข้อมูลรายวิชาหรือเกิดข้อผิดพลาดในการโหลดข้อมูล");
+        console.error(err);
+        setError("ไม่พบข้อมูลรายวิชา");
       } finally {
         setLoading(false);
       }
@@ -66,19 +88,32 @@ const Subject_edit = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      await axios.put(`http://localhost:8080/api/v1/admin/subject/${id}`, formData);
-      alert("แก้ไขข้อมูลรายวิชาสำเร็จ");
+      const payload = {
+        subject_id: formData.subject_id,
+        thai_subject: formData.thai_subject,
+        eng_subject: formData.eng_subject,
+        credits: formData.credits,
+        course_id: formData.course_id,
+        semester: semesterReverseMap[formData.semester_id],
+        plan_type: planTypeReverseMap[formData.plan_type_id],
+
+        compulsory_subject: formData.compulsory_subject.trim() || "-",
+        condition: formData.condition.trim() || "-",
+        description_thai: formData.description_thai,
+        description_eng: formData.description_eng,
+        clo: formData.clo.trim() || "-",
+      };
+
+      await api.put(`/admin/subject/${id}`, payload);
+      alert("แก้ไขรายวิชาสำเร็จ");
       navigate("/admin/subject");
     } catch (err) {
       console.error(err);
@@ -86,74 +121,186 @@ const Subject_edit = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate("/admin/subject");
-  };
-
-  if (loading) return <p>กำลังโหลดข้อมูล...</p>;
+  if (loading) return <p className="m-4">กำลังโหลดข้อมูล...</p>;
 
   return (
     <>
       <Headers />
       <Navbar />
+
       <div className="container mt-4">
         <div className="row">
           <div className="col-sm-3">
             <Menu />
           </div>
-          <div className="col-sm-9 text-start">
-            <h2>แก้ไขข้อมูลรายวิชา</h2>
-            {error && <div className="alert alert-danger">{error}</div>}
-            <form onSubmit={handleSave}>
-              {[
-                { label: "รหัสวิชา", name: "subject_id" },
-                { label: "รหัสหลักสูตร", name: "course_id" },
-                { label: "ชื่อหลักสูตร (ไทย)", name: "thai_course" },
-                { label: "แผนการเรียน", name: "plan_type" },
-                { label: "ภาคเรียน", name: "semester" },
-                { label: "ชื่อวิชา (ไทย)", name: "thai_subject" },
-                { label: "ชื่อวิชา (อังกฤษ)", name: "eng_subject" },
-                { label: "หน่วยกิต", name: "credits" },
-                { label: "บังคับ/ไม่บังคับ", name: "compulsory_subject" },
-                { label: "เงื่อนไขรายวิชา", name: "condition" },
-                { label: "รหัสคำอธิบายรายวิชา", name: "description_id" },
-                { label: "คำอธิบายรายวิชา (ไทย)", name: "description_thai", isTextArea: true },
-                { label: "คำอธิบายรายวิชา (อังกฤษ)", name: "description_eng", isTextArea: true },
-                { label: "รหัส CLO", name: "clo_id" },
-                { label: "CLO (ผลลัพธ์การเรียนรู้)", name: "clo", isTextArea: true },
-              ].map((field) => (
-                <div className="mb-3" key={field.name}>
-                  <label>{field.label}</label>
-                  {field.isTextArea ? (
-                    <textarea
-                      name={field.name}
-                      value={formData[field.name]}
-                      onChange={handleChange}
-                      className="form-control"
-                      rows="4"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      name={field.name}
-                      value={formData[field.name]}
-                      onChange={handleChange}
-                      className="form-control"
-                    />
-                  )}
-                </div>
-              ))}
 
-              <button type="submit" className="btn btn-success me-2">
-                บันทึก
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={handleCancel}>
+          <div className="col-sm-9 text-start">
+            <h2>แก้ไขรายวิชา</h2>
+
+            {error && <div className="alert alert-danger">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              {/* course */}
+              <div className="mb-3">
+                <label>หลักสูตร</label>
+                <select
+                  name="course_id"
+                  value={formData.course_id}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                >
+                  <option value="">-- เลือกหลักสูตร --</option>
+                  {courseOptions.map((course) => (
+                    <option key={course.course_id} value={course.course_id}>
+                      {course.thai_course}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label>รหัสรายวิชา</label>
+                <input
+                  name="subject_id"
+                  value={formData.subject_id}
+                  onChange={handleChange}
+                  className="form-control"
+                  disabled
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>ชื่อรายวิชา (ไทย)</label>
+                <input
+                  name="thai_subject"
+                  value={formData.thai_subject}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>ชื่อรายวิชา (อังกฤษ)</label>
+                <input
+                  name="eng_subject"
+                  value={formData.eng_subject}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>หน่วยกิต</label>
+                <input
+                  name="credits"
+                  value={formData.credits}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>ชั้นปีและภาคการศึกษา</label>
+                <select
+                  name="semester_id"
+                  value={formData.semester_id}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                >
+                  <option value="">-- เลือก --</option>
+                  <option value="11">ปี 1 เทอม 1</option>
+                  <option value="12">ปี 1 เทอม 2</option>
+                  <option value="21">ปี 2 เทอม 1</option>
+                  <option value="22">ปี 2 เทอม 2</option>
+                  <option value="31">ปี 3 เทอม 1</option>
+                  <option value="32">ปี 3 เทอม 2</option>
+                  <option value="41">ปี 4 เทอม 1</option>
+                  <option value="42">ปี 4 เทอม 2</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label>แผนการศึกษา</label>
+                <select
+                  name="plan_type_id"
+                  value={formData.plan_type_id}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                >
+                  <option value="">-- เลือก --</option>
+                  <option value="1">โครงงานวิจัย</option>
+                  <option value="2">สหกิจศึกษา</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label>วิชาบังคับ</label>
+                <input
+                  name="compulsory_subject"
+                  value={formData.compulsory_subject}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>เงื่อนไข</label>
+                <input
+                  name="condition"
+                  value={formData.condition}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>คำอธิบาย (ไทย)</label>
+                <textarea
+                  name="description_thai"
+                  value={formData.description_thai}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>คำอธิบาย (อังกฤษ)</label>
+                <textarea
+                  name="description_eng"
+                  value={formData.description_eng}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label>CLO</label>
+                <textarea
+                  name="clo"
+                  value={formData.clo}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
+
+              <button className="btn btn-success me-2">บันทึก</button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate("/admin/subject")}
+              >
                 ยกเลิก
               </button>
             </form>
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

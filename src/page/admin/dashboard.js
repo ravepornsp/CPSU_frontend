@@ -4,7 +4,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 
 const Dashboard = () => {
   const [newsCount, setNewsCount] = useState(0);
@@ -20,19 +20,19 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const newsRes = await axios.get("http://localhost:8080/api/v1/admin/news");
-      const courseRes = await axios.get("http://localhost:8080/api/v1/admin/course");
-      const subjectRes = await axios.get("http://localhost:8080/api/v1/admin/subject");
-    //   const activityRes = await axios.get("http://localhost:8080/api/v1/admin/activity");
-      const staffRes = await axios.get("http://localhost:8080/api/v1/admin/personnel");
-    //   const userRes = await axios.get("http://localhost:8080/api/v1/admin/users");
-
+      const newsRes = await api.get("/admin/news");
+      const courseRes = await api.get("/admin/course");
+      const subjectRes = await api.get("/admin/subject");
+      const staffRes = await api.get("/admin/personnel");
+      const userRes = await api.get("/admin/user");
+      const eventRes = await api.get("/admin/calendar");
+      
       setNewsCount(newsRes.data.length);
       setCourseCount(courseRes.data.length);
       setSubjectCount(subjectRes.data.length);
-    //   setActivityCount(activityRes.data.length);
       setStaffCount(staffRes.data.length);
-    //   setUserCount(userRes.data.length);
+      setUserCount(userRes.data.length);
+      setActivityCount(eventRes.data.length);
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล Dashboard:", error);
     }
@@ -50,7 +50,7 @@ const Dashboard = () => {
           </div>
 
           <div className="col-sm-9">
-            <h2 className="mb-4">แดชบอร์ดผู้ดูแลระบบ</h2>
+            <h2 className="mb-4">Dashboard</h2>
 
             <div className="row mb-4">
               <div className="col-md-4">
@@ -110,23 +110,42 @@ const Dashboard = () => {
 
             <div className="row">
               <div className="col">
-                <Link to="/admin/news" className="btn btn-outline-info me-2 mb-2">
+                <Link
+                  to="/admin/news"
+                  className="btn btn-outline-info me-2 mb-2"
+                >
                   จัดการข่าวสาร
                 </Link>
-                <Link to="/admin/course" className="btn btn-outline-primary me-2 mb-2">
+                <Link
+                  to="/admin/course"
+                  className="btn btn-outline-primary me-2 mb-2"
+                >
                   จัดการหลักสูตร
                 </Link>
-                <Link to="/admin/users" className="btn btn-outline-success me-2 mb-2">
-                  จัดการผู้ใช้
+                <Link
+                  to="/admin/subject"
+                  className="btn btn-outline-success me-2 mb-2"
+                >
+                  จัดการรายวิชา
                 </Link>
-                <Link to="/admin/activities" className="btn btn-outline-dark me-2 mb-2">
+
+                <Link
+                  to="/admin/activities"
+                  className="btn btn-outline-dark me-2 mb-2"
+                >
                   จัดการกิจกรรม
                 </Link>
-                <Link to="/admin/personnel" className="btn btn-outline-warning me-2 mb-2">
+                <Link
+                  to="/admin/personnel"
+                  className="btn btn-outline-warning me-2 mb-2"
+                >
                   จัดการบุคลากร
                 </Link>
-                <Link to="/admin/subject" className="btn btn-outline-secondary mb-2">
-                  จัดการรายวิชา
+                <Link
+                  to="/admin/users"
+                  className="btn btn-outline-secondary me-2 mb-2"
+                >
+                  จัดการผู้ใช้
                 </Link>
               </div>
             </div>

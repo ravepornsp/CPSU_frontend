@@ -1,5 +1,5 @@
 // AppRoutes.js
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import News from "./page/news";
 import NewsDetail from "./page/news_detail";
 // import Admission from "./page/admission";
@@ -49,56 +49,64 @@ import Admission_admin from "./page/admin/admission";
 import AddAdmission from "./page/admin/addAdmission";
 import EditAdmission from "./page/admin/editAdmission";
 
+import History from "./page/admin/history";
+
 const AppRoutes = () => {
+  const RequireAuth = () => {
+    const token = localStorage.getItem("access_token");
+    return token ? <Outlet /> : <Navigate to="/login" replace />;
+  };
+
   return (
     <Routes>
       {/* Default Redirect */}
       <Route path="/" element={<Navigate to="/home" />} />
       {/* Admin Group */}
 
-      <Route path="/admin">
-        <Route path="addnews" element={<Add_News />} />
-        <Route path="news" element={<News_admin />} />
-        <Route path="news/:id" element={<Detail_News />} />
-        <Route path="editnews/:id" element={<Edit_News />} />
+      <Route element={<RequireAuth />}>
+        <Route path="/admin">
+          <Route path="dashboard" element={<Dashboard />} />
 
-        <Route path="addcourse" element={<Add_course />} />
-        <Route path="course" element={<Course_admin />} />
-        <Route path="course/:id" element={<Detail_course />} />
-        <Route path="editcourse/:id" element={<Edit_course />} />
+          <Route path="news" element={<News_admin />} />
+          <Route path="addnews" element={<Add_News />} />
+          <Route path="news/:id" element={<Detail_News />} />
+          <Route path="editnews/:id" element={<Edit_News />} />
 
-        <Route path="addsubject" element={<Add_Subject />} />
-        <Route path="subject" element={<Subject_admin />} />
-        <Route path="subject/:id" element={<Detail_Subject />} />
-        <Route path="editsubject/:id" element={<Edit_Subject />} />
+          <Route path="course" element={<Course_admin />} />
+          <Route path="addcourse" element={<Add_course />} />
+          <Route path="course/:id" element={<Detail_course />} />
+          <Route path="editcourse/:id" element={<Edit_course />} />
 
-        <Route path="addpersonnel" element={<Add_Personnel />} />
-        <Route path="personnel" element={<Personnel_admin />} />
-        <Route path="personnel/:id" element={<Detail_Personnel />} />
-        <Route path="editpersonnel/:id" element={<Edit_Personnel />} />
+          <Route path="subject" element={<Subject_admin />} />
+          <Route path="addsubject" element={<Add_Subject />} />
+          <Route path="subject/:id" element={<Detail_Subject />} />
+          <Route path="editsubject/:id" element={<Edit_Subject />} />
 
-        <Route path="calendar" element={<EventCalendarAdmin />} />
-        <Route path="calendar/add" element={<EventFormAdd />} />
+          <Route path="personnel" element={<Personnel_admin />} />
+          <Route path="addpersonnel" element={<Add_Personnel />} />
+          <Route path="personnel/:id" element={<Detail_Personnel />} />
+          <Route path="editpersonnel/:id" element={<Edit_Personnel />} />
 
-        <Route path="userpermissions" element={<UserPermissions />} />
+          <Route path="calendar" element={<EventCalendarAdmin />} />
+          <Route path="calendar/add" element={<EventFormAdd />} />
 
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="admission" element={<Admission_admin />} />
+          <Route path="userpermissions" element={<UserPermissions />} />
 
-        <Route path="/admin/admission/add" element={<AddAdmission />} />
-        <Route path="/admin/admission/edit/:id" element={<EditAdmission />} />
+          <Route path="admission" element={<Admission_admin />} />
+          <Route path="admission/add" element={<AddAdmission />} />
+          <Route path="admission/edit/:id" element={<EditAdmission />} />
+
+          <Route path="history" element={<History />} />
+        </Route>
       </Route>
 
-      <Route path="/teacher">
-        <Route path="information" element={<TeacherInfomation />} />
-        <Route path="informationedit" element={<EditTeacherInfomation />} />
+      <Route element={<RequireAuth />}>
+        <Route path="/teacher">
+          <Route path="information" element={<TeacherInfomation />} />
+          <Route path="informationedit" element={<EditTeacherInfomation />} />
+        </Route>
       </Route>
-      {/* User Group */}
-      {/* <Route path="/user" element={<UserLayout />}>
-        <Route path="home" element={<UserHome />} />
-        <Route path="news" element={<UserNews />} />
-        <Route path="profile" element={<UserProfile />} />
-      </Route> */}
+
       <Route path="/login" element={<Login />}></Route>
       <Route path="/home" element={<Homepage />}></Route>
       <Route path="/personnel" element={<Personnel />} />
@@ -114,7 +122,6 @@ const AppRoutes = () => {
       <Route path="/subject/:subject_id" element={<Subject_detail />} />
       <Route path="/calendar" element={<EventCalendarPublic />} />
       <Route path="/admission" element={<Admission />} />
-
     </Routes>
   );
 };

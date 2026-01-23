@@ -16,7 +16,7 @@ const NewsDetail = () => {
     const fetchNewsDetail = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/news/${news_id}`
+          `http://localhost:8080/api/v1/news/${news_id}`
         );
         setNews(res.data);
         setLoading(false);

@@ -20,7 +20,7 @@ const TeacherDetail = () => {
     const fetchPerson = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
+          `http://localhost:8080/api/v1/personnel/${id}`
         );
         setPerson(res.data.personnel);
         setLoading(false);
@@ -38,7 +38,7 @@ const TeacherDetail = () => {
     const fetchResearch = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/research`
+          `http://localhost:8080/api/v1/personnel/research`
         );
 
         const filteredResearches = res.data?.filter(

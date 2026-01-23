@@ -6,7 +6,7 @@ import Menu from "../../component/menu";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "../../css/admin/news_add.css";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
 // Cropper import
@@ -128,8 +128,10 @@ const Add_News = () => {
     });
 
     try {
-      await axios.post("http://localhost:8080/api/v1/admin/news", newNews, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await api.post("/admin/news", newNews, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       alert("เผยแพร่ข่าวสารสำเร็จ");

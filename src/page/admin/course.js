@@ -5,7 +5,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 
 const Course = () => {
   const [courses, setCourses] = useState([]);
@@ -13,17 +13,19 @@ const Course = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/v1/admin/course")
-      .then((res) => {
+    const fetchCourses = async () => {
+      try {
+        const res = await api.get("/admin/course");
         setCourses(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching courses:", err);
         setError("ไม่สามารถโหลดข้อมูลหลักสูตรได้");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchCourses();
   }, []);
 
   const bachelorCourses = courses.filter((c) => c.degree === "ปริญญาตรี");

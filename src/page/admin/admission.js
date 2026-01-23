@@ -5,16 +5,15 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 
 const Admission = () => {
   const [admission, setAdmission] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const rounds = admission.map((item) => item.round);
 
   useEffect(() => {
-    axios
+    api
       .get("http://localhost:8080/api/v1/admin/admission")
       .then((res) => {
         setAdmission(res.data || []);
@@ -30,11 +29,12 @@ const Admission = () => {
     if (!window.confirm("ต้องการลบข้อมูลรอบนี้ใช่หรือไม่?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/v1/admin/admission/${id}`);
-
-      // ลบออกจาก state ทันที
-      setAdmission((prev) => prev.filter((item) => item.admission_id !== id));
-
+      await api.delete(
+        `http://localhost:8080/api/v1/admin/admission/${id}`
+      );
+      setAdmission((prev) =>
+        prev.filter((item) => item.admission_id !== id)
+      );
       alert("ลบข้อมูลสำเร็จ");
     } catch (error) {
       console.error(error);
@@ -68,70 +68,72 @@ const Admission = () => {
               <p>ยังไม่มีข้อมูลการรับสมัคร</p>
             )}
 
-            {admission.map((item) => {
-              return (
-                <div
-                  key={item.admission_id}
-                  className="mb-5 border-bottom pb-4"
-                >
-                  {/* หัวข้อ + ปุ่ม */}
-                  <h2>{item.round}</h2>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h4 className="mb-0">{item.title}</h4>{" "}
-                    {/* แสดงข้อความจาก back office */}
-                    <div>
-                      {/* ปุ่มแก้ไข */}
-                      <Link
-                        to={`/admin/admission/edit/${item.admission_id}`}
-                        className="btn btn-sm btn-warning me-2"
-                      >
-                        แก้ไข
-                      </Link>
+            {admission.map((item) => (
+              <div
+                key={item.admission_id}
+                className="mb-5 border-bottom pb-4"
+              >
+                {/* หัวข้อ */}
+                <h2>{item.round}</h2>
 
-                      {/* ปุ่มลบ */}
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(item.admission_id)}
-                      >
-                        ลบ
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* เนื้อหา */}
-                  <div
-                    className="d-flex align-items-start"
-                    style={{
-                      gap: "20px",
-                      marginTop: "15px",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {item.file_image && (
-                      <div style={{ flex: "0 0 auto" }}>
-                        <img
-                          src={item.file_image}
-                          alt={item.title}
-                          style={{
-                            maxWidth: "500px",
-                            width: "100%",
-                            borderRadius: "8px",
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    <div style={{ flex: "1 1 0", minWidth: "200px" }}>
-                      <div
-                        className="admission-detail"
-                        style={{ textAlign: "left" }}
-                        dangerouslySetInnerHTML={{ __html: item.detail }}
-                      />
-                    </div>
+                {/* ปุ่ม */}
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h4 className="mb-0">{item.title}</h4>
+                  <div>
+                    <Link
+                      to={`/admin/admission/edit/${item.admission_id}`}
+                      className="btn btn-sm btn-warning me-2"
+                    >
+                      แก้ไข
+                    </Link>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() =>
+                        handleDelete(item.admission_id)
+                      }
+                    >
+                      ลบ
+                    </button>
                   </div>
                 </div>
-              );
-            })}
+
+                {/* เนื้อหา */}
+                <div
+                  className="d-flex align-items-start"
+                  style={{
+                    gap: "20px",
+                    marginTop: "15px",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {/* รูป (รองรับ string และกันค่าว่าง) */}
+                  {item.file_image && item.file_image !== "" && (
+                    <div style={{ flex: "0 0 auto" }}>
+                      <img
+                        src={item.file_image}
+                        alt={item.title || item.round}
+                        style={{
+                          maxWidth: "500px",
+                          width: "100%",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* รายละเอียด */}
+                  <div style={{ flex: "1 1 0", minWidth: "200px" }}>
+                    <div
+                      className="admission-detail"
+                      style={{ textAlign: "left" }}
+                      dangerouslySetInnerHTML={{
+                        __html: item.detail,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

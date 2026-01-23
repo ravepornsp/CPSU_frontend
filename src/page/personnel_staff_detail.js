@@ -18,7 +18,7 @@ const TeacherDetail = () => {
     const fetchPerson = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
+          `http://localhost:8080/api/v1/personnel/${id}`
         );
         setPerson(res.data.personnel);
         setLoading(false);

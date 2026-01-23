@@ -1,27 +1,34 @@
 import React, { useEffect, useState } from "react";
 import "../../css/admin/news.css";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
+import api from "../../api/axios";
 
 function News_admin() {
   const [news, setNews] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/admin/news");
+        const res = await api.get("/admin/news"); // ✅ ใช้ api
         setNews(res.data);
       } catch (err) {
         console.error("Error fetching news", err);
+
+        // 🔐 ถ้า token หมดอายุ / ไม่มีสิทธิ์
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          navigate("/login");
+        }
       }
     };
 
     fetchNews();
-  }, []);
+  }, [navigate]);
 
   return (
     <>
@@ -30,12 +37,10 @@ function News_admin() {
 
       <div className="container text-center mt-4">
         <div className="row">
-          {/* Sidebar Menu */}
           <div className="col-sm-3">
             <Menu />
           </div>
 
-          {/* Main Content */}
           <div className="col-sm-9">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h3 className="news-title">ข่าวสารทั้งหมด</h3>
@@ -57,17 +62,15 @@ function News_admin() {
                       <div className="card h-100 shadow-sm news-card">
                         <img
                           src={
-                            item?.cover_image
-                              ? item.cover_image
-                              : item?.images?.length > 0
-                              ? item.images[0].file_image
-                              : "/images/cpsu.png"
+                            item.cover_image ||
+                            item?.images?.[0]?.file_image ||
+                            "/images/cpsu.png"
                           }
                           className="card-img-top news-img"
                           alt={item.title}
                         />
                         <div className="card-body">
-                          <h5 className="card-title news-card-title">
+                          <h5 className="card-title">
                             {item.title.length > 70
                               ? item.title.slice(0, 70) + "..."
                               : item.title}
@@ -75,10 +78,7 @@ function News_admin() {
                         </div>
                         <div className="card-footer">
                           <small className="text-muted">
-                            {new Date(item.created_at).toLocaleString("th-TH", {
-                              dateStyle: "short",
-                              timeStyle: "short",
-                            })}
+                            {new Date(item.created_at).toLocaleString("th-TH")}
                           </small>
                         </div>
                       </div>
@@ -91,7 +91,6 @@ function News_admin() {
         </div>
       </div>
 
-      <div id="space"></div>
       <Footer />
     </>
   );

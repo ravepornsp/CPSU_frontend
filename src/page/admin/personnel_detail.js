@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import "../../css/admin/news.css";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
@@ -16,9 +16,7 @@ function Detail_Personnel() {
   useEffect(() => {
     const fetchPerson = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
-        );
+        const res = await api.get(`/admin/personnel/${id}`);
         setPerson(res.data.personnel);
         setLoading(false);
       } catch (err) {
@@ -94,14 +92,14 @@ function Detail_Personnel() {
 
               <div className="row">
                 <div className="col-md-4 text-center">
-                  <img
-                    src={person.file_image}
-                    alt={person.thai_name}
-                    className="img-fluid rounded border"
-                    onError={(e) =>
-                      (e.target.src = "/images/default-profile.png")
-                    }
-                  />
+                  {person.file_image && (
+                    <img
+                      src={person.file_image}
+                      alt="personnel"
+                      className="img-fluid"
+                    />
+                  )}
+
                   <p className="mt-3">
                     <strong>อีเมล</strong> <br />
                     <a href={`mailto:${person.email}`}>{person.email}</a>

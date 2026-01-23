@@ -13,7 +13,7 @@ const Admission = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/v1/admin/admission")
+      .get("http://localhost:8080/api/v1/admission")
       .then((res) => {
         setAdmissions(res.data || []);
         setLoading(false);

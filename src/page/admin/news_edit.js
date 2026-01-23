@@ -7,7 +7,7 @@ import Menu from "../../component/menu";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "../../css/admin/news_edit.css";
-import axios from "axios";
+import api from "../../api/axios";
 
 // Cropper
 import Cropper from "react-easy-crop";
@@ -26,9 +26,9 @@ const Edit_News = () => {
 
   // รูปภาพ
   const [fileImage, setFileImage] = useState(null); // cover ใหม่ ถ้ามี
-  const [coverUrl, setCoverUrl] = useState(null);    // URL cover เดิม หรือ preview ใหม่
+  const [coverUrl, setCoverUrl] = useState(null); // URL cover เดิม หรือ preview ใหม่
 
-  const [newsImages, setNewsImages] = useState([]);        // File object ใหม่
+  const [newsImages, setNewsImages] = useState([]); // File object ใหม่
   const [newsPreviewUrls, setNewsPreviewUrls] = useState([]); // URL preview (รวมใหม่ + เดิม)
   const [existingNewsUrls, setExistingNewsUrls] = useState([]); // URL ที่มาจาก backend เดิม
 
@@ -43,9 +43,7 @@ const Edit_News = () => {
 
     const fetchDetailNews = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/news/${id}`
-        );
+        const res = await api.get(`/admin/news/${id}`);
         const data = res.data;
 
         setTitle(data.title || "");
@@ -55,7 +53,7 @@ const Edit_News = () => {
 
         if (data.images && data.images.length > 0) {
           const urls = data.images.map((img) => img.file_image);
-          const cover = data.cover_image
+          const cover = data.cover_image;
           const others = urls.slice(1);
 
           setCoverUrl(cover);
@@ -120,7 +118,7 @@ const Edit_News = () => {
 
     // cover
     if (fileImage) {
-      formData.append("cover", fileImage);
+      formData.append("cover_image", fileImage);
     } else if (coverUrl) {
       // ถ้าไม่มี file ใหม่ แต่มี URL เดิม ให้ส่ง URL เดิม
       formData.append("existing_cover", coverUrl);
@@ -138,13 +136,9 @@ const Edit_News = () => {
     }
 
     try {
-      await axios.put(
-        `http://localhost:8080/api/v1/admin/news/${id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      await api.put(`/admin/news/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       alert("แก้ไขข่าวสารสำเร็จ");
       navigate(`/admin/news/${id}`);
     } catch (err) {
@@ -296,7 +290,7 @@ const Edit_News = () => {
                     onChange={onNewsImagesChange}
                   />
 
-                  {(newsPreviewUrls.length > 0) && (
+                  {newsPreviewUrls.length > 0 && (
                     <div
                       className="mt-3"
                       style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
@@ -327,7 +321,9 @@ const Edit_News = () => {
                               );
                               // ลบไฟล์ที่ตรงกับ url นี้ (ถ้ามี)
                               setNewsImages((prevFiles) =>
-                                prevFiles.filter((f) => URL.createObjectURL(f) !== url)
+                                prevFiles.filter(
+                                  (f) => URL.createObjectURL(f) !== url
+                                )
                               );
                             }}
                             style={{
@@ -353,10 +349,7 @@ const Edit_News = () => {
                   )}
                 </div>
 
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                >
+                <button type="submit" className="btn btn-primary">
                   บันทึกการแก้ไข
                 </button>
               </form>

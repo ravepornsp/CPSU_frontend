@@ -4,7 +4,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/course_detail.css";
-import axios from "axios";
+import api from "../../api/axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 
 const Detail_course = () => {
@@ -17,14 +17,12 @@ const Detail_course = () => {
 
   const deleteCourse = async () => {
     const confirmDelete = window.confirm(
-      "คุณแน่ใจหรือไม่ว่าต้องการลบหลักสูตรนี้?"
+      "คุณแน่ใจหรือไม่ว่าต้องการลบหลักสูตรนี้?",
     );
     if (!confirmDelete) return;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/api/v1/admin/course/${id}`
-      );
+      const response = await api.delete(`/admin/course/${id}`);
       console.log("✅ courses from API:", response.data);
       console.log("Course deleted successfully:", response.data);
       alert("ลบหลักสูตรสำเร็จ");
@@ -33,45 +31,43 @@ const Detail_course = () => {
       console.error("Error deleting course:", error);
     }
   };
+  const semesterMap = {
+    11: "ปีที่ 1 ภาคการศึกษาที่ 1",
+    12: "ปีที่ 1 ภาคการศึกษาที่ 2",
+    21: "ปีที่ 2 ภาคการศึกษาที่ 1",
+    22: "ปีที่ 2 ภาคการศึกษาที่ 2",
+    31: "ปีที่ 3 ภาคการศึกษาที่ 1",
+    32: "ปีที่ 3 ภาคการศึกษาที่ 2",
+    41: "ปีที่ 4 ภาคการศึกษาที่ 1",
+    42: "ปีที่ 4 ภาคการศึกษาที่ 2",
+  };
+
+  const planTypeMap = {
+    1: "โครงงานวิจัย",
+    2: "สหกิจศึกษา",
+  };
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:8080/api/v1/admin/course/${id}`)
-      .then((res) => {
-        // console.log("Course Detail:", res.data);
-        console.log("Course ID:", id);
-        setCourseDetail(res.data);
-      })
-      .catch((err) => {
+    const fetchDetail = async () => {
+      try {
+        const [courseRes, roadmapRes, subjectRes, structureRes] =
+          await Promise.all([
+            api.get(`/admin/course/${id}`),
+            api.get("/admin/roadmap"),
+            api.get("/admin/subject"),
+            api.get("/admin/structure"),
+          ]);
+
+        setCourseDetail(courseRes.data);
+        setRoadmap(roadmapRes.data);
+        setSubjects(subjectRes.data);
+        setStructures(structureRes.data);
+      } catch (err) {
         console.error("Error fetching course detail:", err);
-      });
+      }
+    };
 
-    axios
-      .get(`http://localhost:8080/api/v1/admin/roadmap`)
-      .then((res) => {
-        setRoadmap(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching course detail:", err);
-      });
-
-    axios
-      .get("http://localhost:8080/api/v1/admin/subject")
-      .then((res) => {
-        setSubjects(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching subject:", err);
-      });
-
-    axios
-      .get("http://localhost:8080/api/v1/admin/structure")
-      .then((res) => {
-        setStructures(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching structure:", err);
-      });
+    fetchDetail();
   }, [id]);
 
   return (
@@ -97,13 +93,15 @@ const Detail_course = () => {
                       แก้ไข
                     </Link>
                   )}
-                  <div
-                    className="btn btn-danger"
-                    id="btn-delete"
-                    onClick={deleteCourse}
-                  >
-                    ลบ
-                  </div>
+                  {courseDetail && (
+                    <div
+                      className="btn btn-danger"
+                      id="btn-delete"
+                      onClick={deleteCourse}
+                    >
+                      ลบ
+                    </div>
+                  )}
                 </div>
               </div>
               <h3 id="course-name">
@@ -282,7 +280,7 @@ const Detail_course = () => {
               (() => {
                 // กรองรายวิชาเฉพาะของ course_id ที่เลือก
                 const filteredSubjects = subjects.filter(
-                  (subj) => subj.course_id === courseDetail?.course_id // <-- สมมติคุณได้ courseId จาก props หรือ useParams
+                  (subj) => subj.course_id === courseDetail?.course_id, // <-- สมมติคุณได้ courseId จาก props หรือ useParams
                 );
                 // แยกกลุ่มตาม semester
                 const semesterGroups = filteredSubjects.reduce((acc, subj) => {
@@ -309,7 +307,7 @@ const Detail_course = () => {
                       return semA - semB;
                     }
                     return 0; // ถ้าไม่ match regex
-                  }
+                  },
                 );
 
                 return sortedSemesters.map((semester) => {
@@ -321,7 +319,7 @@ const Detail_course = () => {
                       acc[plan].push(subj);
                       return acc;
                     },
-                    {}
+                    {},
                   );
 
                   return (
