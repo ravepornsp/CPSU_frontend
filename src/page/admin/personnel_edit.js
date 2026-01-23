@@ -6,18 +6,22 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/personnel.css";
+import { useMemo } from 'react';
 
 function EditPersonnel() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const academicPositions = [
-    { id: 1, thai: "รศ.ดร.", eng: "Assoc.Prof.Dr." },
-    { id: 2, thai: "ผศ.ดร.", eng: "Asst.Prof.Dr." },
-    { id: 3, thai: "ผศ.", eng: "Asst.Prof." },
-    { id: 4, thai: "อ.ดร.", eng: "Dr." },
-    { id: 5, thai: "อ.", eng: "" },
-  ];
+  const academicPositions = useMemo(
+    () => [
+      { id: 1, thai: "รศ.ดร.", eng: "Assoc.Prof.Dr." },
+      { id: 2, thai: "ผศ.ดร.", eng: "Asst.Prof.Dr." },
+      { id: 3, thai: "ผศ.", eng: "Asst.Prof." },
+      { id: 4, thai: "อ.ดร.", eng: "Dr." },
+      { id: 5, thai: "อ.", eng: "" },
+    ],
+    [],
+  );
 
   const departmentPositions = [
     { id: 1, name: "หัวหน้าภาควิชา" },
@@ -60,7 +64,9 @@ function EditPersonnel() {
         const res = await api.get(`/admin/personnel/${id}`);
         const p = res.data.personnel;
 
-        const academic = academicPositions.find((a) => a.id === p.academic_position_id);
+        const academic = academicPositions.find(
+          (a) => a.id === p.academic_position_id,
+        );
 
         setFormData({
           type_personnel: p.type_personnel || "สายวิชาการ",
@@ -90,7 +96,7 @@ function EditPersonnel() {
     };
 
     fetchPersonnel();
-  },[academicPositions]);
+  }, [academicPositions, id]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -99,7 +105,10 @@ function EditPersonnel() {
       const file = files[0];
 
       // ตรวจสอบประเภทและขนาดของไฟล์ก่อน
-      if (file && !["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
+      if (
+        file &&
+        !["image/jpeg", "image/png", "image/jpg"].includes(file.type)
+      ) {
         alert("โปรดเลือกไฟล์ประเภท .jpeg, .png หรือ .jpg เท่านั้น");
         return;
       }

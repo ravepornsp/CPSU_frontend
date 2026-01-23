@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
+
 const EditAdmission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const EditAdmission = () => {
   const [detail, setDetail] = useState("");
 
   const [fileImage, setFileImage] = useState(null); // รูปใหม่ (File)
-  const [oldImage, setOldImage] = useState("");
+  const [ setOldImage] = useState("");
   const [previewNewImage, setPreviewNewImage] = useState(""); // preview รูปใหม่
 
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ const EditAdmission = () => {
         setError("ไม่สามารถโหลดข้อมูลได้");
         setLoading(false);
       });
-  }, [id]);
+  }, [setOldImage ,id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -6,6 +6,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/subject.css";
+import { useMemo } from "react";
 
 const SubjectEdit = () => {
   const { id } = useParams();
@@ -30,21 +31,25 @@ const SubjectEdit = () => {
     plan_type_id: "",
   });
 
-  const semesterReverseMap = {
-    "ปีที่ 1 ภาคการศึกษาที่ 1": "11",
-    "ปีที่ 1 ภาคการศึกษาที่ 2": "12",
-    "ปีที่ 2 ภาคการศึกษาที่ 1": "21",
-    "ปีที่ 2 ภาคการศึกษาที่ 2": "22",
-    "ปีที่ 3 ภาคการศึกษาที่ 1": "31",
-    "ปีที่ 3 ภาคการศึกษาที่ 2": "32",
-    "ปีที่ 4 ภาคการศึกษาที่ 1": "41",
-    "ปีที่ 4 ภาคการศึกษาที่ 2": "42",
-  };
+  const semesterReverseMap = useMemo(() => {
+    return {
+      "ปีที่ 1 ภาคการศึกษาที่ 1": "11",
+      "ปีที่ 1 ภาคการศึกษาที่ 2": "12",
+      "ปีที่ 2 ภาคการศึกษาที่ 1": "21",
+      "ปีที่ 2 ภาคการศึกษาที่ 2": "22",
+      "ปีที่ 3 ภาคการศึกษาที่ 1": "31",
+      "ปีที่ 3 ภาคการศึกษาที่ 2": "32",
+      "ปีที่ 4 ภาคการศึกษาที่ 1": "41",
+      "ปีที่ 4 ภาคการศึกษาที่ 2": "42",
+    };
+  }, []);
 
-  const planTypeReverseMap = {
-    โครงงานวิจัย: "1",
-    สหกิจศึกษา: "2",
-  };
+  const planTypeReverseMap = useMemo(() => {
+    return {
+      โครงงานวิจัย: "1",
+      สหกิจศึกษา: "2",
+    };
+  }, []);
 
   useEffect(() => {
     api
@@ -84,7 +89,7 @@ const SubjectEdit = () => {
     };
 
     fetchSubject();
-  }, [planTypeReverseMap, semesterReverseMap]);
+  }, [planTypeReverseMap, semesterReverseMap, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
