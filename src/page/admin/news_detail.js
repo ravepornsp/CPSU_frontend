@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
-const Detail_News = () => {
+const DetailNews = () => {
   const { id } = useParams();
   const [news, setNews] = useState(null);
   const navigate = useNavigate();
@@ -179,4 +179,4 @@ const Detail_News = () => {
   );
 };
 
-export default Detail_News;
+export default DetailNews;

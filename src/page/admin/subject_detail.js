@@ -8,7 +8,7 @@ import Menu from "../../component/menu";
 import { Link } from "react-router-dom";
 import "../../css/admin/subject.css";
 
-const Subject_detail = () => {
+const SubjectDetail = () => {
   const { id } = useParams(); // ดึง id จาก URL params
   const [subject, setSubject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -128,4 +128,4 @@ const Subject_detail = () => {
   );
 };
 
-export default Subject_detail;
+export default SubjectDetail;

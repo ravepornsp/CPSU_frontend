@@ -7,7 +7,7 @@ import "../../css/admin/course_detail.css";
 import api from "../../api/axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 
-const Detail_course = () => {
+const DetailCourse = () => {
   const { id } = useParams();
   const [courseDetail, setCourseDetail] = useState(null);
   const [subjects, setSubjects] = useState([]);
@@ -367,4 +367,4 @@ const Detail_course = () => {
   );
 };
 
-export default Detail_course;
+export default DetailCourse;

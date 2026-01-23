@@ -7,7 +7,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 
-function Personnel_admin() {
+function PersonnelAdmin() {
   const [personnel, setPersonnel] = useState([]);
 
   useEffect(() => {
@@ -78,4 +78,4 @@ function Personnel_admin() {
   );
 }
 
-export default Personnel_admin;
+export default PersonnelAdmin;

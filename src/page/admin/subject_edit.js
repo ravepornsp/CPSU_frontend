@@ -7,7 +7,7 @@ import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/subject.css";
 
-const Subject_edit = () => {
+const SubjectEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -306,4 +306,4 @@ const Subject_edit = () => {
   );
 };
 
-export default Subject_edit;
+export default SubjectEdit;

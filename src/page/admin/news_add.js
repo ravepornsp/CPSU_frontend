@@ -35,7 +35,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Add_News = () => {
+const AddNews = () => {
   const classes = useStyles();
   const navigate = useNavigate();
 
@@ -360,4 +360,4 @@ function createImage(url) {
   });
 }
 
-export default Add_News;
+export default AddNews;

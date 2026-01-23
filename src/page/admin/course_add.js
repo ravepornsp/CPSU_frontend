@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-const Add_course = () => {
+const AddCourse = () => {
   const [structure, setStructure] = useState("");
   const [roadmapFile, setRoadmapFile] = useState(null);
   const navigate = useNavigate();
@@ -356,4 +356,4 @@ const Add_course = () => {
   );
 };
 
-export default Add_course;
+export default AddCourse;

@@ -14,7 +14,7 @@ import Cropper from "react-easy-crop";
 import Button from "@mui/material/Button";
 import { getOrientation } from "get-orientation/browser";
 
-const Edit_News = () => {
+const EditNews = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -406,4 +406,4 @@ function createImage(url) {
   });
 }
 
-export default Edit_News;
+export default EditNews;

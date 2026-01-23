@@ -7,7 +7,7 @@ import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 import "../../css/admin/subject.css";
 
-const Subject_add = () => {
+const SubjectAdd = () => {
   const navigate = useNavigate();
   const [courseOptions, setCourseOptions] = useState([]);
 
@@ -291,4 +291,4 @@ const Subject_add = () => {
   );
 };
 
-export default Subject_add;
+export default SubjectAdd;

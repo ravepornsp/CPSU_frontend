@@ -7,7 +7,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import Menu from "../../component/menu";
 
-function Detail_Personnel() {
+function DetailPersonnel() {
   const { id } = useParams();
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -154,4 +154,4 @@ function Detail_Personnel() {
   );
 }
 
-export default Detail_Personnel;
+export default DetailPersonnel;
