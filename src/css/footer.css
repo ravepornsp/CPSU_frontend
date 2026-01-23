@@ -148,3 +148,8 @@
   }
 }
 
+
+footer .footer-links a:hover {
+  color: #ffffff; /* Hover color */
+  text-decoration: none; /* No underline on hover */
+}

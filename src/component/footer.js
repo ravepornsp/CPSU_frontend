@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer>
       <div className="footer-component">
-        {/* Contact Information */}
+        {/* ข้อมูลการติดต่อ */}
         <div className="container text-center contact-info">
           <div className="row justify-content-center align-items-center text-center">
             <div className="col-auto" id="footer-icon-text">
@@ -23,9 +23,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Main Content */}
+        {/* เนื้อหาหลักของ Footer */}
         <div className="footer-main">
-          {/* Logo + Department Name */}
+          {/* โลโก้ + ชื่อภาควิชา */}
           <div className="footer-group-name">
             <img src="/cpsu.png" id="img-footer" alt="CPSU Logo" />
             <div>
@@ -45,53 +45,51 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Footer Navigation Links */}
+          {/* ลิงก์ของ Footer */}
           <div className="footer-links">
             <div className="footer-column">
               <h5>หน้าทั้งหมด</h5>
               <ul>
-                <li><Link to="/news">ข่าวสาร</Link></li>
-                <li><Link to="/personnel">บุคลากร</Link></li>
-                <li><Link to="/course">หลักสูตร</Link></li>
-                <li><Link to="/admission">การรับสมัคร</Link></li>
-                <li><Link to="/document">เอกสาร</Link></li>
-                <li><Link to="/about">เกี่ยวกับภาควิชา</Link></li>
+                <li><Link to="/news" className="text-white text-decoration-none">ข่าวสาร</Link></li>
+                <li><Link to="/personnel" className="text-white text-decoration-none">บุคลากร</Link></li>
+                <li><Link to="/course" className="text-white text-decoration-none">หลักสูตร</Link></li>
+                <li><Link to="/admission" className="text-white text-decoration-none">การรับสมัคร</Link></li>
+                <li><Link to="/document" className="text-white text-decoration-none">เอกสาร</Link></li>
+                <li><Link to="/about" className="text-white text-decoration-none">เกี่ยวกับภาควิชา</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h5>สำหรับผู้สนใจศึกษาต่อ</h5>
               <ul>
-                <li><Link to="/news">ข่าวสาร</Link></li>
-                <li><Link to="/course">หลักสูตร</Link></li>
-                <li><Link to="/admission">การรับสมัคร</Link></li>
-                <li><Link to="/about">เกี่ยวกับภาควิชา</Link></li>
+                <li><Link to="/news" className="text-white text-decoration-none">ข่าวสาร</Link></li>
+                <li><Link to="/course" className="text-white text-decoration-none">หลักสูตร</Link></li>
+                <li><Link to="/admission" className="text-white text-decoration-none">การรับสมัคร</Link></li>
+                <li><Link to="/about" className="text-white text-decoration-none">เกี่ยวกับภาควิชา</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h5>สำหรับนักศึกษา</h5>
               <ul>
-                <li><Link to="/news">ข่าวสาร</Link></li>
-                <li><Link to="/personnel">บุคลากร</Link></li>
-                <li><Link to="/course">หลักสูตร</Link></li>
-                <li><Link to="/document">เอกสาร</Link></li>
+                <li><Link to="/news" className="text-white text-decoration-none">ข่าวสาร</Link></li>
+                <li><Link to="/personnel" className="text-white text-decoration-none">บุคลากร</Link></li>
+                <li><Link to="/course" className="text-white text-decoration-none">หลักสูตร</Link></li>
+                <li><Link to="/document" className="text-white text-decoration-none">เอกสาร</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h5>สำหรับบุคลากร</h5>
               <ul>
-                <li><Link to="/news">ข่าวสาร</Link></li>
-                <li><Link to="/personnel">บุคลากร</Link></li>
-                <li><Link to="/course">หลักสูตร</Link></li>
-                <li><Link to="/login">เข้าสู่ระบบ</Link></li>
+                <li><Link to="/news" className="text-white text-decoration-none">ข่าวสาร</Link></li>
+                <li><Link to="/personnel" className="text-white text-decoration-none">บุคลากร</Link></li>
+                <li><Link to="/course" className="text-white text-decoration-none">หลักสูตร</Link></li>
+                <li><Link to="/login" className="text-white text-decoration-none">เข้าสู่ระบบ</Link></li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* Copyright */}
+        {/* ลิขสิทธิ์ */}
         <p className="footer-copy">
-          {/* © 2025 by Department of Computing, Faculty of Science, Silpakorn
-          University. */}
           เว็บไซต์นี้เป็นส่วนหนึ่งของปริญญานิพนธ์ ภาควิชาคอมพิวเตอร์ มหาวิทยาลัยศิลปากร
         </p>
       </div>
