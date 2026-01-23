@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Menu from "../../component/menu";

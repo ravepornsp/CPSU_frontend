@@ -84,7 +84,7 @@ const SubjectEdit = () => {
     };
 
     fetchSubject();
-  }, [id]);
+  }, [planTypeReverseMap, semesterReverseMap]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

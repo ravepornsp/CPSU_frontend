@@ -17,8 +17,8 @@ const EditAdmission = () => {
   const [detail, setDetail] = useState("");
 
   const [fileImage, setFileImage] = useState(null); // รูปใหม่ (File)
-  const [oldImage, setOldImage] = useState("");     // รูปเดิม (URL string)
-  const [previewImage, setPreviewImage] = useState(""); // ไว้โชว์
+  const [oldImage, setOldImage] = useState("");
+  const [previewNewImage, setPreviewNewImage] = useState(""); // preview รูปใหม่
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,7 +33,7 @@ const EditAdmission = () => {
         setRound(data.round || "");
         setDetail(data.detail || "");
         setOldImage(data.file_image || "");
-        setPreviewImage(data.file_image || "");
+        setPreviewNewImage(data.file_image || "");
         setLoading(false);
       })
       .catch(() => {
@@ -61,10 +61,7 @@ const EditAdmission = () => {
 
     try {
       setSaving(true);
-      await api.put(
-        `/admin/admission/${id}`,
-        formData
-      );
+      await api.put(`/admin/admission/${id}`, formData);
 
       alert("บันทึกการแก้ไขสำเร็จ");
       navigate("/admin/admission");
@@ -111,9 +108,7 @@ const EditAdmission = () => {
                   <CKEditor
                     editor={ClassicEditor}
                     data={detail}
-                    onChange={(event, editor) =>
-                      setDetail(editor.getData())
-                    }
+                    onChange={(event, editor) => setDetail(editor.getData())}
                   />
                 </div>
               </div>
@@ -130,17 +125,17 @@ const EditAdmission = () => {
                     if (!file) return;
 
                     setFileImage(file);
-                    setPreviewImage(URL.createObjectURL(file)); // preview ใหม่
+                    setPreviewNewImage(URL.createObjectURL(file)); // preview ใหม่
                   }}
                 />
               </div>
 
               {/* Preview */}
-              {previewImage && (
+              {previewNewImage && (
                 <div className="mb-4">
                   <p>ตัวอย่างรูปภาพ</p>
                   <img
-                    src={previewImage}
+                    src={previewNewImage}
                     alt="preview"
                     style={{
                       maxWidth: "60%",

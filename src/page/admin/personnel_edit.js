@@ -47,13 +47,12 @@ function EditPersonnel() {
     email: "",
     website: "",
     scopus_id: "",
-    // file_image: null,
+    file_image: null,
   });
 
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [existingImage, setExistingImage] = useState("");
 
   useEffect(() => {
     const fetchPersonnel = async () => {
@@ -61,10 +60,7 @@ function EditPersonnel() {
         const res = await api.get(`/admin/personnel/${id}`);
         const p = res.data.personnel;
 
-        // หา academic_position_id จากข้อมูลที่มี (ถ้ามี)
-        const academic = academicPositions.find(
-          (a) => a.id === p.academic_position_id,
-        );
+        const academic = academicPositions.find((a) => a.id === p.academic_position_id);
 
         setFormData({
           type_personnel: p.type_personnel || "สายวิชาการ",
@@ -87,7 +83,6 @@ function EditPersonnel() {
           setPreviewImage(p.file_image);
         }
       } catch (err) {
-        console.error("Error loading personnel:", err);
         setError("ไม่สามารถโหลดข้อมูลบุคลากรได้");
       } finally {
         setLoading(false);
@@ -95,13 +90,25 @@ function EditPersonnel() {
     };
 
     fetchPersonnel();
-  }, [id]);
+  },[academicPositions]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "file_image") {
       const file = files[0];
+
+      // ตรวจสอบประเภทและขนาดของไฟล์ก่อน
+      if (file && !["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
+        alert("โปรดเลือกไฟล์ประเภท .jpeg, .png หรือ .jpg เท่านั้น");
+        return;
+      }
+
+      if (file && file.size > 5 * 1024 * 1024) {
+        alert("ขนาดไฟล์ต้องไม่เกิน 5MB");
+        return;
+      }
+
       setFormData({ ...formData, file_image: file });
       setPreviewImage(URL.createObjectURL(file));
     } else if (name === "department_position_id") {
@@ -129,7 +136,6 @@ function EditPersonnel() {
     setError("");
 
     const data = new FormData();
-
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "file_image") return;
       if (value !== "" && value !== null) {
@@ -137,16 +143,16 @@ function EditPersonnel() {
       }
     });
 
-    // ✅ ส่งไฟล์ เฉพาะเมื่อ user เลือกใหม่
+    // ส่งไฟล์ เฉพาะเมื่อมีการเลือกใหม่
     if (formData.file_image) {
       data.append("file_image", formData.file_image);
     }
 
     try {
       await api.put(`/admin/personnel/${id}`, data);
+      alert("บันทึกข้อมูลสำเร็จ!");
       navigate("/admin/personnel");
     } catch (err) {
-      console.error(err.response?.data || err);
       setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };

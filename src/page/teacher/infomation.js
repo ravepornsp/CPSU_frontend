@@ -9,7 +9,7 @@ const TeacherInformation = () => {
   const navigate = useNavigate();
 
   const [person, setPerson] = useState(null);
-  const [researches, setResearches] = useState([]);
+  const [researches, setResearches] = useState([]); // เปิดใช้งาน researches
   const [loading, setLoading] = useState(true);
   const [researchLoading, setResearchLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -20,8 +20,6 @@ const TeacherInformation = () => {
     const u = localStorage.getItem("user");
     return u ? JSON.parse(u) : null;
   });
-
-  const roles = Array.isArray(user?.roles) ? user.roles : [];
 
   /* ❌ ถ้าไม่ใช่ teacher ออกทันที */
   useEffect(() => {
@@ -45,9 +43,20 @@ const TeacherInformation = () => {
       }
     };
 
-    fetchPerson();
-  }, [user?.user_id]);
+    const fetchResearches = async () => {
+      try {
+        const res = await api.get(`/researches/${user.user_id}`);
+        setResearches(res.data.researches);
+      } catch (err) {
+        console.error("Failed to fetch researches", err);
+      } finally {
+        setResearchLoading(false);
+      }
+    };
 
+    fetchPerson();
+    fetchResearches();
+  }, [user?.user_id]);
 
   const handleEdit = () => {
     navigate("/teacher/informationedit");
@@ -162,7 +171,9 @@ const TeacherInformation = () => {
         </div>
       </div>
 
-      {researches.length > 0 && (
+      {researchLoading ? (
+        <p>กำลังโหลดผลงานวิจัย...</p>
+      ) : researches.length > 0 ? (
         <div className="container my-4">
           <h5>ผลงานวิจัย</h5>
           <ul>
@@ -172,6 +183,10 @@ const TeacherInformation = () => {
               </li>
             ))}
           </ul>
+        </div>
+      ) : (
+        <div className="container my-4">
+          <p>ยังไม่มีผลงานวิจัย</p>
         </div>
       )}
 

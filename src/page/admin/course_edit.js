@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Headers from "../../component/header";
 import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
@@ -61,9 +61,9 @@ const EditCourse = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCourseData();
-  }, [id]);
+  // useEffect(() => {
+  //   fetchCourseData();
+  // }, [id]);
 
   /* ---------------- handlers ---------------- */
   const handleChange = (e) => {

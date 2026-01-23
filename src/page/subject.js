@@ -2,7 +2,6 @@ import React from "react";
 import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
-import Menu from "../component/menu";
 
 const Subject = () => {
   return (

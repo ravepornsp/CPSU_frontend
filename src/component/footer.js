@@ -50,42 +50,39 @@ const Footer = () => {
             <div className="footer-column">
               <h5>หน้าทั้งหมด</h5>
               <ul>
-                <li>ข่าวสาร</li>
-                <li>บุคลากร</li>
-                <li>หลักสูตร</li>
-                <li>การรับสมัคร</li>
-                <li>เอกสาร</li>
-                <li>เกี่ยวกับภาควิชา</li>
+                <li><Link to="/news">ข่าวสาร</Link></li>
+                <li><Link to="/personnel">บุคลากร</Link></li>
+                <li><Link to="/course">หลักสูตร</Link></li>
+                <li><Link to="/admission">การรับสมัคร</Link></li>
+                <li><Link to="/document">เอกสาร</Link></li>
+                <li><Link to="/about">เกี่ยวกับภาควิชา</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h5>สำหรับผู้สนใจศึกษาต่อ</h5>
               <ul>
-                <li>ข่าวสาร</li>
-                <li>หลักสูตร</li>
-                <li>การรับสมัคร</li>
-                <li>เกี่ยวกับภาควิชา</li>
+                <li><Link to="/news">ข่าวสาร</Link></li>
+                <li><Link to="/course">หลักสูตร</Link></li>
+                <li><Link to="/admission">การรับสมัคร</Link></li>
+                <li><Link to="/about">เกี่ยวกับภาควิชา</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h5>สำหรับนักศึกษา</h5>
               <ul>
-                <li>ข่าวสาร</li>
-                <li>บุคลากร</li>
-                <li>หลักสูตร</li>
-                <li>เอกสาร</li>
+                <li><Link to="/news">ข่าวสาร</Link></li>
+                <li><Link to="/personnel">บุคลากร</Link></li>
+                <li><Link to="/course">หลักสูตร</Link></li>
+                <li><Link to="/document">เอกสาร</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h5>สำหรับบุคลากร</h5>
               <ul>
-                <li>ข่าวสาร</li>
-                <li>บุคลากร</li>
-                <li>หลักสูตร</li>
-                <li>
-                  เข้าสู่ระบบ
-                  {/* <Link to={`/login`}>เข้าสู่ระบบ</Link> */}
-                </li>
+                <li><Link to="/news">ข่าวสาร</Link></li>
+                <li><Link to="/personnel">บุคลากร</Link></li>
+                <li><Link to="/course">หลักสูตร</Link></li>
+                <li><Link to="/login">เข้าสู่ระบบ</Link></li>
               </ul>
             </div>
           </div>
@@ -93,8 +90,9 @@ const Footer = () => {
 
         {/* Copyright */}
         <p className="footer-copy">
-          © 2025 by Department of Computing, Faculty of Science, Silpakorn
-          University.
+          {/* © 2025 by Department of Computing, Faculty of Science, Silpakorn
+          University. */}
+          เว็บไซต์นี้เป็นส่วนหนึ่งของปริญญานิพนธ์ ภาควิชาคอมพิวเตอร์ มหาวิทยาลัยศิลปากร
         </p>
       </div>
     </footer>
