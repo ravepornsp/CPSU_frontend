@@ -50,7 +50,7 @@ const AddAdmission = () => {
     formData.append("detail", detail);
 
     if (file) {
-      formData.append("file_image", file); // ⭐ สำคัญ: ชื่อต้องตรง backend
+      formData.append("file_image", file);
     }
 
     try {
@@ -60,6 +60,9 @@ const AddAdmission = () => {
       navigate("/admin/admission");
     } catch (error) {
       console.error(error.response?.data || error);
+      console.log("STATUS:", error.response?.status);
+      console.log("DATA:", error.response?.data);
+      console.log("ERROR:", error);
       alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     } finally {
       setLoading(false);
@@ -100,9 +103,7 @@ const AddAdmission = () => {
                   <CKEditor
                     editor={ClassicEditor}
                     data={detail}
-                    onChange={(event, editor) =>
-                      setDetail(editor.getData())
-                    }
+                    onChange={(event, editor) => setDetail(editor.getData())}
                   />
                 </div>
               </div>

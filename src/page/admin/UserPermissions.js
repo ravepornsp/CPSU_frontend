@@ -78,18 +78,11 @@ function UserPermissions() {
     console.log("Selected User ID:", selectedUserId);
     console.log("Selected Role:", selectedRole);
     try {
-      const role_id = roleOptions.find(
-        (role) => role.value === parseInt(selectedRole),
-      )?.value;
-
+      const role_id = Number(selectedRole);
       console.log(role_id);
-      if (!role_id) {
-        alert("ไม่พบสิทธิ์ที่เลือก");
-        return;
-      }
 
       await api.post(`/admin/permission/user/${selectedUserId}`, {
-        role_id, 
+        role_id,
       });
 
       alert("มอบหมายสิทธิ์ผู้ใช้เรียบร้อย");
@@ -117,11 +110,11 @@ function UserPermissions() {
     const role = currentRole;
 
     if (role) {
-      setSelectedRole(role.value); 
+      setSelectedRole(currentRole);
     } else {
       setSelectedRole("");
     }
-
+    console.log(role);
     // เปิด Modal
     const modalEl = document.getElementById("assignRoleModal");
     const modal = new bootstrap.Modal(modalEl);
@@ -217,8 +210,8 @@ function UserPermissions() {
                 <label>เลือกสิทธิ์</label>
                 <select
                   className="form-select"
-                  value={selectedRole || ""} 
-                  onChange={(e) => setSelectedRole(e.target.value)} 
+                  value={selectedRole || ""}
+                  onChange={(e) => setSelectedRole(e.target.value)}
                 >
                   {selectedRole === "" && (
                     <option value="" disabled>

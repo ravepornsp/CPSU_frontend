@@ -61,11 +61,6 @@ const EditCourse = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchCourseData();
-  // }, [id]);
-
-  /* ---------------- handlers ---------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -73,13 +68,11 @@ const EditCourse = () => {
 
   const saveChanges = async () => {
     try {
-      // update course
       await api.put(`/admin/course/${id}`, {
         ...formData,
         year: Number(formData.year),
       });
 
-      // upsert structure
       if (structure) {
         if (structureId) {
           await api.put(`/admin/structure/${structureId}`, {
@@ -122,7 +115,6 @@ const EditCourse = () => {
     }
   };
 
-  /* ---------------- render ---------------- */
   return (
     <>
       <Headers />
@@ -138,7 +130,7 @@ const EditCourse = () => {
             <h4 className="mb-4">{formData.thai_course}</h4>
 
             {/* STATUS */}
-            <label>สถานะ</label>
+            <p>สถานะ</p>
             <select
               className="form-control mb-3"
               name="status"
@@ -150,31 +142,77 @@ const EditCourse = () => {
             </select>
 
             {/* BASIC */}
-            <label>รหัสหลักสูตร</label>
-            <input className="form-control mb-3" name="course_id" value={formData.course_id} onChange={handleChange} />
+            <p>รหัสหลักสูตร</p>
+            <input
+              className="form-control mb-3"
+              name="course_id"
+              value={formData.course_id}
+              onChange={handleChange}
+            />
 
-            <label>ระดับปริญญา</label>
-            <input className="form-control mb-3" name="degree" value={formData.degree} onChange={handleChange} />
+            <p>ระดับปริญญา</p>
+            <select
+              className="form-control mb-3"
+              name="degree"
+              value={formData.degree}
+              onChange={handleChange}
+            >
+              <option value="">-- เลือกระดับปริญญา --</option>
+              <option value="ปริญญาตรี">ปริญญาตรี</option>
+              <option value="ปริญญาโท">ปริญญาโท</option>
+              <option value="ปริญญาเอก">ปริญญาเอก</option>
+            </select>
 
-            <label>สาขา</label>
-            <input className="form-control mb-3" name="major" value={formData.major} onChange={handleChange} />
+            <p>สาขา</p>
+            <input
+              className="form-control mb-3"
+              name="major"
+              value={formData.major}
+              onChange={handleChange}
+            />
 
-            <label>ปีหลักสูตร</label>
-            <input type="number" className="form-control mb-3" name="year" value={formData.year} onChange={handleChange} />
+            <p>ปีหลักสูตร</p>
+            <input
+              type="number"
+              className="form-control mb-3"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+            />
 
             {/* COURSE NAME */}
-            <label>ชื่อหลักสูตร (TH)</label>
-            <input className="form-control mb-3" name="thai_course" value={formData.thai_course} onChange={handleChange} />
+            <p>ชื่อหลักสูตร (TH)</p>
+            <input
+              className="form-control mb-3"
+              name="thai_course"
+              value={formData.thai_course}
+              onChange={handleChange}
+            />
 
-            <label>ชื่อหลักสูตร (EN)</label>
-            <input className="form-control mb-3" name="eng_course" value={formData.eng_course} onChange={handleChange} />
+            <p>ชื่อหลักสูตร (EN)</p>
+            <input
+              className="form-control mb-3"
+              name="eng_course"
+              value={formData.eng_course}
+              onChange={handleChange}
+            />
 
             {/* DEGREE NAME */}
-            <label>ชื่อปริญญา (TH)</label>
-            <input className="form-control mb-3" name="thai_degree" value={formData.thai_degree} onChange={handleChange} />
+            <p>ชื่อปริญญา (TH)</p>
+            <input
+              className="form-control mb-3"
+              name="thai_degree"
+              value={formData.thai_degree}
+              onChange={handleChange}
+            />
 
-            <label>ชื่อปริญญา (EN)</label>
-            <input className="form-control mb-3" name="eng_degree" value={formData.eng_degree} onChange={handleChange} />
+            <p>ชื่อปริญญา (EN)</p>
+            <input
+              className="form-control mb-3"
+              name="eng_degree"
+              value={formData.eng_degree}
+              onChange={handleChange}
+            />
 
             {/* TEXT */}
             {[
@@ -189,7 +227,7 @@ const EditCourse = () => {
               ["detail_url", "รายละเอียดเพิ่มเติม"],
             ].map(([name, label]) => (
               <div key={name} className="mb-3">
-                <label>{label}</label>
+                <p>{label}</p>
                 <textarea
                   className="form-control"
                   rows={4}
@@ -213,9 +251,18 @@ const EditCourse = () => {
             <hr />
             <p>แผนการเรียน</p>
             {roadmap.map((r, i) => (
-              <img key={i} src={r.roadmap_url} alt="roadmap" style={{ maxWidth: "100%" }} />
+              <img
+                key={i}
+                src={r.roadmap_url}
+                alt="roadmap"
+                style={{ maxWidth: "100%" }}
+              />
             ))}
-            <input type="file" className="form-control mt-2" onChange={onRoadmapImagesChange} />
+            <input
+              type="file"
+              className="form-control mt-2"
+              onChange={onRoadmapImagesChange}
+            />
 
             <hr />
             <button className="btn btn-primary" onClick={saveChanges}>

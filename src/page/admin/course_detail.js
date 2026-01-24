@@ -119,7 +119,7 @@ const DetailCourse = () => {
             <div className="container">
               <div className="row">
                 <div className="col-4" id="text-title-course">
-                  ภาษาไทย
+                  <p>ภาษาไทย</p>
                 </div>
                 <div className="col-6" id="text-content-course">
                   {courseDetail?.thai_course}
@@ -127,7 +127,7 @@ const DetailCourse = () => {
               </div>
               <div className="row">
                 <div className="col-4" id="text-title-course">
-                  ภาษาอังกฤษ
+                  <p>ภาษาอังกฤษ</p>
                 </div>
                 <div className="col-6" id="text-content-course">
                   {courseDetail?.eng_course}
@@ -140,18 +140,18 @@ const DetailCourse = () => {
             <div className="container">
               <div className="row">
                 <div className="col-4" id="text-title-course">
-                  ภาษาไทย
+                  <p>ภาษาไทย</p>
                 </div>
                 <div className="col-6" id="text-content-course">
-                  {courseDetail?.thai_degree}
+                  <p>{courseDetail?.thai_degree}</p>
                 </div>
               </div>
               <div className="row">
                 <div className="col-4" id="text-title-course">
-                  ภาษาอังกฤษ
+                  <p>ภาษาอังกฤษ</p>
                 </div>
                 <div className="col-6" id="text-content-course">
-                  {courseDetail?.eng_degree}
+                  <p>{courseDetail?.eng_degree}</p>
                 </div>
               </div>
             </div>
@@ -164,18 +164,18 @@ const DetailCourse = () => {
             <div className="container">
               <div className="row">
                 <div className="col-4" id="text-title-course">
-                  เกณฑ์การเข้าศึกษา
+                  <p>เกณฑ์การเข้าศึกษา</p>
                 </div>
                 <div className="col-6" id="text-content-course">
-                  {courseDetail?.admission_req}
+                  <p>{courseDetail?.admission_req}</p>
                 </div>
               </div>
               <div className="row">
                 <div className="col-4" id="text-title-course">
-                  เกณฑ์การสำเร็จการศึกษา
+                  <p>เกณฑ์การสำเร็จการศึกษา</p>
                 </div>
                 <div className="col-6" id="text-content-course">
-                  {courseDetail?.graduation_req}
+                  <p>{courseDetail?.graduation_req}</p>
                 </div>
               </div>
             </div>
@@ -183,12 +183,16 @@ const DetailCourse = () => {
 
             {/* ปรัชญา */}
             <p id="text-header-coures">ปรัชญาของหลักสูตร</p>
-            <div id="text-content-course2">{courseDetail?.philosophy}</div>
+            <div id="text-content-course2">
+              <p>{courseDetail?.philosophy}</p>
+            </div>
             <hr />
 
             {/* วัตถุประสงค์ */}
             <p id="text-header-coures">วัตถุประสงค์</p>
-            <div id="text-content-course2">{courseDetail?.objective}</div>
+            <div id="text-content-course2">
+              <p>{courseDetail?.objective}</p>
+            </div>
             <hr />
 
             {/* PLO */}
@@ -197,23 +201,31 @@ const DetailCourse = () => {
               Outcome: PLOs)
             </p>
             <div id="text-content-course2">
-              <pre style={{ textAlign: "left" }}>{courseDetail?.plo}</pre>
+              <pre style={{ textAlign: "left" }}>
+                <p>{courseDetail?.plo}</p>
+              </pre>
             </div>
             <hr />
 
             {/* ค่าใช้จ่าย */}
             <p id="text-header-coures">ค่าใช้จ่าย</p>
-            <div id="text-content-course2">{courseDetail?.tuition}</div>
+            <div id="text-content-course2">
+              <p>{courseDetail?.tuition}</p>
+            </div>
             <hr />
 
             {/* หน่วยกิต */}
             <p id="text-header-coures">หน่วยกิต</p>
-            <div id="text-content-course2">{courseDetail?.credits}</div>
+            <div id="text-content-course2">
+              <p>{courseDetail?.credits}</p>
+            </div>
             <hr />
 
             {/* อาชีพ */}
             <p id="text-header-coures">อาชีพที่สามารถประกอบได้</p>
-            <div id="text-content-course2">{courseDetail?.career_paths}</div>
+            <div id="text-content-course2">
+              <p>{courseDetail?.career_paths}</p>
+            </div>
             <hr />
 
             {/* รายละเอียดเพิ่มเติม */}
@@ -223,14 +235,14 @@ const DetailCourse = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {courseDetail?.detail_url}
+              <p>{courseDetail?.detail_url}</p>
             </a>
             <br />
             <hr />
             <p id="text-header-coures">โครงสร้างหลักสูตร</p>
             <div className="structure-images">
               {(structures || [])
-                .filter((st) => st.course_id === courseDetail?.course_id) // กรองตาม course_id
+                .filter((st) => st.course_id === courseDetail?.course_id) 
                 .map((st) => (
                   <div
                     key={st.course_structure_id}

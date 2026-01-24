@@ -25,10 +25,13 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://vibrant-connection-production.up.railway.app/api/v1/auth/login", {
-        email: email,
-        password: password,
-      });
+      const res = await axios.post(
+        "https://vibrant-connection-production.up.railway.app/api/v1/auth/login",
+        {
+          email: email,
+          password: password,
+        },
+      );
 
       const { access_token, refresh_token, user } = res.data;
 
@@ -61,7 +64,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>อีเมล</label>
+              <p>อีเมล</p>
               <input
                 type="email"
                 className="form-control"
@@ -73,7 +76,7 @@ const Login = () => {
             </div>
 
             <div className="form-group">
-              <label>รหัสผ่าน</label>
+              <p>รหัสผ่าน</p>
               <input
                 type="password"
                 className="form-control"

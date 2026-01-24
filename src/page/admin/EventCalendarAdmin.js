@@ -18,33 +18,58 @@ function EventCalendarAdmin() {
   const [isAdding, setIsAdding] = useState(false);
   const [editedEvent, setEditedEvent] = useState({});
 
-  /* ================= Utils ================= */
+  /* ================= utils ================= */
+
   const toDateOnly = (iso) => iso.split("T")[0];
+
   const toISODate = (dateStr) => new Date(dateStr).toISOString();
 
-  /* ================= Load Events ================= */
+  const addOneDay = (dateStr) => {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  };
+
+  const subtractOneDay = (dateStr) => {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().split("T")[0];
+  };
+
+  const formatThaiDate = (iso) =>
+    new Date(iso).toLocaleDateString("th-TH", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
   useEffect(() => {
     fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchEvents = async () => {
     try {
       const res = await api.get("/admin/calendar");
+
       const mapped = res.data.map((e) => ({
         id: e.calendar_id,
         title: e.title,
-        start: e.start_date,
-        end: e.start_date === e.end_date ? null : e.end_date,
+        start: toDateOnly(e.start_date),
+        end:
+          e.start_date === e.end_date
+            ? null
+            : addOneDay(toDateOnly(e.end_date)), // 🔑 end exclusive
         description: e.detail,
         allDay: true,
       }));
+
       setEvents(mapped);
     } catch (err) {
       console.error("โหลดกิจกรรมล้มเหลว", err);
     }
   };
 
-  /* ================= Modal ================= */
   const closeModal = () => {
     setShowModal(false);
     setSelectedEvent(null);
@@ -67,22 +92,26 @@ function EventCalendarAdmin() {
 
   const handleEventClick = (info) => {
     const event = events.find((e) => e.id === Number(info.event.id));
+
     setSelectedEvent(event);
     setEditedEvent({
       ...event,
       start: toDateOnly(event.start),
-      end: event.end ? toDateOnly(event.end) : toDateOnly(event.start),
+      end: event.end
+        ? subtractOneDay(toDateOnly(event.end)) // 🔑 เอา +1 ออก
+        : toDateOnly(event.start),
     });
+
     setShowModal(true);
   };
 
-  /* ================= Form ================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedEvent((prev) => ({ ...prev, [name]: value }));
   };
 
   /* ================= CRUD ================= */
+
   const handleAdd = async () => {
     if (!editedEvent.title || !editedEvent.start) {
       alert("กรุณากรอกชื่อกิจกรรมและวันเริ่ม");
@@ -90,14 +119,13 @@ function EventCalendarAdmin() {
     }
 
     try {
-      const payload = {
+      await api.post("/admin/calendar", {
         title: editedEvent.title,
         detail: editedEvent.description,
         start_date: toISODate(editedEvent.start),
         end_date: toISODate(editedEvent.end || editedEvent.start),
-      };
+      });
 
-      await api.post("/admin/calendar", payload);
       alert("เพิ่มกิจกรรมสำเร็จ");
       fetchEvents();
       closeModal();
@@ -109,14 +137,13 @@ function EventCalendarAdmin() {
 
   const handleSave = async () => {
     try {
-      const payload = {
+      await api.put(`/admin/calendar/${editedEvent.id}`, {
         title: editedEvent.title,
         detail: editedEvent.description,
         start_date: toISODate(editedEvent.start),
         end_date: toISODate(editedEvent.end),
-      };
+      });
 
-      await api.put(`/admin/calendar/${editedEvent.id}`, payload);
       alert("บันทึกกิจกรรมสำเร็จ");
       fetchEvents();
       closeModal();
@@ -139,6 +166,8 @@ function EventCalendarAdmin() {
       alert("ลบไม่สำเร็จ");
     }
   };
+
+  /* ================= render ================= */
 
   return (
     <>
@@ -176,7 +205,7 @@ function EventCalendarAdmin() {
       {showModal && (
         <div
           className="modal fade show"
-          style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          style={{ display: "block", background: "rgba(0,0,0,.5)" }}
         >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
@@ -185,10 +214,10 @@ function EventCalendarAdmin() {
                   {isAdding
                     ? "เพิ่มกิจกรรม"
                     : isEditing
-                    ? "แก้ไขกิจกรรม"
-                    : "รายละเอียดกิจกรรม"}
+                      ? "แก้ไขกิจกรรม"
+                      : "รายละเอียดกิจกรรม"}
                 </h5>
-                <button className="btn-close" onClick={closeModal}></button>
+                <button className="btn-close" onClick={closeModal} />
               </div>
 
               <div className="modal-body">
@@ -230,16 +259,21 @@ function EventCalendarAdmin() {
                   </>
                 ) : (
                   <>
-                    <p><b>ชื่อกิจกรรม : </b> {selectedEvent.title}</p>
-                    <p><b>วันเริ่ม : </b> {toDateOnly(selectedEvent.start)}</p>
                     <p>
-                      <b>วันสิ้นสุด : </b>{" "}
-                      {selectedEvent.end
-                        ? toDateOnly(selectedEvent.end)
-                        : toDateOnly(selectedEvent.start)}
+                      <b>ชื่อกิจกรรม:</b> {selectedEvent.title}
                     </p>
                     <p>
-                      <b>รายละเอียด</b><br />
+                      <b>วันเริ่ม:</b> {formatThaiDate(selectedEvent.start)}
+                    </p>
+                    <p>
+                      <b>วันสิ้นสุด:</b>{" "}
+                      {selectedEvent.end
+                        ? formatThaiDate(subtractOneDay(selectedEvent.end))
+                        : formatThaiDate(selectedEvent.start)}
+                    </p>
+                    <p>
+                      <b>รายละเอียด</b>
+                      <br />
                       {selectedEvent.description || "-"}
                     </p>
                   </>

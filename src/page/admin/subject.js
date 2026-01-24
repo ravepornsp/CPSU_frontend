@@ -122,7 +122,7 @@ function Subject() {
             {/* แสดงตารางรายวิชา */}
             {Object.keys(groupedByCourse).map((courseId) => (
               <div key={courseId} className="mb-4">
-                <h5 className="text-start course-heading">หลักสูตร: {courseId}</h5>
+                <h5 className="text-start course-heading">หลักสูตร {courseId}</h5>
                 <div className="table-responsive">
                   <table className="table table-bordered text-start">
                     <thead className="table-light">
