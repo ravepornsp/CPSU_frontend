@@ -40,7 +40,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-    "proxy": "https://vibrant-connection-production.up.railway.app",
+  "proxy": "https://vibrant-connection-production.up.railway.app",
   "eslintConfig": {
     "extends": [
       "react-app",
