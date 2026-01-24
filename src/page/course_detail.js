@@ -27,13 +27,13 @@ const Course_detail = () => {
       setError(null);
       try {
         // ดึงข้อมูลหลักสูตร
-        const courseRes = await axios.get("http://localhost:8080/api/v1/course");
+        const courseRes = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/course");
         const courses = Array.isArray(courseRes.data) ? courseRes.data : [];
         const foundCourse = courses.find((c) => c.course_id === course_id);
         setCourse(foundCourse || null);
 
         // ดึงข้อมูลโครงสร้างหลักสูตร
-        const structureRes = await axios.get("http://localhost:8080/api/v1/structure");
+        const structureRes = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/structure");
         const structures = Array.isArray(structureRes.data) ? structureRes.data : [];
         const foundStructure = structures.find((s) => s.course_id === course_id);
         if (foundStructure && foundStructure.detail) {
@@ -47,13 +47,13 @@ const Course_detail = () => {
         }
 
         // ดึงข้อมูล roadmap
-        const roadmapRes = await axios.get("http://localhost:8080/api/v1/roadmap");
+        const roadmapRes = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/roadmap");
         const roadmaps = Array.isArray(roadmapRes.data) ? roadmapRes.data : [];
         const foundRoadmap = roadmaps.find((r) => r.course_id === course_id);
         setRoadmap(foundRoadmap || null);
 
         // ดึงข้อมูลรายวิชา
-        const subjectsRes = await axios.get("http://localhost:8080/api/v1/subject");
+        const subjectsRes = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/subject");
         const subjectsData = Array.isArray(subjectsRes.data) ? subjectsRes.data : [];
         const filteredSubjects = subjectsData.filter((subj) => subj.course_id === course_id);
         setSubjects(filteredSubjects);

@@ -14,7 +14,7 @@ const Admission = () => {
 
   useEffect(() => {
     api
-      .get("http://localhost:8080/api/v1/admin/admission")
+      .get("https://vibrant-connection-production.up.railway.app/api/v1/admin/admission")
       .then((res) => {
         setAdmission(res.data || []);
         setLoading(false);
@@ -30,7 +30,7 @@ const Admission = () => {
 
     try {
       await api.delete(
-        `http://localhost:8080/api/v1/admin/admission/${id}`
+        `https://vibrant-connection-production.up.railway.app/api/v1/admin/admission/${id}`
       );
       setAdmission((prev) =>
         prev.filter((item) => item.admission_id !== id)

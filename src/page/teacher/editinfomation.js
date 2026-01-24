@@ -19,7 +19,7 @@ const EditTeacherInformation = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/v1/admin/personnel/${id}`
+          `https://vibrant-connection-production.up.railway.app/api/v1/admin/personnel/${id}`
         );
         const personnel = res.data.personnel;
         setFormData(personnel);
@@ -79,7 +79,7 @@ const EditTeacherInformation = () => {
       }
 
       await axios.put(
-        `http://localhost:8080/api/v1/teacher/personnel/${id}`,
+        `https://vibrant-connection-production.up.railway.app/api/v1/teacher/personnel/${id}`,
         formDataObj,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

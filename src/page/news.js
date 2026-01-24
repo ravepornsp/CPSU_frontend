@@ -23,7 +23,7 @@ function News() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/news");
+        const res = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/news");
         setNews(res.data);
       } catch (err) {
         console.error("Error fetching news", err);
