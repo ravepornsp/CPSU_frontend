@@ -78,7 +78,6 @@ function UserPermissions() {
     console.log("Selected User ID:", selectedUserId);
     console.log("Selected Role:", selectedRole);
     try {
-      // ตรวจสอบให้แน่ใจว่า role_id ถูกต้อง เช่น ค่าของ role_id ควรเป็นตัวเลขหรือค่าที่ API คาดหวัง
       const role_id = roleOptions.find(
         (role) => role.value === parseInt(selectedRole),
       )?.value;
@@ -89,16 +88,13 @@ function UserPermissions() {
         return;
       }
 
-      // ส่งคำขอ PUT ไปยังเซิร์ฟเวอร์ (ถ้าเป็นการอัปเดต)
-      const res = await api.post(`/admin/permission/user/${selectedUserId}`, {
-        role_id, // ส่งค่าที่ถูกต้องในรูปแบบที่ API คาดหวัง
+      await api.post(`/admin/permission/user/${selectedUserId}`, {
+        role_id, 
       });
 
-      // ถ้าการมอบหมาย role สำเร็จ
       alert("มอบหมายสิทธิ์ผู้ใช้เรียบร้อย");
       window.location.reload();
 
-      // อัปเดต UI
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.user_id === selectedUserId
@@ -118,18 +114,12 @@ function UserPermissions() {
 
   const openAssignRoleModal = (userId, currentRole) => {
     setSelectedUserId(userId);
+    const role = currentRole;
 
-    // แปลง currentRole เป็น value ตาม roleOptions
-    const role =  currentRole;
-    // const role = roleOptions.find((role) => role.label === currentRole);
-
-    // ถ้าเจอ role ที่ตรงกัน ให้ตั้งค่า selectedRole
-    console.log(role)
-    console.log(currentRole)
     if (role) {
-      setSelectedRole(role.value); // ตั้งค่า selectedRole ให้ตรงกับ value ของ role
+      setSelectedRole(role.value); 
     } else {
-      setSelectedRole(""); // ถ้าไม่พบ (เช่นยังไม่ได้กำหนดสิทธิ์) ให้ตั้งค่าเป็นค่าว่าง
+      setSelectedRole("");
     }
 
     // เปิด Modal
@@ -205,7 +195,6 @@ function UserPermissions() {
         </div>
       </div>
 
-      {/* Modal สำหรับการกำหนดสิทธิ์ผู้ใช้ */}
       <div
         className="modal fade"
         id="assignRoleModal"
@@ -228,8 +217,8 @@ function UserPermissions() {
                 <label>เลือกสิทธิ์</label>
                 <select
                   className="form-select"
-                  value={selectedRole || ""} // ใช้ selectedRole หรือค่าว่างในกรณีที่ยังไม่ได้เลือก
-                  onChange={(e) => setSelectedRole(e.target.value)} // เมื่อมีการเลือก จะอัปเดต selectedRole
+                  value={selectedRole || ""} 
+                  onChange={(e) => setSelectedRole(e.target.value)} 
                 >
                   {selectedRole === "" && (
                     <option value="" disabled>
@@ -237,7 +226,6 @@ function UserPermissions() {
                     </option>
                   )}
 
-                  {/* แสดงตัวเลือก role ต่างๆ */}
                   {roleOptions.map((role) => (
                     <option key={role.value} value={role.value}>
                       {role.label}
@@ -259,7 +247,6 @@ function UserPermissions() {
         </div>
       </div>
 
-      {/* Modal สำหรับเพิ่มผู้ใช้ใหม่ */}
       <div
         className="modal fade"
         id="addUserModal"
