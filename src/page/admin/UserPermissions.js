@@ -20,9 +20,9 @@ function UserPermissions() {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const roleOptions = [
-    { value: "admin", label: "แอดมิน" },
-    { value: "staff", label: "เจ้าหน้าที่" },
-    { value: "teacher", label: "อาจารย์" },
+    { value: 1, label: "แอดมิน" },
+    { value: 2, label: "เจ้าหน้าที่" },
+    { value: 3, label: "อาจารย์" },
   ];
 
   useEffect(() => {
@@ -39,16 +39,6 @@ function UserPermissions() {
       alert("โหลดรายชื่อผู้ใช้ไม่สำเร็จ");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      await api.put("/admin/users/roles", users);
-      alert("บันทึกสิทธิ์ผู้ใช้เรียบร้อย");
-    } catch (err) {
-      console.error(err);
-      alert("บันทึกสิทธิ์ไม่สำเร็จ");
     }
   };
 
@@ -80,20 +70,39 @@ function UserPermissions() {
       return;
     }
 
+    if (!selectedUserId) {
+      alert("ไม่พบข้อมูลผู้ใช้");
+      return;
+    }
+
+    console.log("Selected User ID:", selectedUserId);
+    console.log("Selected Role:", selectedRole);
     try {
-      // ส่งข้อมูลไปยัง API เพื่ออัปเดต role ของผู้ใช้
-      const res = await api.put(`/admin/user/${selectedUserId}/role`, {
-        role: selectedRole,
+      // ตรวจสอบให้แน่ใจว่า role_id ถูกต้อง เช่น ค่าของ role_id ควรเป็นตัวเลขหรือค่าที่ API คาดหวัง
+      const role_id = roleOptions.find(
+        (role) => role.value === parseInt(selectedRole),
+      )?.value;
+
+      console.log(role_id);
+      if (!role_id) {
+        alert("ไม่พบสิทธิ์ที่เลือก");
+        return;
+      }
+
+      // ส่งคำขอ PUT ไปยังเซิร์ฟเวอร์ (ถ้าเป็นการอัปเดต)
+      const res = await api.post(`/admin/permission/user/${selectedUserId}`, {
+        role_id, // ส่งค่าที่ถูกต้องในรูปแบบที่ API คาดหวัง
       });
 
       // ถ้าการมอบหมาย role สำเร็จ
       alert("มอบหมายสิทธิ์ผู้ใช้เรียบร้อย");
+      window.location.reload();
 
-      // อัปเดต state หรือ UI ตามความต้องการ
+      // อัปเดต UI
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
-          user.id === selectedUserId
-            ? { ...user, roles: [selectedRole] }
+          user.user_id === selectedUserId
+            ? { ...user, name: users.name }
             : user,
         ),
       );
@@ -109,11 +118,24 @@ function UserPermissions() {
 
   const openAssignRoleModal = (userId, currentRole) => {
     setSelectedUserId(userId);
-    setSelectedRole(currentRole || "");
+
+    // แปลง currentRole เป็น value ตาม roleOptions
+    const role =  currentRole;
+    // const role = roleOptions.find((role) => role.label === currentRole);
+
+    // ถ้าเจอ role ที่ตรงกัน ให้ตั้งค่า selectedRole
+    console.log(role)
+    console.log(currentRole)
+    if (role) {
+      setSelectedRole(role.value); // ตั้งค่า selectedRole ให้ตรงกับ value ของ role
+    } else {
+      setSelectedRole(""); // ถ้าไม่พบ (เช่นยังไม่ได้กำหนดสิทธิ์) ให้ตั้งค่าเป็นค่าว่าง
+    }
+
+    // เปิด Modal
     const modalEl = document.getElementById("assignRoleModal");
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
-    console.log(currentRole);
   };
 
   return (
@@ -142,6 +164,7 @@ function UserPermissions() {
             <table className="table table-bordered">
               <thead className="table-light text-center">
                 <tr>
+                  <th>ID</th>
                   <th>Username</th>
                   <th>Email</th>
                   <th>Password</th>
@@ -160,6 +183,7 @@ function UserPermissions() {
                 ) : (
                   users.map((u) => (
                     <tr key={u.id} className="align-middle">
+                      <td>{u.user_id}</td>
                       <td>{u.username}</td>
                       <td>{u.email}</td>
                       <td>********</td>
@@ -167,7 +191,7 @@ function UserPermissions() {
                       <td>
                         <button
                           className="btn btn-secondary"
-                          onClick={() => openAssignRoleModal(u.id, u.name)}
+                          onClick={() => openAssignRoleModal(u.user_id, u.name)}
                         >
                           <i className="fas fa-user-pen"></i>
                         </button>
@@ -204,10 +228,9 @@ function UserPermissions() {
                 <label>เลือกสิทธิ์</label>
                 <select
                   className="form-select"
-                  value={selectedRole || ""} // ใช้ selectedRole, ถ้าเป็น null หรือ undefined จะใช้ค่าว่าง
-                  onChange={(e) => setSelectedRole(e.target.value)} // เมื่อเลือกใหม่ จะอัปเดต selectedRole
+                  value={selectedRole || ""} // ใช้ selectedRole หรือค่าว่างในกรณีที่ยังไม่ได้เลือก
+                  onChange={(e) => setSelectedRole(e.target.value)} // เมื่อมีการเลือก จะอัปเดต selectedRole
                 >
-                  {/* หาก selectedRole ไม่มีค่า (ยังไม่ได้กำหนดสิทธิ์) จะเป็นตัวเลือกที่ไม่ได้กำหนด */}
                   {selectedRole === "" && (
                     <option value="" disabled>
                       - ยังไม่ได้กำหนดสิทธิ์ -
