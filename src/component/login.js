@@ -13,7 +13,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 🔐 ถ้า login แล้ว ไม่ให้เข้าหน้า login
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (token) {
@@ -26,21 +25,17 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:8080/api/v1/auth/login", {
+      const res = await axios.post("https://vibrant-connection-production.up.railway.app/api/v1/auth/login", {
         email: email,
         password: password,
       });
 
       const { access_token, refresh_token, user } = res.data;
 
-      // 1️⃣ เก็บ token
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("refresh_token", refresh_token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      console.log("Login success:", user);
-
-      // 2️⃣ redirect
       if (user?.roles?.includes("admin") || user?.roles?.includes("staff")) {
         navigate("/admin/dashboard");
       } else {
