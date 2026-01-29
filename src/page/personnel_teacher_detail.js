@@ -22,6 +22,7 @@ const TeacherDetail = () => {
         const res = await axios.get(
           `https://vibrant-connection-production.up.railway.app/api/v1/personnel/${id}`
         );
+        console.log(res.data.personnel)
         setPerson(res.data.personnel);
         setLoading(false);
       } catch (err) {

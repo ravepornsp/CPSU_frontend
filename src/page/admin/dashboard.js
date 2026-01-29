@@ -25,6 +25,7 @@ const Dashboard = () => {
       const subjectRes = await api.get("/admin/subject");
       const staffRes = await api.get("/admin/personnel");
       const eventRes = await api.get("/admin/calendar");
+      
       const userRes = await api.get("/admin/user");
       
       setNewsCount(newsRes.data.length);

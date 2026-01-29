@@ -79,7 +79,6 @@ function UserPermissions() {
     console.log("Selected Role:", selectedRole);
     try {
       const role_id = Number(selectedRole);
-      console.log(role_id);
 
       await api.post(`/admin/permission/user/${selectedUserId}`, {
         role_id,

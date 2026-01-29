@@ -19,7 +19,7 @@ function EventCalendarPublic() {
     const fetchEvents = async () => {
       try {
         const res = await axios.get(
-          "https://vibrant-connection-production.up.railway.app/api/v1/admin/calendar"
+          "https://vibrant-connection-production.up.railway.app/api/v1/calendar"
         );
 
         const mappedEvents = res.data.map((event) => {
