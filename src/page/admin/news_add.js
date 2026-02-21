@@ -1,13 +1,10 @@
 import React, { useState, useCallback } from "react";
-import Navbar from "../../component/navbar";
-import Headers from "../../component/header";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "../../css/admin/news_add.css";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import AdminLayout from "../../layout/AdminLayout";
 
 // Cropper import
 import Cropper from "react-easy-crop";
@@ -117,12 +114,10 @@ const AddNews = () => {
     newNews.append("type_id", category);
     newNews.append("detail_url", urlDetail);
 
-    // ✅ ส่ง cover_image แยก (หลัง crop แล้ว)
     if (fileImage) {
       newNews.append("cover_image", fileImage);
     }
 
-    // ✅ ส่งรูปข่าวประกอบหลายรูป (ไม่รวมรูปหน้าปก)
     newsImages.forEach((file) => {
       newNews.append("images", file);
     });
@@ -152,19 +147,14 @@ const AddNews = () => {
   };
 
   return (
-    <>
-      <Headers />
-      <Navbar />
-      <div className="container text-center">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-          <div className="col-sm-9 text-start">
-            <div>
-              <h3 className="news-title">เพิ่มข่าวสาร</h3>
-            </div>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="mb-4">
+          <h3>เพิ่มข่าวสาร</h3>
+        </div>
 
+        <div className="card shadow-sm">
+          <div className="card-body">
             {imageSrc ? (
               <>
                 <div className={classes.cropContainer}>
@@ -179,16 +169,13 @@ const AddNews = () => {
                   />
                 </div>
 
-                <div className={classes.controls}>
+                <div className="text-center mt-4">
                   <Button
                     onClick={showCroppedImage}
                     variant="contained"
                     sx={{
-                      backgroundColor: "#173390", // เปลี่ยนสีเป็นสีเขียว
-                      margin: "50px", // เพิ่ม margin รอบ ๆ ปุ่ม
-                      "&:hover": {
-                        backgroundColor: "#0b1a4aff", // สีเมื่อ hover
-                      },
+                      backgroundColor: "#173390",
+                      "&:hover": { backgroundColor: "#0b1a4a" },
                     }}
                   >
                     ตกลง
@@ -197,6 +184,7 @@ const AddNews = () => {
               </>
             ) : (
               <form onSubmit={handleSubmit}>
+                {/* หัวข้อ */}
                 <div className="mb-3">
                   <label className="form-label">หัวข้อข่าวสาร</label>
                   <input
@@ -206,6 +194,7 @@ const AddNews = () => {
                   />
                 </div>
 
+                {/* เนื้อหา */}
                 <div className="mb-3">
                   <label className="form-label">เนื้อหาข่าวสาร</label>
                   <CKEditor
@@ -215,6 +204,7 @@ const AddNews = () => {
                   />
                 </div>
 
+                {/* ประเภท */}
                 <div className="mb-3">
                   <label className="form-label">ประเภทข่าวสาร</label>
                   <select
@@ -229,8 +219,11 @@ const AddNews = () => {
                   </select>
                 </div>
 
+                {/* URL เพิ่มเติม */}
                 <div className="mb-3">
-                  <label className="form-label">รายละเอียดข่าวสาร</label>
+                  <label className="form-label">
+                    รายละเอียดข่าวสารเพิ่มเติม
+                  </label>
                   <input
                     className="form-control"
                     value={urlDetail}
@@ -238,6 +231,7 @@ const AddNews = () => {
                   />
                 </div>
 
+                {/* รูปปก */}
                 <div className="mb-3">
                   <label className="form-label">รูปภาพหน้าปกข่าว</label>
                   <input
@@ -246,18 +240,21 @@ const AddNews = () => {
                     accept="image/*"
                     onChange={onFileChange}
                   />
+
                   {previewUrl && (
                     <div className="mt-3">
-                      <p>Preview รูปหน้าปก:</p>
+                      <p className="mb-2">Preview รูปหน้าปก</p>
                       <img
                         src={previewUrl}
                         alt="preview"
-                        style={{ maxWidth: "300px", borderRadius: "8px" }}
+                        className="img-fluid rounded"
+                        style={{ maxWidth: "300px" }}
                       />
                     </div>
                   )}
                 </div>
 
+                {/* รูปข่าวหลายรูป */}
                 <div className="mb-3">
                   <label className="form-label">รูปภาพข่าว</label>
                   <input
@@ -269,7 +266,7 @@ const AddNews = () => {
 
                   {newsPreviewUrls.length > 0 && (
                     <div className="mt-3">
-                      <p>Preview รูปภาพข่าว:</p>
+                      <p>Preview รูปภาพข่าว</p>
                       <div
                         style={{
                           display: "flex",
@@ -278,18 +275,19 @@ const AddNews = () => {
                         }}
                       >
                         {newsPreviewUrls.map((url, index) => (
-                          <div key={index} className="image-preview-wrapper">
+                          <div key={index} className="position-relative">
                             <img
                               src={url}
                               alt={`preview-${index}`}
-                              className="image-preview"
+                              className="img-thumbnail"
+                              style={{ width: "150px", height: "auto" }}
                             />
                             <button
                               type="button"
-                              className="remove-image-btn"
+                              className="btn btn-sm btn-danger position-absolute top-0 end-0"
                               onClick={() => removeImage(index)}
                             >
-                              &times;
+                              ×
                             </button>
                           </div>
                         ))}
@@ -298,20 +296,18 @@ const AddNews = () => {
                   )}
                 </div>
 
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  id="btn-submit"
-                >
-                  เผยแพร่
-                </button>
+                {/* ปุ่ม */}
+                <div className="text-end mt-4">
+                  <button type="submit" className="btn btn-primary px-4">
+                    เผยแพร่
+                  </button>
+                </div>
               </form>
             )}
           </div>
         </div>
       </div>
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 
@@ -342,7 +338,7 @@ async function getCroppedImg(imageSrc, crop) {
     0,
     0,
     crop.width,
-    crop.height
+    crop.height,
   );
 
   return new Promise((resolve) => {

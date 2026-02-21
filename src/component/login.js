@@ -88,9 +88,35 @@ const Login = () => {
             </div>
 
             <button type="submit" className="btn-login" disabled={loading}>
-              {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+              {/* {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"} */}
+              {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                />
+                กำลังเข้าสู่ระบบ...
+              </>
+            ) : (
+              "เข้าสู่ระบบ"
+            )}
             </button>
           </form>
+          <hr></hr>
+          <button type="submit" className="btn-login" disabled={loading}>
+            {/* {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                />
+                กำลังเข้าสู่ระบบ...
+              </>
+            ) : (
+              "Login with SSO"
+            )} */}
+            Login with SSO
+          </button>
         </div>
       </div>
 

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Menu from "../../component/menu";
-import Footer from "../../component/footer";
 import api from "../../api/axios";
+import AdminLayout from "../../layout/AdminLayout";
 
 function History() {
   const [history, setHistory] = useState([]);
@@ -31,68 +28,68 @@ function History() {
     }
   };
 
-  // 🔐 redirect หลังจากเรียก hooks แล้ว (ถูกต้อง)
   if (!isAdmin) {
     return <Navigate to="/unauthorized" replace />;
   }
 
+  const formatDateTime = (date) =>
+    new Date(date).toLocaleString("th-TH", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
   return (
-    <>
-      <Headers />
-      <Navbar />
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="mb-4">
+          <h3>ประวัติการเข้าใช้งานระบบ</h3>
+        </div>
 
-      <div className="container text-center">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-
-          <div className="col-sm-9">
-            <h3 className="mb-4">ประวัติการเข้าใช้งานระบบ</h3>
-
-            <table className="table table-bordered">
-              <thead className="table-light text-center">
-                <tr>
-                  <th>ผู้ใช้งาน</th>
-                  <th>สิทธิ์</th>
-                  <th>การกระทำ</th>
-                  <th>รายการที่เกี่ยวข้อง</th>
-                  <th>วันเวลา</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {loading ? (
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <div className="table-responsive">
+              <table className="table table-bordered table-hover align-middle">
+                <thead className="table-light text-center">
                   <tr>
-                    <td colSpan="5" className="text-center">
-                      กำลังโหลด...
-                    </td>
+                    <th>ผู้ใช้งาน</th>
+                    <th>สิทธิ์</th>
+                    <th>การกระทำ</th>
+                    <th>รายการที่เกี่ยวข้อง</th>
+                    <th>วันเวลา</th>
                   </tr>
-                ) : history.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="text-center">
-                      ไม่มีข้อมูล
-                    </td>
-                  </tr>
-                ) : (
-                  history.map((h) => (
-                    <tr key={h.id}>
-                      <td>{h.user}</td>
-                      <td>{h.role}</td>
-                      <td>{h.action}</td>
-                      <td>{h.target}</td>
-                      <td>{h.createdAt}</td>
+                </thead>
+
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="text-center">
+                        กำลังโหลด...
+                      </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : history.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center">
+                        ไม่มีข้อมูล
+                      </td>
+                    </tr>
+                  ) : (
+                    history.map((h) => (
+                      <tr key={h.id}>
+                        <td>{h.user}</td>
+                        <td>{h.role}</td>
+                        <td>{h.action}</td>
+                        <td>{h.target}</td>
+                        <td>{formatDateTime(h.createdAt)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-
-      <Footer />
-    </>
+    </AdminLayout>
   );
 }
 

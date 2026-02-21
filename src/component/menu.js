@@ -37,6 +37,12 @@ const Menu = () => {
           // },
         ]
       : []),
+
+    {
+      path: "/admin/manual",
+      label: "คู่มือการใช้งาน",
+      icon: "fas fa-circle-question",
+    },
   ];
 
   return (

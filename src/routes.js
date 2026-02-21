@@ -50,6 +50,7 @@ import AddAdmission from "./page/admin/addAdmission";
 import EditAdmission from "./page/admin/editAdmission";
 
 import History from "./page/admin/history";
+import Manual from "./page/admin/manual";
 
 const AppRoutes = () => {
   const RequireAuth = () => {
@@ -97,6 +98,7 @@ const AppRoutes = () => {
           <Route path="admission/edit/:id" element={<EditAdmission />} />
 
           <Route path="history" element={<History />} />
+          <Route path="manual" element={<Manual />} />
         </Route>
       </Route>
 

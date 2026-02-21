@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../../css/admin/course.css";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
+import AdminLayout from "../../layout/AdminLayout";
 
 const Course = () => {
   const [courses, setCourses] = useState([]);
@@ -60,59 +57,50 @@ const Course = () => {
   };
 
   return (
-    <>
-      <Headers />
-      <Navbar />
-
-      <div className="container mt-4">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-
-          <div className="col-sm-9">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 id="course-title">หลักสูตรทั้งหมด</h3>
-              <Link to="/admin/addcourse" className="btn-addcourse">
-                + เพิ่มหลักสูตร
-              </Link>
-            </div>
-
-            {loading && <p>กำลังโหลดข้อมูลหลักสูตร...</p>}
-            {error && <p className="text-danger">{error}</p>}
-
-            {!loading && !error && (
-              <>
-                <section className="mb-5">
-                  <div className="degree-divider">
-                    <span className="bachelor">ปริญญาตรี</span>
-                  </div>
-                  <div className="row">{renderCourseList(bachelorCourses)}</div>
-                </section>
-
-                <section className="mb-5">
-                  <div className="degree-divider">
-                    <span className="master">ปริญญาโท</span>
-                  </div>
-                  <div className="row">{renderCourseList(masterCourses)}</div>
-                </section>
-
-                <section className="mb-5">
-                  <div className="degree-divider">
-                    <span className="doctor">ปริญญาเอก</span>
-                  </div>
-                  <div className="row">
-                    {renderCourseList(doctorateCourses)}
-                  </div>
-                </section>
-              </>
-            )}
-          </div>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3 id="course-title">หลักสูตรทั้งหมด</h3>
+          <Link to="/admin/addcourse" className="btn-addcourse">
+            + เพิ่มหลักสูตร
+          </Link>
         </div>
-      </div>
 
-      <Footer />
-    </>
+        {loading && <p>กำลังโหลดข้อมูลหลักสูตร...</p>}
+        {error && <p className="text-danger">{error}</p>}
+
+        {!loading && !error && (
+          <>
+            <section className="mb-5">
+              <div className="degree-divider">
+                <span className="bachelor">ปริญญาตรี</span>
+              </div>
+              <div className="row">
+                {renderCourseList(bachelorCourses)}
+              </div>
+            </section>
+
+            <section className="mb-5">
+              <div className="degree-divider">
+                <span className="master">ปริญญาโท</span>
+              </div>
+              <div className="row">
+                {renderCourseList(masterCourses)}
+              </div>
+            </section>
+
+            <section className="mb-5">
+              <div className="degree-divider">
+                <span className="doctor">ปริญญาเอก</span>
+              </div>
+              <div className="row">
+                {renderCourseList(doctorateCourses)}
+              </div>
+            </section>
+          </>
+        )}
+      </div>
+    </AdminLayout>
   );
 };
 

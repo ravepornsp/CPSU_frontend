@@ -1,30 +1,12 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
+import AdminLayout from "../../layout/AdminLayout";
 import "../../css/admin/subject.css";
 
 const SubjectAdd = () => {
   const navigate = useNavigate();
   const [courseOptions, setCourseOptions] = useState([]);
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await api.get(
-          "/admin/course"
-        );
-        setCourseOptions(response.data);
-      } catch (error) {
-        console.error("Error loading courses", error);
-      }
-    };
-
-    fetchCourses();
-  }, []);
 
   const [formData, setFormData] = useState({
     subject_id: "",
@@ -44,6 +26,23 @@ const SubjectAdd = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  /* ================= Load Course ================= */
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await api.get("/admin/course");
+        setCourseOptions(response.data);
+      } catch (error) {
+        console.error("Error loading courses", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  /* ================= Handle Change ================= */
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -51,6 +50,8 @@ const SubjectAdd = () => {
       [name]: value,
     }));
   };
+
+  /* ================= Submit ================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,16 +70,20 @@ const SubjectAdd = () => {
           formData.compulsory_subject.trim() === ""
             ? "-"
             : formData.compulsory_subject,
-        condition: formData.condition.trim() === "" ? "-" : formData.condition,
+        condition:
+          formData.condition.trim() === ""
+            ? "-"
+            : formData.condition,
         description_thai: formData.description_thai,
         description_eng: formData.description_eng,
         clo: formData.clo.trim() === "" ? "-" : formData.clo,
         plan_type_id: parseInt(formData.plan_type_id),
       };
 
-      console.log(cleanData);
       await api.post("/admin/subject", cleanData);
+
       setSuccess("เพิ่มรายวิชาสำเร็จ!");
+
       setFormData({
         subject_id: "",
         thai_subject: "",
@@ -94,7 +99,7 @@ const SubjectAdd = () => {
         plan_type_id: "",
       });
 
-      alert("เพิ่มรายวิชาสำเร็จ")
+      alert("เพิ่มรายวิชาสำเร็จ");
       navigate("/admin/subject");
     } catch (err) {
       console.error(err);
@@ -102,18 +107,17 @@ const SubjectAdd = () => {
     }
   };
 
+  /* ================= Render ================= */
+
   return (
-    <>
-      <Headers />
-      <Navbar />
-      <div className="container mt-4">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-          <div className="col-sm-9 text-start">
-            <h2>เพิ่มรายวิชาใหม่</h2>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <h4 className="mb-4">เพิ่มรายวิชาใหม่</h4>
+
             <form onSubmit={handleSubmit}>
+              {/* หลักสูตร */}
               <div className="mb-3">
                 <label>หลักสูตร (Course)</label>
                 <select
@@ -131,6 +135,8 @@ const SubjectAdd = () => {
                   ))}
                 </select>
               </div>
+
+              {/* รหัสวิชา */}
               <div className="mb-3">
                 <label>รหัสรายวิชา</label>
                 <input
@@ -144,6 +150,7 @@ const SubjectAdd = () => {
                 />
               </div>
 
+              {/* ชื่อไทย */}
               <div className="mb-3">
                 <label>ชื่อรายวิชา (ภาษาไทย)</label>
                 <input
@@ -156,6 +163,7 @@ const SubjectAdd = () => {
                 />
               </div>
 
+              {/* ชื่ออังกฤษ */}
               <div className="mb-3">
                 <label>ชื่อรายวิชา (ภาษาอังกฤษ)</label>
                 <input
@@ -167,6 +175,7 @@ const SubjectAdd = () => {
                 />
               </div>
 
+              {/* หน่วยกิต */}
               <div className="mb-3">
                 <label>หน่วยกิต</label>
                 <input
@@ -180,6 +189,7 @@ const SubjectAdd = () => {
                 />
               </div>
 
+              {/* ภาคการศึกษา */}
               <div className="mb-3">
                 <label>ชั้นปีและภาคการศึกษา</label>
                 <select
@@ -190,17 +200,18 @@ const SubjectAdd = () => {
                   required
                 >
                   <option value="">-- เลือกภาคการศึกษา --</option>
-                  <option value="11">ปีที่ 1 ภาคการศึกษาที่ 1</option>
-                  <option value="12">ปีที่ 1 ภาคการศึกษาที่ 2</option>
-                  <option value="21">ปีที่ 2 ภาคการศึกษาที่ 1</option>
-                  <option value="22">ปีที่ 2 ภาคการศึกษาที่ 2</option>
-                  <option value="31">ปีที่ 3 ภาคการศึกษาที่ 1</option>
-                  <option value="32">ปีที่ 3 ภาคการศึกษาที่ 2</option>
-                  <option value="41">ปีที่ 4 ภาคการศึกษาที่ 1</option>
-                  <option value="42">ปีที่ 4 ภาคการศึกษาที่ 2</option>
+                  <option value="11">ปี 1 เทอม 1</option>
+                  <option value="12">ปี 1 เทอม 2</option>
+                  <option value="21">ปี 2 เทอม 1</option>
+                  <option value="22">ปี 2 เทอม 2</option>
+                  <option value="31">ปี 3 เทอม 1</option>
+                  <option value="32">ปี 3 เทอม 2</option>
+                  <option value="41">ปี 4 เทอม 1</option>
+                  <option value="42">ปี 4 เทอม 2</option>
                 </select>
               </div>
 
+              {/* แผนการศึกษา */}
               <div className="mb-3">
                 <label>แผนการศึกษา</label>
                 <select
@@ -215,20 +226,21 @@ const SubjectAdd = () => {
                   <option value="2">สหกิจศึกษา</option>
                 </select>
               </div>
+
+              {/* อื่น ๆ */}
               <div className="mb-3">
-                <label>วิชาบังคับ (ถ้ามี)</label>
+                <label>วิชาบังคับ</label>
                 <input
                   type="text"
                   name="compulsory_subject"
                   value={formData.compulsory_subject}
                   onChange={handleChange}
                   className="form-control"
-                  placeholder="เช่น CS517XXX ชื่อรายวิชา, IT520XXX ชื่อรายวิชา"
                 />
               </div>
 
               <div className="mb-3">
-                <label>เงื่อนไข (Prerequisites)</label>
+                <label>เงื่อนไข</label>
                 <input
                   type="text"
                   name="condition"
@@ -239,7 +251,7 @@ const SubjectAdd = () => {
               </div>
 
               <div className="mb-3">
-                <label>คำอธิบายรายวิชา (ภาษาไทย)</label>
+                <label>คำอธิบายรายวิชา (TH)</label>
                 <textarea
                   name="description_thai"
                   value={formData.description_thai}
@@ -250,7 +262,7 @@ const SubjectAdd = () => {
               </div>
 
               <div className="mb-3">
-                <label>Course Description (English)</label>
+                <label>Course Description (EN)</label>
                 <textarea
                   name="description_eng"
                   value={formData.description_eng}
@@ -268,26 +280,20 @@ const SubjectAdd = () => {
                   onChange={handleChange}
                   className="form-control"
                   rows={5}
-                  placeholder="CLOXX XXXXXXXXXX"
                 />
               </div>
 
               {error && <div className="alert alert-danger">{error}</div>}
               {success && <div className="alert alert-success">{success}</div>}
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                id="btn-addsubject"
-              >
+              <button type="submit" className="btn btn-primary">
                 บันทึกรายวิชา
               </button>
             </form>
           </div>
         </div>
       </div>
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 

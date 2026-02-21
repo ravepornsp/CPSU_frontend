@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
+
 import "../../css/admin/personnel.css";
-import { useMemo } from 'react';
+import { useMemo } from "react";
+import AdminLayout from "../../layout/AdminLayout";
 
 function EditPersonnel() {
   const { id } = useParams();
@@ -170,14 +168,9 @@ function EditPersonnel() {
 
   return (
     <>
-      <Headers />
-      <Navbar />
-      <div className="container">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-          <div className="col-sm-9">
+      <AdminLayout>
+        <div className="container">
+          <div className="row">
             <div className="card shadow-sm">
               <div className="card-body">
                 <h4 className="card-title mb-4">แก้ไขข้อมูลบุคลากร</h4>
@@ -376,8 +369,7 @@ function EditPersonnel() {
             </div>
           </div>
         </div>
-      </div>
-      <Footer />
+      </AdminLayout>
     </>
   );
 }

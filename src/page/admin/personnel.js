@@ -2,79 +2,125 @@ import React, { useEffect, useState } from "react";
 import "../../css/admin/personnel.css";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
+import AdminLayout from "../../layout/AdminLayout";
 
 function PersonnelAdmin() {
   const [personnel, setPersonnel] = useState([]);
+  const [lastSyncDate, setLastSyncDate] = useState(null);
+  const [loadingSync, setLoadingSync] = useState(false);
 
+  // ================= Load Initial Data =================
   useEffect(() => {
-    const fetchPersonnel = async () => {
-      try {
-        const res = await api.get("/admin/personnel");
-        setPersonnel(res.data);
-      } catch (err) {
-        console.error("Error fetching personnel", err);
-      }
-    };
-
     fetchPersonnel();
+    fetchLastSync();
   }, []);
 
+  // ================= Fetch Personnel =================
+  const fetchPersonnel = async () => {
+    try {
+      const res = await api.get("/admin/personnel");
+      setPersonnel(res.data);
+    } catch (err) {
+      console.error("Error fetching personnel", err);
+    }
+  };
+
+  // ================= Fetch Last Sync Date =================
+  const fetchLastSync = async () => {
+    try {
+      const res = await api.get("/admin/personnel/research");
+      if (res.data.length > 0) {
+        const latest = res.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        )[0];
+
+        setLastSyncDate(latest.created_at);
+      }
+    } catch (err) {
+      console.error("Error fetching last sync date", err);
+    }
+  };
+
+  // ================= Manual Sync =================
+  const fetchScopus = async () => {
+    if (!window.confirm("ต้องการอัปเดตข้อมูลจาก Scopus ใช่หรือไม่?")) return;
+
+    setLoadingSync(true);
+    try {
+      await api.get("/admin/personnel/scopus");
+
+      alert("อัปเดตข้อมูลจาก Scopus สำเร็จ");
+
+      // reload data หลัง sync
+      await fetchPersonnel();
+      await fetchLastSync();
+    } catch (err) {
+      console.error(err);
+      alert("อัปเดต Scopus ไม่สำเร็จ");
+    } finally {
+      setLoadingSync(false);
+    }
+  };
+
   return (
-    <>
-      <Headers />
-      <Navbar />
-      <div className="container text-center mt-4">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3 id="personnel-title" className="mb-0">
+            บุคลากรทั้งหมด
+          </h3>
 
-          <div className="col-sm-9">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 id="personnel-title">บุคลากรทั้งหมด</h3>
-              <Link to="/admin/addpersonnel" className="btn-addpersonnel">
-                + เพิ่มบุคลากร
-              </Link>
-            </div>
+          <div className="d-flex align-items-center gap-3">
+            <p className="text-muted small mb-0">
+              อัปเดต Scopus ล่าสุด:{" "}
+              {lastSyncDate
+                ? new Date(lastSyncDate).toLocaleDateString("th-TH")
+                : "ยังไม่มีข้อมูล"}
+            </p>
 
-            <div className="row row-cols-1 row-cols-md-3 g-4">
-              {personnel.map((item, index) => (
-                <div className="col" key={index}>
-                  <Link
-                    to={`/admin/personnel/${item.personnel_id}`}
-                    className="text-decoration-none text-dark"
-                  >
-                    <div className="card h-100 shadow-sm">
-                      <img
-                        src={
-                          item.file_image && item.file_image.trim() !== ""
-                            ? item.file_image
-                            : "/images/default-profile.png"
-                        }
-                        className="card-img-top personnel-img"
-                        alt={item.thai_name}
-                      />
-                      <div className="card-body">
-                        <h5 className="card-title name-title">
-                          {item.thai_academic_position} {item.thai_name}
-                        </h5>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={fetchScopus}
+              disabled={loadingSync}
+            >
+              {loadingSync ? "กำลัง Sync..." : "Sync Scopus"}
+            </button>
+
+            <Link to="/admin/addpersonnel" className="btn-addpersonnel">
+              + เพิ่มบุคลากร
+            </Link>
           </div>
         </div>
-      </div>
 
-      <div id="space"></div>
-      <Footer />
-    </>
+        <div className="row row-cols-1 row-cols-md-4 g-4">
+          {personnel.map((item) => (
+            <div className="col" key={item.personnel_id}>
+              <Link
+                to={`/admin/personnel/${item.personnel_id}`}
+                className="text-decoration-none text-dark"
+              >
+                <div className="card h-100 shadow-sm">
+                  <img
+                    src={
+                      item.file_image && item.file_image.trim() !== ""
+                        ? item.file_image
+                        : "/images/default-profile.png"
+                    }
+                    className="card-img-top personnel-img"
+                    alt={item.thai_name}
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title name-title">
+                      {item.thai_academic_position} {item.thai_name}
+                    </h5>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AdminLayout>
   );
 }
 

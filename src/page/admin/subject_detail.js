@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../../api/axios";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
-import { Link } from "react-router-dom";
+import AdminLayout from "../../layout/AdminLayout";
 import "../../css/admin/subject.css";
 
 const SubjectDetail = () => {
-  const { id } = useParams(); // ดึง id จาก URL params
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [subject, setSubject] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  /* ================= Load Data ================= */
 
   useEffect(() => {
     const fetchSubjectDetail = async () => {
       try {
-        const res = await api.get(
-          `/admin/subject/${id}`
-        );
+        const res = await api.get(`/admin/subject/${id}`);
         setSubject(res.data);
       } catch (err) {
         setError("ไม่พบข้อมูลรายวิชา หรือเกิดข้อผิดพลาดในการดึงข้อมูล");
@@ -32,7 +29,12 @@ const SubjectDetail = () => {
 
     fetchSubjectDetail();
   }, [id]);
+
+  /* ================= Delete ================= */
+
   const handleDelete = async () => {
+    if (!subject) return;
+
     const confirmDelete = window.confirm(
       `คุณต้องการลบรายวิชา ${subject.subject_id} ใช่หรือไม่?`
     );
@@ -48,37 +50,62 @@ const SubjectDetail = () => {
     }
   };
 
-  if (loading) return <p>กำลังโหลดข้อมูล...</p>;
-  if (error) return <p>{error}</p>;
-  if (!subject) return <p>ไม่พบข้อมูลรายวิชา</p>;
+  /* ================= Loading ================= */
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="container-fluid text-center mt-5">
+          <p>กำลังโหลดข้อมูล...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="container-fluid mt-4">
+          <div className="alert alert-danger">{error}</div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!subject) {
+    return (
+      <AdminLayout>
+        <div className="container-fluid mt-4">
+          <p>ไม่พบข้อมูลรายวิชา</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  /* ================= Render ================= */
 
   return (
-    <>
-      <Headers />
-      <Navbar />
-      <div className="container mt-4">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-          <div className="col-sm-9 text-start">
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="card shadow-sm">
+          <div className="card-body">
+
+            {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-3">
-              {/* ซ้าย: subject name */}
-              <p id="subject-name" className="m-0 fw-bold">
+              <h4 className="mb-0 fw-bold">
                 {subject.subject_id} {subject.thai_subject}
-              </p>
+              </h4>
 
               <div>
                 <Link
-                  to={`/admin/editsubject/${subject?.id}`}
+                  to={`/admin/editsubject/${subject.id}`}
                   className="btn btn-warning me-2"
-                  id="btn-edit"
                 >
                   แก้ไข
                 </Link>
+
                 <button
                   className="btn btn-danger"
-                  id="btn-delete"
                   onClick={handleDelete}
                 >
                   ลบ
@@ -86,45 +113,57 @@ const SubjectDetail = () => {
               </div>
             </div>
 
+            <hr />
+
+            {/* Detail */}
             <p>
               <strong>หลักสูตร:</strong> {subject.thai_course}
             </p>
+
             <p>
               <strong>ภาคการศึกษา:</strong> {subject.semester}
             </p>
+
             <p>
               <strong>หน่วยกิต:</strong> {subject.credits}
             </p>
 
             <p>
-              <strong>วิชาบังคับ:</strong> {subject.compulsory_subject || "-"}
+              <strong>วิชาบังคับ:</strong>{" "}
+              {subject.compulsory_subject || "-"}
             </p>
 
             <p>
-              <strong>เงื่อนไข:</strong> {subject.condition || "-"}
+              <strong>เงื่อนไข:</strong>{" "}
+              {subject.condition || "-"}
             </p>
+
             <hr />
-            <p id="subject-detail">คำอธิบายรายวิชา (ภาษาไทย)</p>
+
+            <h6 className="fw-bold">คำอธิบายรายวิชา (ภาษาไทย)</h6>
             <p>{subject.description_thai || "-"}</p>
-            <p id="subject-detail">Course Description (English)</p>
+
+            <h6 className="fw-bold mt-3">Course Description (English)</h6>
             <p>{subject.description_eng || "-"}</p>
+
             <hr />
-            <p id="subject-detail">CLOs</p>
+
+            <h6 className="fw-bold">CLOs</h6>
             <pre
               style={{
                 whiteSpace: "pre-wrap",
                 backgroundColor: "#f8f9fa",
                 padding: "15px",
-                borderRadius: "5px",
+                borderRadius: "6px",
               }}
             >
               {subject.clo || "-"}
             </pre>
+
           </div>
         </div>
       </div>
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 

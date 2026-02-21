@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../../api/axios";
 import "../../css/admin/news.css";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
+import AdminLayout from "../../layout/AdminLayout";
 
 function DetailPersonnel() {
   const { id } = useParams();
@@ -18,10 +15,10 @@ function DetailPersonnel() {
       try {
         const res = await api.get(`/admin/personnel/${id}`);
         setPerson(res.data.personnel);
-        setLoading(false);
       } catch (err) {
         console.error("Error fetching personnel detail:", err);
-        setError(err);
+        setError("ไม่สามารถโหลดข้อมูลบุคลากรได้");
+      } finally {
         setLoading(false);
       }
     };
@@ -29,128 +26,132 @@ function DetailPersonnel() {
     fetchPerson();
   }, [id]);
 
-  if (loading) {
-    return (
-      <>
-        <Headers />
-        <Navbar />
-        <div className="container text-center mt-5">
-          <p>กำลังโหลดข้อมูล...</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
-
-  if (error || !person) {
-    return (
-      <>
-        <Headers />
-        <Navbar />
-        <div className="container text-center mt-5">
-          <p className="text-danger">ไม่สามารถโหลดข้อมูลบุคลากรได้</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
-
   return (
-    <>
-      <Headers />
-      <Navbar />
+    <AdminLayout>
       <div className="container-fluid">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
+        {loading && (
+          <div className="text-center mt-5">
+            <p>กำลังโหลดข้อมูล...</p>
           </div>
-          <div className="col-sm-9">
-            {" "}
-            <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-              <div className="edit_detele-position">
-                {person && (
-                  <Link
-                    to={`/admin/editpersonnel/${id}`}
-                    className="btn btn-warning"
-                    id="btn-edit"
-                  >
-                    แก้ไข
-                  </Link>
-                )}
-                <div className="btn btn-danger" id="btn-delete">
-                  ลบ
-                </div>
-              </div>
+        )}
+
+        {!loading && error && (
+          <div className="text-center mt-5">
+            <p className="text-danger">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && person && (
+          <>
+            {/* ปุ่มแก้ไข / ลบ */}
+            <div className="d-flex justify-content-end gap-2 mb-3">
+              <Link
+                to={`/admin/editpersonnel/${id}`}
+                className="btn btn-warning"
+              >
+                แก้ไข
+              </Link>
+
+              {/* ยังไม่มี logic delete — เพิ่มภายหลังได้ */}
+              <button className="btn btn-danger">
+                ลบ
+              </button>
             </div>
-            <div className="card mt-4 shadow-sm p-4">
+
+            <div className="card shadow-sm p-4">
               <div className="d-flex align-items-center mb-3">
-                <Link to="/admin/personnel" className="back-arrow me-2">
+                <Link to="/admin/personnel" className="me-2 text-decoration-none">
                   &lt;
                 </Link>
-                <h4 className="mb-0">แก้ไขข้อมูลบุคลากร</h4>
+                <h4 className="mb-0">รายละเอียดข้อมูลบุคลากร</h4>
               </div>
 
               <div className="row">
+                {/* รูป + Contact */}
                 <div className="col-md-4 text-center">
                   {person.file_image && (
                     <img
                       src={person.file_image}
                       alt="personnel"
-                      className="img-fluid"
+                      className="img-fluid rounded shadow-sm"
                     />
                   )}
 
-                  <p className="mt-3">
-                    <strong>อีเมล</strong> <br />
-                    <a href={`mailto:${person.email}`}>{person.email}</a>
-                  </p>
-                  <p>
-                    <strong>เว็บไซต์</strong> <br />
-                    <a href={person.website} target="_blank" rel="noreferrer">
-                      {person.website}
-                    </a>
-                  </p>
+                  <div className="mt-3">
+                    <p>
+                      <strong>อีเมล</strong><br />
+                      <a href={`mailto:${person.email}`}>
+                        {person.email || "-"}
+                      </a>
+                    </p>
+
+                    <p>
+                      <strong>เว็บไซต์</strong><br />
+                      {person.website ? (
+                        <a
+                          href={person.website}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {person.website}
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </p>
+                  </div>
                 </div>
+
+                {/* ข้อมูลรายละเอียด */}
                 <div className="col-md-8">
-                  <h4 className="text-start">
+                  <h4>
                     {person.thai_academic_position} {person.thai_name}
                   </h4>
-                  <p className="text-muted text-start">
+
+                  <p className="text-muted">
                     {person.eng_academic_position} {person.eng_name}
                   </p>
-                  <p className="text-start">
-                    <strong>ตำแหน่งในภาควิชา</strong>{" "}
+
+                  <p>
+                    <strong>ตำแหน่งในภาควิชา:</strong>{" "}
                     {person.department_position_name}
                   </p>
-                  <p className="text-start">
-                    <strong>ประเภทบุคลากร</strong> {person.type_personnel}
+
+                  <p>
+                    <strong>ประเภทบุคลากร:</strong>{" "}
+                    {person.type_personnel}
                   </p>
 
                   <hr />
 
-                  <h5 className="text-start">ประวัติการศึกษา</h5>
-                  <ul className="list-unstyled text-start">
-                    {person.education?.split("\n").map((line, i) => (
-                      <li key={i}>- {line.trim()}</li>
-                    ))}
-                  </ul>
+                  <h5>ประวัติการศึกษา</h5>
+                  {person.education ? (
+                    <ul>
+                      {person.education.split("\n").map((line, i) => (
+                        <li key={i}>{line.trim()}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>-</p>
+                  )}
 
-                  <h5 className="mt-3 text-start">สาขาที่เชี่ยวชาญ</h5>
-                  <ul className="list-unstyled text-start">
-                    {person.related_fields?.split("\n").map((line, i) => (
-                      <li key={i}>- {line.trim()}</li>
-                    ))}
-                  </ul>
+                  <h5 className="mt-3">สาขาที่เชี่ยวชาญ</h5>
+                  {person.related_fields ? (
+                    <ul>
+                      {person.related_fields.split("\n").map((line, i) => (
+                        <li key={i}>{line.trim()}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>-</p>
+                  )}
                 </div>
               </div>
-
-              <div className="text-end mt-4"></div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-      <Footer />
-    </>
+    </AdminLayout>
   );
 }
 

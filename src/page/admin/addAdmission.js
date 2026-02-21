@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../../css/admin/course.css";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import AdminLayout from "../../layout/AdminLayout";
 
 const AddAdmission = () => {
   const [round, setRound] = useState("");
@@ -18,7 +15,6 @@ const AddAdmission = () => {
 
   const navigate = useNavigate();
 
-  // clear preview url เมื่อ component unmount
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
@@ -26,11 +22,11 @@ const AddAdmission = () => {
   }, [preview]);
 
   const validateForm = () => {
-    if (!round) {
+    if (!round.trim()) {
       alert("กรุณาใส่รอบการรับสมัคร");
       return false;
     }
-    if (!detail) {
+    if (!detail.trim()) {
       alert("กรุณากรอกรายละเอียดการรับสมัคร");
       return false;
     }
@@ -56,13 +52,9 @@ const AddAdmission = () => {
     try {
       setLoading(true);
       await api.post("/admin/admission", formData);
-      alert("เพิ่มข้อมูลสำเร็จ!");
       navigate("/admin/admission");
     } catch (error) {
       console.error(error.response?.data || error);
-      console.log("STATUS:", error.response?.status);
-      console.log("DATA:", error.response?.data);
-      console.log("ERROR:", error);
       alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     } finally {
       setLoading(false);
@@ -70,90 +62,85 @@ const AddAdmission = () => {
   };
 
   return (
-    <>
-      <Headers />
-      <Navbar />
+    <AdminLayout>
+      <div className="container-fluid">
 
-      <div className="container mt-4">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
+        <h3 className="mb-4">เพิ่มข้อมูลการรับสมัคร</h3>
+
+        <form onSubmit={handleSubmit}>
+
+          {/* รอบการรับสมัคร */}
+          <div className="mb-3">
+            <label className="form-label">รอบการรับสมัคร</label>
+            <input
+              type="text"
+              className="form-control"
+              value={round}
+              onChange={(e) => setRound(e.target.value)}
+              placeholder="เช่น รอบที่ 1"
+            />
           </div>
 
-          <div className="col-sm-9">
-            <h3>เพิ่มข้อมูลการรับสมัคร</h3>
-
-            <form onSubmit={handleSubmit}>
-              {/* รอบการรับสมัคร */}
-              <div className="mb-3">
-                <label className="form-label">รอบการรับสมัคร</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={round}
-                  onChange={(e) => setRound(e.target.value)}
-                  placeholder="เช่น รอบที่ 1"
-                />
-              </div>
-
-              {/* รายละเอียด (CKEditor) */}
-              <div className="mb-3">
-                <label className="form-label">รายละเอียดการรับสมัคร</label>
-                <div style={{ minHeight: "220px" }}>
-                  <CKEditor
-                    editor={ClassicEditor}
-                    data={detail}
-                    onChange={(event, editor) => setDetail(editor.getData())}
-                  />
-                </div>
-              </div>
-
-              {/* รูปภาพ */}
-              <div className="mb-3">
-                <label className="form-label">รูปภาพ</label>
-                <input
-                  type="file"
-                  className="form-control"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const selected = e.target.files[0];
-                    if (!selected) return;
-
-                    setFile(selected);
-                    setPreview(URL.createObjectURL(selected));
-                  }}
-                />
-              </div>
-
-              {/* Preview */}
-              {preview && (
-                <div className="mb-3">
-                  <img
-                    src={preview}
-                    alt="preview"
-                    style={{
-                      maxWidth: "200px",
-                      borderRadius: "8px",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                    }}
-                  />
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-              >
-                {loading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-              </button>
-            </form>
+          {/* CKEditor */}
+          <div className="mb-3">
+            <label className="form-label">รายละเอียดการรับสมัคร</label>
+            <div style={{ minHeight: "220px" }}>
+              <CKEditor
+                editor={ClassicEditor}
+                data={detail}
+                onChange={(event, editor) =>
+                  setDetail(editor.getData())
+                }
+              />
+            </div>
           </div>
-        </div>
+
+          {/* รูปภาพ */}
+          <div className="mb-3">
+            <label className="form-label">รูปภาพ</label>
+            <input
+              type="file"
+              className="form-control"
+              accept="image/*"
+              onChange={(e) => {
+                const selected = e.target.files[0];
+                if (!selected) return;
+
+                if (!selected.type.startsWith("image/")) {
+                  alert("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น");
+                  return;
+                }
+
+                setFile(selected);
+                setPreview(URL.createObjectURL(selected));
+              }}
+            />
+          </div>
+
+          {/* Preview */}
+          {preview && (
+            <div className="mb-3">
+              <img
+                src={preview}
+                alt="preview"
+                className="img-fluid rounded shadow-sm"
+                style={{ maxWidth: "250px" }}
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+          </button>
+
+        </form>
+
       </div>
-
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 

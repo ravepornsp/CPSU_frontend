@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Navbar from "../../component/navbar";
-import Headers from "../../component/header";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "../../css/admin/news_edit.css";
 import api from "../../api/axios";
+import AdminLayout from "../../layout/AdminLayout";
 
 // Cropper
 import Cropper from "react-easy-crop";
@@ -148,17 +145,14 @@ const EditNews = () => {
   };
 
   return (
-    <>
-      <Headers />
-      <Navbar />
-      <div className="container text-center">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-          <div className="col-sm-9 text-start">
-            <p className="header-news-p">แก้ไขข่าวสาร</p>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="mb-4">
+          <h4>แก้ไขข่าวสาร</h4>
+        </div>
 
+        <div className="card shadow-sm">
+          <div className="card-body">
             {imageSrc ? (
               <>
                 <div
@@ -179,13 +173,14 @@ const EditNews = () => {
                     onZoomChange={setZoom}
                   />
                 </div>
-                <div style={{ marginTop: 20, textAlign: "center" }}>
+
+                <div className="text-center mt-4">
                   <Button
                     onClick={showCroppedImage}
                     variant="contained"
                     sx={{
-                      backgroundColor: "#38419d",
-                      "&:hover": { backgroundColor: "#2c327cff" },
+                      backgroundColor: "#173390",
+                      "&:hover": { backgroundColor: "#0b1a4a" },
                     }}
                   >
                     ตกลง
@@ -194,6 +189,7 @@ const EditNews = () => {
               </>
             ) : (
               <form onSubmit={handleEdit}>
+                {/* หัวข้อ */}
                 <div className="mb-3">
                   <label className="form-label">หัวข้อข่าวสาร</label>
                   <input
@@ -203,6 +199,7 @@ const EditNews = () => {
                   />
                 </div>
 
+                {/* เนื้อหา */}
                 <div className="mb-3">
                   <label className="form-label">เนื้อหาข่าวสาร</label>
                   <CKEditor
@@ -212,6 +209,7 @@ const EditNews = () => {
                   />
                 </div>
 
+                {/* ประเภท */}
                 <div className="mb-3">
                   <label className="form-label">ประเภทข่าวสาร</label>
                   <select
@@ -226,6 +224,7 @@ const EditNews = () => {
                   </select>
                 </div>
 
+                {/* URL */}
                 <div className="mb-3">
                   <label className="form-label">รายละเอียดข่าวสาร</label>
                   <input
@@ -235,7 +234,8 @@ const EditNews = () => {
                   />
                 </div>
 
-                <div className="mb-3">
+                {/* Cover */}
+                <div className="mb-4">
                   <label className="form-label">รูปภาพหน้าปกข่าว</label>
                   <input
                     className="form-control"
@@ -243,16 +243,14 @@ const EditNews = () => {
                     accept="image/*"
                     onChange={onFileChange}
                   />
+
                   {coverUrl && (
-                    <div
-                      className="mt-3"
-                      style={{ position: "relative", display: "inline-block" }}
-                    >
-                      <p>Preview รูปหน้าปก:</p>
+                    <div className="mt-3 position-relative d-inline-block">
                       <img
                         src={coverUrl}
                         alt="cover-preview"
-                        style={{ maxWidth: "300px", borderRadius: "8px" }}
+                        className="img-fluid rounded"
+                        style={{ maxWidth: "300px" }}
                       />
                       <button
                         type="button"
@@ -260,28 +258,16 @@ const EditNews = () => {
                           setCoverUrl(null);
                           setFileImage(null);
                         }}
-                        style={{
-                          position: "absolute",
-                          top: "5px",
-                          right: "5px",
-                          background: "rgba(0,0,0,0.4)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "24px",
-                          height: "24px",
-                          fontSize: "18px",
-                          cursor: "pointer",
-                        }}
-                        title="ลบรูปหน้าปก"
+                        className="btn btn-sm btn-danger position-absolute top-0 end-0"
                       >
-                        &times;
+                        ×
                       </button>
                     </div>
                   )}
                 </div>
 
-                <div className="mb-3">
+                {/* News Images */}
+                <div className="mb-4">
                   <label className="form-label">รูปภาพข่าว</label>
                   <input
                     className="form-control"
@@ -291,57 +277,33 @@ const EditNews = () => {
                   />
 
                   {newsPreviewUrls.length > 0 && (
-                    <div
-                      className="mt-3"
-                      style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
-                    >
+                    <div className="mt-3 d-flex flex-wrap gap-3">
                       {newsPreviewUrls.map((url, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            position: "relative",
-                            display: "inline-block",
-                          }}
-                        >
+                        <div key={idx} className="position-relative">
                           <img
                             src={url}
                             alt={`news-preview-${idx}`}
-                            style={{ width: "150px", borderRadius: "8px" }}
+                            className="img-thumbnail"
+                            style={{ width: "150px" }}
                           />
                           <button
                             type="button"
                             onClick={() => {
-                              // ถ้า url นี้อยู่ใน existingNewsUrls ให้ลบออก
                               setExistingNewsUrls((prev) =>
-                                prev.filter((u) => u !== url)
+                                prev.filter((u) => u !== url),
                               );
-                              // ถ้าเป็นไฟล์ใหม่ ให้ลบออกจาก newsImages และ preview list
                               setNewsPreviewUrls((prev) =>
-                                prev.filter((u) => u !== url)
+                                prev.filter((u) => u !== url),
                               );
-                              // ลบไฟล์ที่ตรงกับ url นี้ (ถ้ามี)
                               setNewsImages((prevFiles) =>
                                 prevFiles.filter(
-                                  (f) => URL.createObjectURL(f) !== url
-                                )
+                                  (f) => URL.createObjectURL(f) !== url,
+                                ),
                               );
                             }}
-                            style={{
-                              position: "absolute",
-                              top: "5px",
-                              right: "5px",
-                              background: "rgba(0,0,0,0.4)",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "50%",
-                              width: "24px",
-                              height: "24px",
-                              fontSize: "18px",
-                              cursor: "pointer",
-                            }}
-                            title="ลบภาพข่าว"
+                            className="btn btn-sm btn-danger position-absolute top-0 end-0"
                           >
-                            &times;
+                            ×
                           </button>
                         </div>
                       ))}
@@ -349,16 +311,18 @@ const EditNews = () => {
                   )}
                 </div>
 
-                <button type="submit" className="btn btn-primary">
-                  บันทึกการแก้ไข
-                </button>
+                {/* Submit */}
+                <div className="text-end">
+                  <button type="submit" className="btn btn-primary px-4">
+                    บันทึกการแก้ไข
+                  </button>
+                </div>
               </form>
             )}
           </div>
         </div>
       </div>
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 
@@ -388,7 +352,7 @@ async function getCroppedImg(imageSrc, crop) {
     0,
     0,
     crop.width,
-    crop.height
+    crop.height,
   );
 
   return new Promise((resolve) => {

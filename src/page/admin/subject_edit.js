@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../../api/axios";
 import { useParams, useNavigate } from "react-router-dom";
-import Headers from "../../component/header";
-import Navbar from "../../component/navbar";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
+import AdminLayout from "../../layout/AdminLayout";
 import "../../css/admin/subject.css";
-import { useMemo } from "react";
 
 const SubjectEdit = () => {
   const { id } = useParams();
@@ -31,8 +27,10 @@ const SubjectEdit = () => {
     plan_type_id: "",
   });
 
-  const semesterReverseMap = useMemo(() => {
-    return {
+  /* ================= Reverse Map ================= */
+
+  const semesterReverseMap = useMemo(
+    () => ({
       "ปีที่ 1 ภาคการศึกษาที่ 1": "11",
       "ปีที่ 1 ภาคการศึกษาที่ 2": "12",
       "ปีที่ 2 ภาคการศึกษาที่ 1": "21",
@@ -41,15 +39,19 @@ const SubjectEdit = () => {
       "ปีที่ 3 ภาคการศึกษาที่ 2": "32",
       "ปีที่ 4 ภาคการศึกษาที่ 1": "41",
       "ปีที่ 4 ภาคการศึกษาที่ 2": "42",
-    };
-  }, []);
+    }),
+    []
+  );
 
-  const planTypeReverseMap = useMemo(() => {
-    return {
+  const planTypeReverseMap = useMemo(
+    () => ({
       โครงงานวิจัย: "1",
       สหกิจศึกษา: "2",
-    };
-  }, []);
+    }),
+    []
+  );
+
+  /* ================= Load Courses ================= */
 
   useEffect(() => {
     api
@@ -57,6 +59,8 @@ const SubjectEdit = () => {
       .then((res) => setCourseOptions(res.data))
       .catch((err) => console.error(err));
   }, []);
+
+  /* ================= Load Subject ================= */
 
   useEffect(() => {
     const fetchSubject = async () => {
@@ -69,10 +73,8 @@ const SubjectEdit = () => {
           thai_subject: s.thai_subject || "",
           eng_subject: s.eng_subject || "",
           credits: s.credits || "",
-
           semester_id: semesterReverseMap[s.semester] || "",
           plan_type_id: planTypeReverseMap[s.plan_type] || "",
-
           compulsory_subject: s.compulsory_subject || "",
           condition: s.condition || "",
           description_thai: s.description_thai || "",
@@ -89,12 +91,16 @@ const SubjectEdit = () => {
     };
 
     fetchSubject();
-  }, [planTypeReverseMap, semesterReverseMap, id]);
+  }, [id, semesterReverseMap, planTypeReverseMap]);
+
+  /* ================= Handle Change ================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  /* ================= Submit ================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,9 +113,12 @@ const SubjectEdit = () => {
         eng_subject: formData.eng_subject,
         credits: formData.credits,
         course_id: formData.course_id,
-        semester: semesterReverseMap[formData.semester_id],
-        plan_type: planTypeReverseMap[formData.plan_type_id],
-
+        semester: Object.keys(semesterReverseMap).find(
+          (key) => semesterReverseMap[key] === formData.semester_id
+        ),
+        plan_type: Object.keys(planTypeReverseMap).find(
+          (key) => planTypeReverseMap[key] === formData.plan_type_id
+        ),
         compulsory_subject: formData.compulsory_subject.trim() || "-",
         condition: formData.condition.trim() || "-",
         description_thai: formData.description_thai,
@@ -126,26 +135,31 @@ const SubjectEdit = () => {
     }
   };
 
-  if (loading) return <p className="m-4">กำลังโหลดข้อมูล...</p>;
+  /* ================= Loading ================= */
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="container-fluid text-center mt-5">
+          <p>กำลังโหลดข้อมูล...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  /* ================= Render ================= */
 
   return (
-    <>
-      <Headers />
-      <Navbar />
-
-      <div className="container mt-4">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-
-          <div className="col-sm-9 text-start">
-            <h2>แก้ไขรายวิชา</h2>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <h4 className="mb-4">แก้ไขรายวิชา</h4>
 
             {error && <div className="alert alert-danger">{error}</div>}
 
             <form onSubmit={handleSubmit}>
-              {/* course */}
+              {/* Course */}
               <div className="mb-3">
                 <label>หลักสูตร</label>
                 <select
@@ -169,7 +183,6 @@ const SubjectEdit = () => {
                 <input
                   name="subject_id"
                   value={formData.subject_id}
-                  onChange={handleChange}
                   className="form-control"
                   disabled
                 />
@@ -293,21 +306,22 @@ const SubjectEdit = () => {
                 />
               </div>
 
-              <button className="btn btn-success me-2">บันทึก</button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => navigate("/admin/subject")}
-              >
-                ยกเลิก
-              </button>
+              <div className="mt-3">
+                <button className="btn btn-success me-2">บันทึก</button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => navigate("/admin/subject")}
+                >
+                  ยกเลิก
+                </button>
+              </div>
             </form>
+
           </div>
         </div>
       </div>
-
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 

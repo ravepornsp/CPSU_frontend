@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "../../css/admin/news_detail.css";
-import Navbar from "../../component/navbar";
-import Headers from "../../component/header";
-import Footer from "../../component/footer";
-import Menu from "../../component/menu";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import AdminLayout from "../../layout/AdminLayout";
 
 const DetailNews = () => {
   const { id } = useParams();
@@ -48,134 +45,117 @@ const DetailNews = () => {
   const images = news?.images || [];
 
   return (
-    <>
-      <Headers />
-      <Navbar />
-      <div className="container text-center">
-        <div className="row">
-          <div className="col-sm-3">
-            <Menu />
-          </div>
-          <div className="col-sm-9">
-            <div>
-              <div id="group-btn-header-detail">
-                <p id="news-name">{news?.title || "กำลังโหลด..."}</p>
-                <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                  <div className="edit_detele-position">
-                    <Link
-                      to={`/admin/editnews/${news?.news_id}`}
-                      className="btn btn-warning"
-                      id="btn-edit"
-                    >
-                      แก้ไข
-                    </Link>
-                    <div
-                      className="btn btn-danger"
-                      id="btn-delete"
-                      onClick={deleteNews}
-                    >
-                      ลบ
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="component_admin-detail-news row justify-content-between">
-                <div className="col-2">
-                  <label className="form-label" id="text-news-detail">
-                    {news?.created_at
-                      ? new Date(news.created_at).toLocaleString("th-TH", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })
-                      : ""}
-                  </label>
-                </div>
-              </div>
-              {images.length > 0 ? (
-                <div
-                  id="newsCarousel"
-                  className="carousel slide mb-3"
-                  data-bs-ride="carousel"
-                >
-                  <div className="carousel-inner">
-                    {images.map((image, index) => (
-                      <div
-                        key={index}
-                        className={`carousel-item ${
-                          index === 0 ? "active" : ""
-                        }`}
-                      >
-                        <img
-                          src={image.file_image}
-                          className="d-block w-100 img-news"
-                          alt={`slide-${index}`}
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* 👇 แสดงปุ่มควบคุมเฉพาะเมื่อมีมากกว่า 1 รูป */}
-                  {images.length > 1 && (
-                    <>
-                      <button
-                        className="carousel-control-prev"
-                        type="button"
-                        data-bs-target="#newsCarousel"
-                        data-bs-slide="prev"
-                      >
-                        <span
-                          className="carousel-control-prev-icon"
-                          aria-hidden="true"
-                        ></span>
-                      </button>
-                      <button
-                        className="carousel-control-next"
-                        type="button"
-                        data-bs-target="#newsCarousel"
-                        data-bs-slide="next"
-                      >
-                        <span
-                          className="carousel-control-next-icon"
-                          aria-hidden="true"
-                        ></span>
-                      </button>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <img
-                  src="/images/cpsu.png"
-                  className="img-news mb-3"
-                  alt="default"
-                />
-              )}
-
-              <div
-                className="text-start mt-3"
-                dangerouslySetInnerHTML={{ __html: news?.content || "" }}
-              ></div>
-
-              <div className="text-start mt-3">
-                <p id="news-detail-more">รายละเอียดเพิ่มเติม</p>
-                {news?.detail_url && news.detail_url !== "null" ? (
-                  news.detail_url.split("\n").map((line, index) => (
-                    <p key={index}>
-                      <a href={line} target="_blank" rel="noopener noreferrer">
-                        {line}
-                      </a>
-                    </p>
-                  ))
-                ) : (
-                  <p>-</p>
+    <AdminLayout>
+      <div className="container-fluid">
+        <div className="card shadow-sm">
+          <div className="card-body">
+            {/* Header */}
+            <div className="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h4 className="mb-1">{news?.title || "กำลังโหลด..."}</h4>
+                {news?.created_at && (
+                  <small className="text-muted">
+                    {new Date(news.created_at).toLocaleString("th-TH", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })}
+                  </small>
                 )}
               </div>
+
+              <div>
+                <Link
+                  to={`/admin/editnews/${news?.news_id}`}
+                  className="btn btn-warning me-2"
+                >
+                  แก้ไข
+                </Link>
+                <button className="btn btn-danger" onClick={deleteNews}>
+                  ลบ
+                </button>
+              </div>
+            </div>
+
+            {/* รูปภาพ */}
+            {images.length > 0 ? (
+              <div
+                id="newsCarousel"
+                className="carousel slide mb-4"
+                data-bs-ride="carousel"
+              >
+                <div className="carousel-inner rounded">
+                  {images.map((image, index) => (
+                    <div
+                      key={index}
+                      className={`carousel-item ${index === 0 ? "active" : ""}`}
+                    >
+                      <img
+                        src={image.file_image}
+                        className="d-block w-100"
+                        style={{ maxHeight: "450px", objectFit: "cover" }}
+                        alt={`slide-${index}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {images.length > 1 && (
+                  <>
+                    <button
+                      className="carousel-control-prev"
+                      type="button"
+                      data-bs-target="#newsCarousel"
+                      data-bs-slide="prev"
+                    >
+                      <span className="carousel-control-prev-icon"></span>
+                    </button>
+                    <button
+                      className="carousel-control-next"
+                      type="button"
+                      data-bs-target="#newsCarousel"
+                      data-bs-slide="next"
+                    >
+                      <span className="carousel-control-next-icon"></span>
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <img
+                src="/images/cpsu.png"
+                className="img-fluid mb-4"
+                style={{ maxHeight: "450px", objectFit: "cover" }}
+                alt="default"
+              />
+            )}
+
+            {/* Content */}
+            <div
+              className="mb-4"
+              dangerouslySetInnerHTML={{
+                __html: news?.content || "",
+              }}
+            />
+
+            {/* Detail URL */}
+            <div>
+              <h6 className="fw-bold">รายละเอียดเพิ่มเติม</h6>
+              {news?.detail_url && news.detail_url !== "null" ? (
+                news.detail_url.split("\n").map((line, index) => (
+                  <div key={index}>
+                    <a href={line} target="_blank" rel="noopener noreferrer">
+                      {line}
+                    </a>
+                  </div>
+                ))
+              ) : (
+                <p>-</p>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <Footer />
-    </>
+    </AdminLayout>
   );
 };
 
