@@ -39,28 +39,31 @@ function Manual() {
               <b>ข่าวสาร</b>
               <ul>
                 <li>
+                  {" "}
+                  <FaPlusCircle color="green" />
                   <a onClick={() => scrollToId("news-add")}>เพิ่มข่าวสาร</a>
                 </li>
                 <li>
+                  <FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("news-edit")}>แก้ไขข่าวสาร</a>
                 </li>
-                <li>
+                <li><FaTrash color="gray" />
                   <a onClick={() => scrollToId("news-delete")}>ลบข่าวสาร</a>
                 </li>
               </ul>
             </li>
 
-            {/* บุคลากร */}
             <li>
               <b>บุคลากร</b>
               <ul>
                 <li>
+                  <FaPlusCircle color="green" />
                   <a onClick={() => scrollToId("person-add")}>เพิ่มบุคลากร</a>
                 </li>
-                <li>
+                <li><FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("person-edit")}>แก้ไขบุคลากร</a>
                 </li>
-                <li>
+                <li><FaTrash color="gray" />
                   <a onClick={() => scrollToId("person-delete")}>ลบบุคลากร</a>
                 </li>
               </ul>
@@ -71,12 +74,14 @@ function Manual() {
               <b>หลักสูตร</b>
               <ul>
                 <li>
+                  {" "}
+                  <FaPlusCircle color="green" />
                   <a onClick={() => scrollToId("course-add")}>เพิ่มหลักสูตร</a>
                 </li>
-                <li>
+                <li><FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("course-edit")}>แก้ไขหลักสูตร</a>
                 </li>
-                <li>
+                <li><FaTrash color="gray" />
                   <a onClick={() => scrollToId("course-delete")}>ลบหลักสูตร</a>
                 </li>
               </ul>
@@ -86,13 +91,13 @@ function Manual() {
             <li>
               <b>รายวิชา</b>
               <ul>
-                <li>
+                <li>                <FaPlusCircle color="green" />
                   <a onClick={() => scrollToId("subject-add")}>เพิ่มรายวิชา</a>
                 </li>
-                <li>
+                <li><FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("subject-edit")}>แก้ไขรายวิชา</a>
                 </li>
-                <li>
+                <li><FaTrash color="gray" />
                   <a onClick={() => scrollToId("subject-delete")}>ลบรายวิชา</a>
                 </li>
               </ul>
@@ -102,15 +107,15 @@ function Manual() {
             <li>
               <b>ปฏิทินกิจกรรม</b>
               <ul>
-                <li>
+                <li>                <FaPlusCircle color="green" />
                   <a onClick={() => scrollToId("calendar-add")}>เพิ่มกิจกรรม</a>
                 </li>
-                <li>
+                <li><FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("calendar-edit")}>
                     แก้ไขกิจกรรม
                   </a>
                 </li>
-                <li>
+                <li><FaTrash color="gray" />
                   <a onClick={() => scrollToId("calendar-delete")}>ลบกิจกรรม</a>
                 </li>
               </ul>
@@ -120,17 +125,17 @@ function Manual() {
             <li>
               <b>การรับสมัคร</b>
               <ul>
-                <li>
+                <li>                <FaPlusCircle color="green" />
                   <a onClick={() => scrollToId("admission-add")}>
                     เพิ่มการรับสมัคร
                   </a>
                 </li>
-                <li>
+                <li><FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("admission-edit")}>
                     แก้ไขการรับสมัคร
                   </a>
                 </li>
-                <li>
+                <li><FaTrash color="gray" />
                   <a onClick={() => scrollToId("admission-delete")}>
                     ลบการรับสมัคร
                   </a>
@@ -142,21 +147,21 @@ function Manual() {
             <li>
               <b>กำหนดสิทธิ์ผู้ใช้งาน</b>
               <ul>
-                <li>
+                {/* <li>
                   <a onClick={() => scrollToId("permission-add")}>
                     เพิ่มสิทธิ์
                   </a>
-                </li>
-                <li>
+                </li> */}
+                <li><FaEdit color="#0d6efd" />
                   <a onClick={() => scrollToId("permission-edit")}>
                     แก้ไขสิทธิ์
                   </a>
                 </li>
-                <li>
+                {/* <li>
                   <a onClick={() => scrollToId("permission-delete")}>
                     ลบสิทธิ์
                   </a>
-                </li>
+                </li> */}
               </ul>
             </li>
           </ul>
@@ -240,7 +245,6 @@ function Manual() {
             <h4>
               <FaUsers /> บุคลากร
             </h4>
-            {/* เพิ่มบุคลากร */}
             <div id="person-add" className="manual-sub">
               <h5 className="text-start">
                 <FaPlusCircle color="green" /> เพิ่มบุคลากร
@@ -285,6 +289,9 @@ function Manual() {
                 src="/images/manual/personal-edit1.png"
                 className="manual-image"
               />
+              <p className="text-start">
+                เมื่อกดปุ่ม "แก้ไข" จะสามารถแก้ไขข้อมูลต่าง ๆ ได้ดังรูป
+              </p>
               <img
                 src="/images/manual/personal-edit2.png"
                 className="manual-image"
@@ -295,6 +302,14 @@ function Manual() {
               <h5 className="text-start">
                 <FaTrash color="red" /> ลบบุคลากร
               </h5>
+              <p className="text-start">
+                เมื่อเข้าดูรายละเอียดของข่าวสารจะมีปุ่มให้ลบ
+              </p>
+              <p className="text-start">หากต้องการลบสามารถกดลบได้</p>
+              <img
+                src="/images/manual/personal-edit1.png"
+                className="manual-image"
+              />
             </div>
           </section>
 
@@ -302,26 +317,229 @@ function Manual() {
             <h4>
               <FaBookOpen /> หลักสูตร
             </h4>
+            <div id="course-add" className="manual-sub">
+              <h5 className="text-start">
+                <FaPlusCircle color="green" /> เพิ่มหลักสูตร
+              </h5>
+              <ul className="text-start">
+                <li>1. เลือกสถานะ [แสดง / ไม่แสดง]</li>
+                <li>2. ระบุรหัสของหลักสูตร</li>
+                <li>3. เลือกระดับปริญญา [ปริญญาตรี / ปริญญาโท / ปริญญาเอก]</li>
+                <li>4. ระบุปีของหลักสูตร</li>
+                <li>5. ระบุสาขา</li>
+                <li>6. ระบุชื่อหลักสูตรภาษาไทย</li>
+                <li>7. ระบุชื่อหลักสูตรภาษาอังกฤษ</li>
+                <li>8. ระบุชื่อปริญญาภาษาไทย</li>
+                <li>9. ระบุชื่อปริญญาภาษาอังกฤษ</li>
+                <li>10. ระบุเกณฑ์การเข้าศึกษา</li>
+                <li>11. ระบุเกณฑ์การจบศึกษา</li>
+                <li>12. ระบุปรัชญาของหลักสูตร</li>
+                <li>13. ระบุวัตถุประสงค์ของหลักสูตร</li>
+                <li>14. ระบุ PLOs</li>
+                <li>15. ระบุอาชีพที่ประกอบได้</li>
+                <li>16. ระบุค่าใช้จ่าย</li>
+                <li>17. ระบุหน่วยกิต</li>
+                <li>18. ระบุรายละเอียดเพิ่มเติม (ลิงค์)</li>
+                <li>19. ระบุโครงสร้างหลักสูตร</li>
+                <li>20. อัพโหลดไฟล์แผนการศึกษา</li>
+              </ul>
+              <img
+                src="/images/manual/course-add.png"
+                className="manual-image"
+              />
+            </div>
+            <div id="course-edit" className="manual-sub">
+              <h5 className="text-start">
+                <FaEdit color="#0d6efd" /> แก้ไขหลักสูตร
+              </h5>
+              <p className="text-start">
+                เมื่อเข้าดูรายละเอียดของหลักสูตรจะมีปุ่มแก้ไขแสดง
+              </p>
+              <img
+                src="/images/manual/course-edit2.png"
+                className="manual-image"
+              />
+              <p className="text-start">
+                เมื่อคลิกที่ปุ่ม "แก้ไข" จะแสดงข้อมูลให้แก้ไข
+              </p>
+              <ul className="text-start">
+                <li>1. เลือกสถานะ [แสดง / ไม่แสดง]</li>
+                <li>2. ระบุรหัสของหลักสูตร</li>
+                <li>3. เลือกระดับปริญญา [ปริญญาตรี / ปริญญาโท / ปริญญาเอก]</li>
+                <li>4. ระบุปีของหลักสูตร</li>
+                <li>5. ระบุสาขา</li>
+                <li>6. ระบุชื่อหลักสูตรภาษาไทย</li>
+                <li>7. ระบุชื่อหลักสูตรภาษาอังกฤษ</li>
+                <li>8. ระบุชื่อปริญญาภาษาไทย</li>
+                <li>9. ระบุชื่อปริญญาภาษาอังกฤษ</li>
+                <li>10. ระบุเกณฑ์การเข้าศึกษา</li>
+                <li>11. ระบุเกณฑ์การจบศึกษา</li>
+                <li>12. ระบุปรัชญาของหลักสูตร</li>
+                <li>13. ระบุวัตถุประสงค์ของหลักสูตร</li>
+                <li>14. ระบุ PLOs</li>
+                <li>15. ระบุอาชีพที่ประกอบได้</li>
+                <li>16. ระบุค่าใช้จ่าย</li>
+                <li>17. ระบุหน่วยกิต</li>
+                <li>18. ระบุรายละเอียดเพิ่มเติม (ลิงค์)</li>
+                <li>19. ระบุโครงสร้างหลักสูตร</li>
+                <li>20. อัพโหลดไฟล์แผนการศึกษา</li>
+              </ul>
+              <img
+                src="/images/manual/course-edit.png"
+                className="manual-image"
+              />
+              <div id="course-delete" className="manual-sub">
+                <h5 className="text-start">
+                  <FaTrash color="red" /> ลบหลักสูตร
+                </h5>
+                <p className="text-start">
+                  เมื่อเข้าดูรายละเอียดของหลักสูตรจะมีปุ่ม "ลบ" แสดง
+                </p>
+                <img
+                  src="/images/manual/course-edit2.png"
+                  className="manual-image"
+                />
+                <p className="text-start">
+                  เมื่อคลิกที่ปุ่ม "ลบ" จะสามารถลบหลักสูตรได้
+                </p>
+              </div>
+            </div>
           </section>
           <section className="manual-section">
             <h4>
               <FaClipboardList /> รายวิชา
             </h4>
+            <div id="subject-add" className="manual-sub text-start">
+              <h5>
+                <FaPlusCircle color="green" /> เพิ่มรายวิชา
+              </h5>
+            </div>
+            <img
+              src="/images/manual/subject-add.png"
+              className="manual-image"
+            />
+            <div id="subject-edit" className="manual-sub">
+              <h5 className="text-start">
+                <FaEdit color="#0d6efd" /> แก้ไขรายวิชา
+              </h5>
+              <img
+                src="/images/manual/subject-edit1.png"
+                className="manual-image"
+              />
+              <img
+                src="/images/manual/subject-edit2.png"
+                className="manual-image"
+              />
+              <div id="subject-delete" className="manual-sub">
+                <h5 className="text-start">
+                  <FaTrash color="red" /> ลบรายวิชา
+                </h5>
+                <p className="text-start">
+                  เมื่อเข้าดูรายละเอียดของรายวิชาจะมีปุ่ม "ลบ" แสดง
+                </p>
+                <p className="text-start">
+                  เมื่อคลิกที่ปุ่ม "ลบ" จะสามารถลบรายวิชาได้
+                </p>
+                <img
+                  src="/images/manual/subject-edit1.png"
+                  className="manual-image"
+                />
+              </div>
+            </div>
           </section>
           <section className="manual-section">
             <h4>
               <FaCalendarAlt /> ปฏิทินกิจกรรม
             </h4>
+            <div id="calendar-add" className="manual-sub text-start">
+              <h5>
+                <FaPlusCircle color="green" /> เพิ่มปฏิทินกิจกรรม
+              </h5>
+              <img
+                src="/images/manual/calendar-add.png"
+                className="manual-image"
+              />
+            </div>
+            <div id="calendar-edit" className="manual-sub text-start">
+              <h5>
+                <FaEdit color="#0d6efd" /> แก้ไขปฎิทินกิจกรรม
+              </h5>
+              <img
+                src="/images/manual/calendar-edit1.png"
+                className="manual-image"
+              />
+              <img
+                src="/images/manual/calendar-edit2.png"
+                className="manual-image"
+              />
+            </div>
+            <div id="calendar-delete" className="manual-sub text-start">
+              <h5>
+                <FaTrash color="red" /> ลบปฏิทินกิจกรรม
+              </h5>
+              <img
+                src="/images/manual/calendar-edit1.png"
+                className="manual-image"
+              />
+            </div>
           </section>
           <section className="manual-section">
             <h4>
               <FaBullhorn /> การรับสมัคร
             </h4>
+            <div id="admission-add" className="manual-sub text-start">
+              <h5>
+                <FaPlusCircle color="green" /> เพิ่มการรับสมัคร
+              </h5>
+              <img
+                src="/images/manual/admission1.png"
+                className="manual-image"
+              />
+            </div>
+            <div id="admission-edit" className="manual-sub text-start">
+              <h5>
+                <FaEdit color="#0d6efd" /> แก้ไขการรับสมัคร
+              </h5>
+              <img
+                src="/images/manual/admission-edit1.png"
+                className="manual-image"
+              />
+              <img
+                src="/images/manual/admission-edit2.png"
+                className="manual-image"
+              />
+            </div>
+            <div id="admission-delete" className="manual-sub text-start">
+              <h5>
+                <FaTrash color="red" /> ลบการรับสมัคร
+              </h5>
+              <img
+                src="/images/manual/admission-edit1.png"
+                className="manual-image"
+              />
+            </div>
           </section>
           <section className="manual-section">
             <h4>
               <FaUserShield /> กำหนดสิทธิ์ผู้ใช้
             </h4>
+            <div id="permission-edit" className="manual-sub text-start">
+              <h5>
+                <FaEdit color="#0d6efd" /> แก้สิทธิ์ผู้ใช้
+              </h5>
+              <img
+                src="/images/manual/permission2.png"
+                className="manual-image"
+              />
+              <img
+                src="/images/manual/permission1.png"
+                className="manual-image"
+              />
+              <img
+                src="/images/manual/permission3.png"
+                className="manual-image"
+              />
+            </div>
           </section>
         </div>
       </div>

@@ -225,11 +225,15 @@ const TeacherDetail = () => {
               {researches.map((research, index) => (
                 <li key={index} className="mb-3">
                   {research.year && `(${research.year}). `}
-                  {research.authors && <strong>{research.authors}, </strong>}
+
+                  {research.authors?.length > 0 && (
+                    <strong>{research.authors.join(", ")}, </strong>
+                  )}
+
                   <em>{research.title}</em>
+
                   {research.journal && `, ${research.journal}`}
-                  {/* {research.volume && `, Volume ${research.volume}`} */}
-                  {/* {research.pages && `, ${research.pages}`} */}
+
                   {research.doi && (
                     <>
                       . DOI:{" "}

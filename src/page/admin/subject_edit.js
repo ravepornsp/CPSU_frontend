@@ -40,7 +40,7 @@ const SubjectEdit = () => {
       "ปีที่ 4 ภาคการศึกษาที่ 1": "41",
       "ปีที่ 4 ภาคการศึกษาที่ 2": "42",
     }),
-    []
+    [],
   );
 
   const planTypeReverseMap = useMemo(
@@ -48,7 +48,7 @@ const SubjectEdit = () => {
       โครงงานวิจัย: "1",
       สหกิจศึกษา: "2",
     }),
-    []
+    [],
   );
 
   /* ================= Load Courses ================= */
@@ -114,10 +114,10 @@ const SubjectEdit = () => {
         credits: formData.credits,
         course_id: formData.course_id,
         semester: Object.keys(semesterReverseMap).find(
-          (key) => semesterReverseMap[key] === formData.semester_id
+          (key) => semesterReverseMap[key] === formData.semester_id,
         ),
         plan_type: Object.keys(planTypeReverseMap).find(
-          (key) => planTypeReverseMap[key] === formData.plan_type_id
+          (key) => planTypeReverseMap[key] === formData.plan_type_id,
         ),
         compulsory_subject: formData.compulsory_subject.trim() || "-",
         condition: formData.condition.trim() || "-",
@@ -306,18 +306,17 @@ const SubjectEdit = () => {
                 />
               </div>
 
-              <div className="mt-3">
-                <button className="btn btn-success me-2">บันทึก</button>
+              <div className="d-flex justify-content-between mt-4">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary px-4"
                   onClick={() => navigate("/admin/subject")}
                 >
                   ยกเลิก
                 </button>
+                <button className="btn btn-success me-2">บันทึก</button>
               </div>
             </form>
-
           </div>
         </div>
       </div>

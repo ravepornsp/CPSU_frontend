@@ -37,7 +37,7 @@ function PersonnelAdd() {
 
   const DEFAULT_DEPARTMENT_POSITION_ID = 1;
 
-  // ✅ ป้องกัน memory leak
+
   useEffect(() => {
     return () => {
       if (previewImage) {

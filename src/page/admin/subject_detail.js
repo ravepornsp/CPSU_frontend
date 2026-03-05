@@ -36,7 +36,7 @@ const SubjectDetail = () => {
     if (!subject) return;
 
     const confirmDelete = window.confirm(
-      `คุณต้องการลบรายวิชา ${subject.subject_id} ใช่หรือไม่?`
+      `คุณต้องการลบรายวิชา ${subject.subject_id} ใช่หรือไม่?`,
     );
     if (!confirmDelete) return;
 
@@ -89,23 +89,31 @@ const SubjectDetail = () => {
       <div className="container-fluid">
         <div className="card shadow-sm">
           <div className="card-body">
-
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h4 className="mb-0 fw-bold">
+                <Link
+                  to={`/admin/subject/`}
+                  className="  mb-4 back-button"
+                  id="btn-back-to-course"
+                >
+                  &lt; กลับ
+                </Link>
                 {subject.subject_id} {subject.thai_subject}
               </h4>
 
-              <div>
+              <div className="d-flex justify-content-end gap-2 mb-3">
                 <Link
                   to={`/admin/editsubject/${subject.id}`}
-                  className="btn btn-warning me-2"
+                  className="btn-warning"
+                  id="btn-edit-subject"
                 >
                   แก้ไข
                 </Link>
 
                 <button
-                  className="btn btn-danger"
+                  className="btn-danger"
+                  id="btn-delete-subject"
                   onClick={handleDelete}
                 >
                   ลบ
@@ -116,50 +124,50 @@ const SubjectDetail = () => {
             <hr />
 
             {/* Detail */}
-            <p>
-              <strong>หลักสูตร:</strong> {subject.thai_course}
-            </p>
+            <div className="text-start">
+              <p>
+                <strong>หลักสูตร :</strong> {subject.thai_course}
+              </p>
 
-            <p>
-              <strong>ภาคการศึกษา:</strong> {subject.semester}
-            </p>
+              <p>
+                <strong>ภาคการศึกษา :</strong> {subject.semester}
+              </p>
 
-            <p>
-              <strong>หน่วยกิต:</strong> {subject.credits}
-            </p>
+              <p>
+                <strong>หน่วยกิต :</strong> {subject.credits}
+              </p>
 
-            <p>
-              <strong>วิชาบังคับ:</strong>{" "}
-              {subject.compulsory_subject || "-"}
-            </p>
+              <p>
+                <strong>วิชาบังคับ :</strong>{" "}
+                {subject.compulsory_subject || "-"}
+              </p>
 
-            <p>
-              <strong>เงื่อนไข:</strong>{" "}
-              {subject.condition || "-"}
-            </p>
+              <p>
+                <strong>เงื่อนไข :</strong> {subject.condition || "-"}
+              </p>
 
-            <hr />
+              <hr />
 
-            <h6 className="fw-bold">คำอธิบายรายวิชา (ภาษาไทย)</h6>
-            <p>{subject.description_thai || "-"}</p>
+              <h6 className="fw-bold">คำอธิบายรายวิชา (ภาษาไทย)</h6>
+              <p>{subject.description_thai || "-"}</p>
 
-            <h6 className="fw-bold mt-3">Course Description (English)</h6>
-            <p>{subject.description_eng || "-"}</p>
+              <h6 className="fw-bold mt-3">Course Description (English)</h6>
+              <p>{subject.description_eng || "-"}</p>
 
-            <hr />
+              <hr />
 
-            <h6 className="fw-bold">CLOs</h6>
-            <pre
-              style={{
-                whiteSpace: "pre-wrap",
-                backgroundColor: "#f8f9fa",
-                padding: "15px",
-                borderRadius: "6px",
-              }}
-            >
-              {subject.clo || "-"}
-            </pre>
-
+              <h6 className="fw-bold">CLOs</h6>
+              <pre
+                style={{
+                  whiteSpace: "pre-wrap",
+                  backgroundColor: "#f8f9fa",
+                  padding: "15px",
+                  borderRadius: "6px",
+                }}
+              >
+                {subject.clo || "-"}
+              </pre>
+            </div>
           </div>
         </div>
       </div>

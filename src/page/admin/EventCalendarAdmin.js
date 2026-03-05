@@ -234,14 +234,14 @@ function EventCalendarAdmin() {
                   </>
                 ) : (
                   <>
-                    <p>
-                      <b>ชื่อกิจกรรม:</b> {selectedEvent.title}
+                    <p >
+                      <b>ชื่อกิจกรรม :</b> {selectedEvent.title}
                     </p>
                     <p>
-                      <b>วันเริ่ม:</b> {formatThaiDate(selectedEvent.start)}
+                      <b>วันเริ่ม :</b> {formatThaiDate(selectedEvent.start)}
                     </p>
                     <p>
-                      <b>วันสิ้นสุด:</b>{" "}
+                      <b>วันสิ้นสุด :</b>{" "}
                       {selectedEvent.end
                         ? formatThaiDate(subtractOneDay(selectedEvent.end))
                         : formatThaiDate(selectedEvent.start)}

@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import api from "../../api/axios";
 import "../../css/admin/news.css";
 import AdminLayout from "../../layout/AdminLayout";
+import { FaEdit, FaTrash } from "react-icons/fa";
+
 
 function DetailPersonnel() {
   const { id } = useParams();
@@ -49,24 +51,28 @@ function DetailPersonnel() {
                 to={`/admin/editpersonnel/${id}`}
                 className="btn btn-warning"
               >
+                <FaEdit className="me-2" />
                 แก้ไข
               </Link>
 
               <button className="btn btn-danger">
+                <FaTrash className="me-2" />
                 ลบ
               </button>
             </div>
 
             <div className="card shadow-sm p-4">
               <div className="d-flex align-items-center mb-3">
-                <Link to="/admin/personnel" className="me-2 text-decoration-none">
+                <Link
+                  to="/admin/personnel"
+                  className="me-2 text-decoration-none"
+                >
                   &lt;
                 </Link>
                 <h4 className="mb-0">รายละเอียดข้อมูลบุคลากร</h4>
               </div>
 
               <div className="row">
-                {/* รูป + Contact */}
                 <div className="col-md-4 text-center">
                   {person.file_image && (
                     <img
@@ -78,14 +84,16 @@ function DetailPersonnel() {
 
                   <div className="mt-3">
                     <p>
-                      <strong>อีเมล</strong><br />
+                      <strong>อีเมล</strong>
+                      <br />
                       <a href={`mailto:${person.email}`}>
                         {person.email || "-"}
                       </a>
                     </p>
 
                     <p>
-                      <strong>เว็บไซต์</strong><br />
+                      <strong>เว็บไซต์</strong>
+                      <br />
                       {person.website ? (
                         <a
                           href={person.website}
@@ -117,8 +125,7 @@ function DetailPersonnel() {
                   </p>
 
                   <p>
-                    <strong>ประเภทบุคลากร:</strong>{" "}
-                    {person.type_personnel}
+                    <strong>ประเภทบุคลากร:</strong> {person.type_personnel}
                   </p>
 
                   <hr />
