@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "../../css/admin/news_detail.css";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../layout/AdminLayout";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const DetailNews = () => {
   const { id } = useParams();
   const [news, setNews] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const navigate = useNavigate();
 
   const deleteNews = async () => {
@@ -31,28 +31,43 @@ const DetailNews = () => {
   };
 
   useEffect(() => {
-    const detailNews = async () => {
+    const fetchNews = async () => {
       try {
         const response = await api.get(`/admin/news/${id}`);
-        const data = response.data;
-        setNews(data);
+        setNews(response.data);
       } catch (error) {
         console.log("Error fetching news details", error);
       }
     };
-    detailNews();
+
+    fetchNews();
   }, [id]);
+
   const images = news?.images || [];
+
+  const nextSlide = () => {
+    setActiveIndex((prev) =>
+      prev === images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setActiveIndex((prev) =>
+      prev === 0 ? images.length - 1 : prev - 1
+    );
+  };
 
   return (
     <AdminLayout>
       <div className="container-fluid">
         <div className="card shadow-sm">
           <div className="card-body">
+
             {/* Header */}
             <div className="d-flex justify-content-between align-items-start mb-3">
               <div>
                 <h4 className="mb-1">{news?.title || "กำลังโหลด..."}</h4>
+
                 {news?.created_at && (
                   <small className="text-muted">
                     {new Date(news.created_at).toLocaleString("th-TH", {
@@ -63,63 +78,67 @@ const DetailNews = () => {
                 )}
               </div>
 
-              <div>
+              <div className="action-buttons">
                 <Link
                   to={`/admin/editnews/${news?.news_id}`}
-                  className="btn btn-warning me-2"
+                  className="btn-edit"
                 >
+                  <FaEdit className="me-2" />
                   แก้ไข
                 </Link>
-                <button className="btn btn-danger" onClick={deleteNews}>
+
+                <button className="btn-delete" onClick={deleteNews}>
+                  <FaTrash className="me-2" />
                   ลบ
                 </button>
               </div>
             </div>
 
-            {/* รูปภาพ */}
+            {/* Carousel */}
             {images.length > 0 ? (
-              <div
-                id="newsCarousel"
-                className="carousel slide mb-4"
-                data-bs-ride="carousel"
-              >
-                <div className="carousel-inner rounded">
-                  {images.map((image, index) => (
-                    <div
-                      key={index}
-                      className={`carousel-item ${index === 0 ? "active" : ""}`}
-                    >
-                      <img
-                        src={image.file_image}
-                        className="d-block w-100"
-                        style={{ maxHeight: "450px", objectFit: "cover" }}
-                        alt={`slide-${index}`}
-                      />
-                    </div>
-                  ))}
+              <>
+                <div className="carousel-wrapper">
+
+                  <img
+                    src={images[activeIndex].file_image}
+                    className="news-image"
+                    alt="news"
+                  />
+
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        className="carousel-btn prev"
+                        onClick={prevSlide}
+                      >
+                        ‹
+                      </button>
+
+                      <button
+                        className="carousel-btn next"
+                        onClick={nextSlide}
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
                 </div>
 
-                {images.length > 1 && (
-                  <>
-                    <button
-                      className="carousel-control-prev"
-                      type="button"
-                      data-bs-target="#newsCarousel"
-                      data-bs-slide="prev"
-                    >
-                      <span className="carousel-control-prev-icon"></span>
-                    </button>
-                    <button
-                      className="carousel-control-next"
-                      type="button"
-                      data-bs-target="#newsCarousel"
-                      data-bs-slide="next"
-                    >
-                      <span className="carousel-control-next-icon"></span>
-                    </button>
-                  </>
-                )}
-              </div>
+                {/* Thumbnail */}
+                <div className="thumbnail-container">
+                  {images.map((img, index) => (
+                    <img
+                      key={index}
+                      src={img.file_image}
+                      alt={`thumb-${index}`}
+                      className={`thumbnail ${
+                        activeIndex === index ? "active-thumb" : ""
+                      }`}
+                      onClick={() => setActiveIndex(index)}
+                    />
+                  ))}
+                </div>
+              </>
             ) : (
               <img
                 src="/images/cpsu.png"
@@ -140,6 +159,7 @@ const DetailNews = () => {
             {/* Detail URL */}
             <div>
               <h6 className="fw-bold">รายละเอียดเพิ่มเติม</h6>
+
               {news?.detail_url && news.detail_url !== "null" ? (
                 news.detail_url.split("\n").map((line, index) => (
                   <div key={index}>
@@ -152,6 +172,7 @@ const DetailNews = () => {
                 <p>-</p>
               )}
             </div>
+
           </div>
         </div>
       </div>

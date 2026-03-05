@@ -26,7 +26,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        "https://vibrant-connection-production.up.railway.app/api/v1/auth/login",
+        "http://localhost:8080/api/v1/auth/login",
         {
           email: email,
           password: password,

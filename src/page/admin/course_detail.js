@@ -3,6 +3,7 @@ import "../../css/admin/course_detail.css";
 import api from "../../api/axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import AdminLayout from "../../layout/AdminLayout";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const DetailCourse = () => {
   const { id } = useParams();
@@ -36,9 +37,11 @@ const DetailCourse = () => {
           ]);
 
         setCourseDetail(courseRes.data);
-        setRoadmap(roadmapRes.data);
-        setSubjects(subjectRes.data);
-        setStructures(structureRes.data);
+        setRoadmap(Array.isArray(roadmapRes.data) ? roadmapRes.data : []);
+        setSubjects(Array.isArray(subjectRes.data) ? subjectRes.data : []);
+        setStructures(
+          Array.isArray(structureRes.data) ? structureRes.data : [],
+        );
       } catch (err) {
         console.error("Error fetching course detail:", err);
       }
@@ -58,35 +61,34 @@ const DetailCourse = () => {
   }
 
   const filteredStructures = structures.filter(
-    (st) => st.course_id === courseDetail.course_id
+    (st) => st.course_id === courseDetail.course_id,
   );
 
   const filteredRoadmap = roadmap.filter(
-    (rp) => rp.course_id === courseDetail.course_id
+    (rp) => rp.course_id === courseDetail.course_id,
   );
 
   const filteredSubjects = subjects.filter(
-    (subj) => subj.course_id === courseDetail.course_id
+    (subj) => subj.course_id === courseDetail.course_id,
   );
 
   return (
     <AdminLayout>
       <div className="container-fluid text-start">
-
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h3>{courseDetail.thai_course}</h3>
-          <div>
+          <div className="action-buttons">
             <Link
               to={`/admin/editcourse/${courseDetail.course_id}`}
-              className="btn btn-warning me-2"
+              className=" btn-edit"
             >
+              <FaEdit className="me-2" />
               แก้ไข
             </Link>
-            <button
-              className="btn btn-danger"
-              onClick={deleteCourse}
-            >
+
+            <button className=" btn-delete" onClick={deleteCourse}>
+              <FaTrash className="me-2" />
               ลบ
             </button>
           </div>
@@ -95,11 +97,21 @@ const DetailCourse = () => {
         <hr />
 
         {/* Basic Info */}
-        <p><strong>รหัสหลักสูตร :</strong> {courseDetail.course_id}</p>
-        <p><strong>ชื่ออังกฤษ :</strong> {courseDetail.eng_course}</p>
-        <p><strong>ชื่อปริญญา :</strong> {courseDetail.thai_degree}</p>
-        <p><strong>หน่วยกิต :</strong> {courseDetail.credits}</p>
-        <p><strong>ค่าใช้จ่าย :</strong> {courseDetail.tuition}</p>
+        <p>
+          <strong>รหัสหลักสูตร :</strong> {courseDetail.course_id}
+        </p>
+        <p>
+          <strong>ชื่ออังกฤษ :</strong> {courseDetail.eng_course}
+        </p>
+        <p>
+          <strong>ชื่อปริญญา :</strong> {courseDetail.thai_degree}
+        </p>
+        <p>
+          <strong>หน่วยกิต :</strong> {courseDetail.credits}
+        </p>
+        <p>
+          <strong>ค่าใช้จ่าย :</strong> {courseDetail.tuition}
+        </p>
 
         <hr />
 
@@ -171,7 +183,6 @@ const DetailCourse = () => {
             </tbody>
           </table>
         )}
-
       </div>
     </AdminLayout>
   );

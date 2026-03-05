@@ -42,7 +42,6 @@ import EditTeacherInfomation from "./page/teacher/editinfomation";
 import TeacherInfomation from "./page/teacher/infomation";
 
 import Dashboard from "./page/admin/dashboard";
-import EventFormAdd from "./page/admin/EventFormAdd";
 import EventCalendarPublic from "./page/EventCalendarPublic";
 import Admission from "./page/admission";
 import AdmissionAdmin from "./page/admin/admission";
@@ -89,7 +88,6 @@ const AppRoutes = () => {
           <Route path="editpersonnel/:id" element={<EditPersonnel />} />
 
           <Route path="calendar" element={<EventCalendarAdmin />} />
-          <Route path="calendar/add" element={<EventFormAdd />} />
 
           <Route path="userpermissions" element={<UserPermissions />} />
 

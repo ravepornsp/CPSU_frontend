@@ -47,7 +47,8 @@ function UserPermissions() {
     }
 
     try {
-      await api.post("/auth/register", newUser);
+      await api.post("/admin/user", newUser);
+      
       window.location.reload();
       alert("เพิ่มผู้ใช้สำเร็จ");
 
@@ -116,11 +117,10 @@ function UserPermissions() {
   return (
     <AdminLayout>
       <div className="container-fluid">
-
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h4 className="mb-0">กำหนดสิทธิ์ผู้ใช้</h4>
           <button
-            className="btn btn-primary"
+            className="btn-addcourse"
             data-bs-toggle="modal"
             data-bs-target="#addUserModal"
           >
@@ -132,10 +132,8 @@ function UserPermissions() {
           <table className="table table-bordered">
             <thead className="table-light text-center">
               <tr>
-                <th>ID</th>
                 <th>Username</th>
                 <th>Email</th>
-                <th>Password</th>
                 <th>สิทธิ์การเข้าถึง</th>
                 <th></th>
               </tr>
@@ -151,17 +149,13 @@ function UserPermissions() {
               ) : (
                 users.map((u) => (
                   <tr key={u.id} className="align-middle">
-                    <td>{u.user_id}</td>
                     <td>{u.username}</td>
                     <td>{u.email}</td>
-                    <td>********</td>
                     <td>{u.name || "- ยังไม่กำหนดสิทธิ์ -"}</td>
                     <td>
                       <button
                         className="btn btn-secondary"
-                        onClick={() =>
-                          openAssignRoleModal(u.user_id, u.name)
-                        }
+                        onClick={() => openAssignRoleModal(u.user_id, u.name)}
                       >
                         <i className="fas fa-user-pen"></i>
                       </button>
@@ -172,8 +166,6 @@ function UserPermissions() {
             </tbody>
           </table>
         </div>
-
-        {/* ===== Modal ทั้งหมดวางไว้ใน Layout เลย ===== */}
 
         {/* Assign Role Modal */}
         <div
@@ -186,7 +178,11 @@ function UserPermissions() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">แก้ไขสิทธิ์ผู้ใช้</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" />
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                />
               </div>
 
               <div className="modal-body">
@@ -234,7 +230,11 @@ function UserPermissions() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">เพิ่มผู้ใช้ใหม่</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" />
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                />
               </div>
 
               <div className="modal-body">
@@ -285,7 +285,6 @@ function UserPermissions() {
             </div>
           </div>
         </div>
-
       </div>
     </AdminLayout>
   );

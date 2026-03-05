@@ -30,11 +30,11 @@ const Menu = () => {
             label: "กำหนดสิทธิ์ผู้ใช้",
             icon: "fas fa-user-shield",
           },
-          // {
-          //   path: "/admin/history",
-          //   label: "ประวัติการเข้าใช้งาน",
-          //   icon: "fas fa-clock-rotate-left",
-          // },
+          {
+            path: "/admin/history",
+            label: "ประวัติการเข้าใช้งาน",
+            icon: "fas fa-clock-rotate-left",
+          },
         ]
       : []),
 

@@ -20,7 +20,7 @@ const Personnel = () => {
     const fetchPersonnel = async () => {
       try {
         const response = await axios.get(
-          "https://vibrant-connection-production.up.railway.app/api/v1/personnel"
+          "http://localhost:8080/api/v1/personnel"
         );
         setPersonnelList(response.data);
         setLoading(false);
@@ -47,7 +47,7 @@ const Personnel = () => {
           {loading ? (
             <p>กำลังโหลดข้อมูล...</p>
           ) : (
-            <p>เกิดข้อผิดพลาด: {error.message}</p>
+            <p>เกิดข้อผิดพลาด : {error.message}</p>
           )}
         </div>
         <Footer />

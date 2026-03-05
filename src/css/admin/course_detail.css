@@ -27,6 +27,50 @@
   text-align: start;
 }
 
-#course-name{
+#course-name {
   text-align: left;
+}
+
+/* ================= Action Buttons ================= */
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* ปุ่มแก้ไข */
+.btn-edit {
+  background: linear-gradient(135deg, #ffc107, #ffb300);
+  color: #333;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(255, 193, 7, 0.25);
+  text-decoration: none;
+}
+
+.btn-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 193, 7, 0.35);
+  color: #000;
+}
+
+/* ปุ่มลบ */
+.btn-delete {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.25);
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(220, 53, 69, 0.35);
+  background: linear-gradient(135deg, #c82333, #bd2130);
 }

@@ -86,7 +86,7 @@ function PersonnelAdmin() {
               {loadingSync ? "กำลัง Sync..." : "Sync Scopus"}
             </button>
 
-            <Link to="/admin/addpersonnel" className="btn-addpersonnel">
+            <Link to="/admin/addpersonnel" className="btn-addcourse">
               + เพิ่มบุคลากร
             </Link>
           </div>

@@ -13,7 +13,8 @@ const Admission = () => {
 
   useEffect(() => {
     axios
-      .get("https://vibrant-connection-production.up.railway.app/api/v1/admission")
+      .get("http://localhost:8080/api/v1/admission")
+      // .get("https://vibrant-connection-production.up.railway.app/api/v1/admission")
       .then((res) => {
         setAdmissions(res.data || []);
         setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Navigate } from "react-router-dom";
 import api from "../../api/axios";
 import AdminLayout from "../../layout/AdminLayout";
@@ -6,6 +6,7 @@ import AdminLayout from "../../layout/AdminLayout";
 function History() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAction, setSelectedAction] = useState("all");
 
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.roles?.includes("admin");
@@ -13,24 +14,25 @@ function History() {
   useEffect(() => {
     if (isAdmin) {
       fetchHistory();
+    } else {
+      setLoading(false);
     }
   }, [isAdmin]);
 
   const fetchHistory = async () => {
     try {
-      const res = await api.get("/admin/history");
-      setHistory(res.data);
+      const res = await api.get("/admin/logs");
+
+      // ✅ แก้ตรงนี้ รองรับ { data: [...] }
+      setHistory(res.data.data || []);
     } catch (err) {
       console.error(err);
       alert("โหลดประวัติการใช้งานไม่สำเร็จ");
+      setHistory([]);
     } finally {
       setLoading(false);
     }
   };
-
-  if (!isAdmin) {
-    return <Navigate to="/unauthorized" replace />;
-  }
 
   const formatDateTime = (date) =>
     new Date(date).toLocaleString("th-TH", {
@@ -38,11 +40,51 @@ function History() {
       timeStyle: "short",
     });
 
+  // ✅ เรียงจากใหม่ → เก่า
+  const sortedHistory = useMemo(() => {
+    return [...history].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime()
+    );
+  }, [history]);
+
+  // ✅ Filter ตาม action
+  const filteredHistory = useMemo(() => {
+    if (selectedAction === "all") return sortedHistory;
+
+    return sortedHistory.filter(
+      (h) => h.action.toLowerCase() === selectedAction.toLowerCase()
+    );
+  }, [selectedAction, sortedHistory]);
+
+  // ดึง action ไม่ซ้ำ
+  const uniqueActions = useMemo(() => {
+    return [...new Set(history.map((h) => h.action))];
+  }, [history]);
+
+  if (!isAdmin) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return (
     <AdminLayout>
       <div className="container-fluid">
-        <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
           <h3>ประวัติการเข้าใช้งานระบบ</h3>
+
+          <select
+            className="form-select w-auto"
+            value={selectedAction}
+            onChange={(e) => setSelectedAction(e.target.value)}
+          >
+            <option value="all">ทั้งหมด</option>
+            {uniqueActions.map((action) => (
+              <option key={action} value={action}>
+                {action}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="card shadow-sm">
@@ -51,10 +93,12 @@ function History() {
               <table className="table table-bordered table-hover align-middle">
                 <thead className="table-light text-center">
                   <tr>
-                    <th>ผู้ใช้งาน</th>
-                    <th>สิทธิ์</th>
-                    <th>การกระทำ</th>
-                    <th>รายการที่เกี่ยวข้อง</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                    <th>Resource</th>
+                    <th>ResourceID</th>
+                    <th>Description</th>
                     <th>วันเวลา</th>
                   </tr>
                 </thead>
@@ -66,20 +110,36 @@ function History() {
                         กำลังโหลด...
                       </td>
                     </tr>
-                  ) : history.length === 0 ? (
+                  ) : filteredHistory.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="text-center">
                         ไม่มีข้อมูล
                       </td>
                     </tr>
                   ) : (
-                    history.map((h) => (
+                    filteredHistory.map((h) => (
                       <tr key={h.id}>
-                        <td>{h.user}</td>
-                        <td>{h.role}</td>
-                        <td>{h.action}</td>
-                        <td>{h.target}</td>
-                        <td>{formatDateTime(h.createdAt)}</td>
+                        <td>{h.username}</td>
+                        <td>{h.email}</td>
+                        <td>
+                          <span
+                            className={`badge ${
+                              h.action === "login"
+                                ? "bg-success"
+                                : h.action === "delete"
+                                ? "bg-danger"
+                                : h.action === "update" 
+                                ? "bg-warning"
+                                : "bg-primary"
+                            }`}
+                          >
+                            {h.action}
+                          </span>
+                        </td>
+                        <td>{h.resource}</td>
+                        <td>{h.resource_id}</td>
+                        <td>{h.description}</td>
+                        <td>{formatDateTime(h.created_at)}</td>
                       </tr>
                     ))
                   )}

@@ -13,12 +13,14 @@ const TeacherDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [researches, setResearches] = useState([]);
+  const [researchLoading, setResearchLoading] = useState(true);
 
   useEffect(() => {
     const fetchPerson = async () => {
       try {
         const res = await axios.get(
-          `https://vibrant-connection-production.up.railway.app/api/v1/personnel/${id}`
+          `http://localhost:8080/api/v1/personnel/${id}`,
         );
         setPerson(res.data.personnel);
         setLoading(false);
@@ -30,6 +32,28 @@ const TeacherDetail = () => {
     };
 
     fetchPerson();
+  }, [id]);
+
+   useEffect(() => {
+    const fetchResearch = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/v1/personnel/research`
+        );
+
+        const filteredResearches = res.data?.filter(
+          (item) => item.personnel_id === Number(id)
+        );
+
+        setResearches(filteredResearches || []);
+      } catch (err) {
+        console.error("Error fetching research data:", err);
+      } finally {
+        setResearchLoading(false);
+      }
+    };
+
+    fetchResearch();
   }, [id]);
 
   const handleCopyEmail = () => {
@@ -135,6 +159,40 @@ const TeacherDetail = () => {
         </div>
       </div>
 
+      {researches.length > 0 && (
+        <div className="teacher-research mx-auto bg-white shadow-sm rounded p-4 mt-4">
+          <h5 className="mb-3">ผลงานวิจัย (Scopus)</h5>
+
+          {researchLoading ? (
+            <p>กำลังโหลดผลงานวิจัย...</p>
+          ) : (
+            <ul className="research-list">
+              {researches.map((research, index) => (
+                <li key={index} className="mb-3">
+                  {research.authors && <strong>{research.authors}, </strong>}
+                  {research.year && `(${research.year}). `}
+                  <em>{research.title}</em>
+                  {research.journal && `, ${research.journal}`}
+                  {research.volume && `, Volume ${research.volume}`}
+                  {research.pages && `, ${research.pages}`}
+                  {research.doi && (
+                    <>
+                      . DOI:{" "}
+                      <a
+                        href={`https://doi.org/${research.doi}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {research.doi}
+                      </a>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       <Footer />
     </>
   );

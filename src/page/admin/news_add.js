@@ -108,11 +108,24 @@ const AddNews = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      alert("กรุณาเข้าสู่ระบบใหม่");
+      navigate("/login");
+      return;
+    }
+
+    if (!title || !content) {
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
     const newNews = new FormData();
     newNews.append("title", title);
     newNews.append("content", content);
     newNews.append("type_id", category);
-    newNews.append("detail_url", urlDetail);
+    newNews.append("detail_url", urlDetail || "");
 
     if (fileImage) {
       newNews.append("cover_image", fileImage);
@@ -123,17 +136,22 @@ const AddNews = () => {
     });
 
     try {
-      await api.post("/admin/news", newNews, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await api.post("/admin/news", newNews);
 
       alert("เผยแพร่ข่าวสารสำเร็จ");
       navigate("/admin/news");
     } catch (error) {
-      console.error("Error submitting news:", error);
-      alert("ไม่สามารถเผยแพร่ข่าวสารได้");
+      console.error("STATUS:", error.response?.status);
+      console.error("ERROR DATA:", error.response?.data);
+
+      if (error.response?.status === 401) {
+        alert("Session หมดอายุ กรุณาเข้าสู่ระบบใหม่");
+        localStorage.removeItem("access_token");
+        navigate("/login");
+        return;
+      }
+
+      alert(error.response?.data?.error || "ไม่สามารถเผยแพร่ข่าวสารได้");
     }
   };
 

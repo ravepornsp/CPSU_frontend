@@ -52,7 +52,6 @@ function DetailPersonnel() {
                 แก้ไข
               </Link>
 
-              {/* ยังไม่มี logic delete — เพิ่มภายหลังได้ */}
               <button className="btn btn-danger">
                 ลบ
               </button>
@@ -103,7 +102,7 @@ function DetailPersonnel() {
                 </div>
 
                 {/* ข้อมูลรายละเอียด */}
-                <div className="col-md-8">
+                <div className="col-md-8 text-start">
                   <h4>
                     {person.thai_academic_position} {person.thai_name}
                   </h4>

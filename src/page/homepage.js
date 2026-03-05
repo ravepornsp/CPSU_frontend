@@ -24,8 +24,8 @@ const Homepage = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/news");
-        setNewsList(res.data); 
+        const res = await axios.get("http://localhost:8080/api/v1/news");
+        setNewsList(res.data);
       } catch (err) {
         console.error("Error fetching news:", err);
         setErrorNews("ไม่สามารถโหลดข่าวได้");
@@ -36,13 +36,11 @@ const Homepage = () => {
 
     const fetchPersonnel = async () => {
       try {
-        const res = await axios.get(
-          "https://vibrant-connection-production.up.railway.app/api/v1/personnel"
-        );
+        const res = await axios.get("http://localhost:8080/api/v1/personnel");
         if (res.data && Array.isArray(res.data)) {
           // กรองเฉพาะที่มีรูป
           const filtered = res.data.filter(
-            (p) => p.file_image && p.type_personnel === "สายวิชาการ"
+            (p) => p.file_image && p.type_personnel === "สายวิชาการ",
           );
 
           // สุ่มข้อมูล
@@ -68,35 +66,38 @@ const Homepage = () => {
         setLoadingPersonnel(false);
       }
     };
-const fetchCalendarEvents = async () => {
-  try {
-    const res = await axios.get("https://vibrant-connection-production.up.railway.app/api/v1/calendar");
-    if (Array.isArray(res.data)) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // ตั้งเวลาวันนี้เป็นเที่ยงคืน (เริ่มต้นวัน)
+    const fetchCalendarEvents = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/v1/calendar");
+        console.log(res.data);
+        if (Array.isArray(res.data)) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // ตั้งเวลาวันนี้เป็นเที่ยงคืน (เริ่มต้นวัน)
 
-      // กรองเฉพาะกิจกรรมที่ start_date >= วันนี้
-      const filteredEvents = res.data.filter(event => {
-        const eventDate = new Date(event.start_date);
-        eventDate.setHours(0, 0, 0, 0);
-        return eventDate >= today;
-      });
+          // กรองเฉพาะกิจกรรมที่ start_date >= วันนี้
+          const filteredEvents = res.data.filter((event) => {
+            const eventDate = new Date(event.start_date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= today;
+          });
 
-      // เรียงตามวันที่เริ่มต้น (start_date) จากน้อยไปมาก
-      const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+          // เรียงตามวันที่เริ่มต้น (start_date) จากน้อยไปมาก
+          const sortedEvents = filteredEvents.sort(
+            (a, b) => new Date(a.start_date) - new Date(b.start_date),
+          );
 
-      setCalendarEvents(sortedEvents);
-    } else {
-      throw new Error("ข้อมูลปฏิทินไม่ถูกต้อง");
-    }
-  } catch (err) {
-    console.error("Error fetching calendar:", err);
-    setErrorCalendar("ไม่สามารถโหลดปฏิทินกิจกรรมได้");
-  } finally {
-    setLoadingCalendar(false);
-  }
-};
-
+          console.log(sortedEvents);
+          setCalendarEvents(sortedEvents);
+        } else {
+          throw new Error("ข้อมูลปฏิทินไม่ถูกต้อง");
+        }
+      } catch (err) {
+        console.error("Error fetching calendar:", err);
+        setErrorCalendar("ไม่สามารถโหลดปฏิทินกิจกรรมได้");
+      } finally {
+        setLoadingCalendar(false);
+      }
+    };
 
     fetchNews();
     fetchPersonnel();
@@ -126,7 +127,6 @@ const fetchCalendarEvents = async () => {
     });
   };
 
-  // slice บุคลากร 5 คนจาก currentIndex
   const currentPersonnel = personnelList.slice(currentIndex, currentIndex + 5);
 
   return (
@@ -285,35 +285,39 @@ const fetchCalendarEvents = async () => {
       </div>
 
       {/* Courses */}
-      <div className="course-homepage">
+      <div className="course-homepage container py-5">
         <p>หลักสูตร</p>
         <h4>หลักสูตรที่เปิดสอน</h4>
 
         <div className="row row-cols-1 row-cols-md-3 g-4">
-          <div className="col card-wrapper">
-            <div className="card h-100 d-flex flex-column justify-content-between">
-              <div className="card-body">
-                <p id="degree-name">ปริญญาตรี</p>
-                <ul>
-                  <li>สาขาเทคโนโลยีสารสนเทศ</li>
-                  <li>สาขาวิชาวิทยาการคอมพิวเตอร์</li>
-                  <li>สาขาวิชาวิทยาการข้อมูล</li>
-                </ul>
-              </div>
-              <div className="card-footer bg-transparent border-0 text-center">
-                <Link to={`/course`}>
-                  <button className="btn btn-course">ดูทั้งหมด</button>
-                </Link>
+          <div>
+            <div className="col card-wrapper">
+              <div className="card h-100 ">
+                <div className="card-body">
+                  <p id="degree-name">ปริญญาตรี</p>
+                  <ul>
+                    <li>สาขาเทคโนโลยีสารสนเทศ</li>
+                    <li>สาขาวิชาวิทยาการคอมพิวเตอร์</li>
+                    <li>สาขาวิชาวิทยาการข้อมูล</li>
+                  </ul>
+                </div>
+                <div className="card-footer bg-transparent border-0 text-center">
+                  <Link to={`/course`}>
+                    <button className="btn btn-course">ดูทั้งหมด</button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
+
           <div className="col card-wrapper">
             <div className="card h-100">
               <div className="card-body">
                 <p id="degree-name">ปริญญาโท</p>
                 <ul>
-                  <li>สาขาเทคโนโลยีสารสนเทศ</li>
-                  <li>สาขาเทคโนโลยีสารสนเทศ และนวัตกรรมดิจิทัล</li>
+                  <li>สาขาเทคโนโลยีสารสนเทศและนวัตกรรมดิจิทัล</li>
+                  <br></br>
+                  <br></br>
                 </ul>
               </div>
               <div className="card-footer bg-transparent border-0 text-center">
@@ -328,9 +332,9 @@ const fetchCalendarEvents = async () => {
               <div className="card-body">
                 <p id="degree-name">ปริญญาเอก</p>
                 <ul>
-                  <li>สาขาเทคโนโลยีสารสนเทศ</li>
-                  <li>สาขาเทคโนโลยีสารสนเทศ และนวัตกรรมดิจิทัล</li>
-                  <li>สาขาเทคโนโลยีสารสนเทศ และนวัตกรรมดิจิทัล</li>
+                  <li>สาขาเทคโนโลยีสารสนเทศและนวัตกรรมดิจิทัล</li>
+                  <br></br>
+                  <br></br>
                 </ul>
               </div>
               <div className="card-footer bg-transparent border-0 text-center">
@@ -409,8 +413,8 @@ const fetchCalendarEvents = async () => {
                       />
                       <div className="card-body">
                         <h5 className="card-title">
-                          {item.title.length > 80
-                            ? item.title.substring(0, 80) + "..."
+                          {item.title.length > 70
+                            ? item.title.substring(0, 70) + "..."
                             : item.title}
                         </h5>
                         <Link to={`/news/${item.news_id}`}>
@@ -425,7 +429,6 @@ const fetchCalendarEvents = async () => {
         </div>
       </div>
 
-      {/* บุคลากร (ดึงจาก API แบบสุ่ม) */}
       <div className="people-homepage">
         <p>บุคลากร</p>
         <h2>
@@ -439,12 +442,10 @@ const fetchCalendarEvents = async () => {
           </Link>
         </h2>
         <div className="personnel-carousel d-flex align-items-center justify-content-between">
-          {/* ปุ่มย้อนกลับ */}
           <button className="arrow-button" onClick={prevSlide}>
             {"<"}
           </button>
 
-          {/* การ์ดบุคลากร */}
           <div className="row row-cols-1 row-cols-md-5 g-4 flex-grow-1 mx-3">
             {currentPersonnel.map((personnel, personnel_id) => (
               <div className="col" key={personnel_id}>
@@ -463,7 +464,7 @@ const fetchCalendarEvents = async () => {
 
           {/* ปุ่มถัดไป */}
           <button className="arrow-button" onClick={nextSlide}>
-          {">"}
+            {">"}
           </button>
         </div>
       </div>

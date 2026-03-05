@@ -17,7 +17,7 @@ const Course = () => {
     const fetchCourses = async () => {
       try {
         const res = await axios.get(
-          "https://vibrant-connection-production.up.railway.app/api/v1/course"
+          "http://localhost:8080/api/v1/course"
         );
         setCourses(res.data);
       } catch (err) {

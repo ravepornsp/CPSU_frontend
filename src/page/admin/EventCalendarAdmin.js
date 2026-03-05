@@ -36,10 +36,20 @@ function EventCalendarAdmin() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      const res = await api.get("/admin/events");
-      setEvents(res.data);
+      const res = await api.get("/admin/calendar");
+
+      // แปลงข้อมูลให้ตรงกับฟอร์แมตของ FullCalendar
+      const formattedEvents = res.data.map((event) => ({
+        id: event.calendar_id, // เปลี่ยนจาก calendar_id เป็น id
+        title: event.title,
+        start: event.start_date, // ใช้ start_date จาก API
+        end: event.end_date, // ใช้ end_date จาก API
+        description: event.detail,
+      }));
+
+      setEvents(formattedEvents);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching events:", err);
     }
   }, []);
 
@@ -154,7 +164,7 @@ function EventCalendarAdmin() {
       <div className="container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>ปฏิทินกิจกรรม</h3>
-          <button className="btn btn-primary" onClick={openAddModal}>
+          <button className="btn-addcourse" onClick={openAddModal}>
             + เพิ่มกิจกรรม
           </button>
         </div>
@@ -164,14 +174,14 @@ function EventCalendarAdmin() {
             plugins={[dayGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             locale="th"
-            events={events}
+            events={events}  // ตรวจสอบว่าใช้ค่า events ที่แปลงแล้ว
             eventClick={handleEventClick}
             height="auto"
           />
         </div>
       </div>
 
-      {/* Modal (เหมือนเดิม ไม่ได้ตัดทอน) */}
+      {/* Modal */}
       {showModal && (
         <div
           className="modal fade show"
@@ -224,8 +234,12 @@ function EventCalendarAdmin() {
                   </>
                 ) : (
                   <>
-                    <p><b>ชื่อกิจกรรม:</b> {selectedEvent.title}</p>
-                    <p><b>วันเริ่ม:</b> {formatThaiDate(selectedEvent.start)}</p>
+                    <p>
+                      <b>ชื่อกิจกรรม:</b> {selectedEvent.title}
+                    </p>
+                    <p>
+                      <b>วันเริ่ม:</b> {formatThaiDate(selectedEvent.start)}
+                    </p>
                     <p>
                       <b>วันสิ้นสุด:</b>{" "}
                       {selectedEvent.end
@@ -233,7 +247,8 @@ function EventCalendarAdmin() {
                         : formatThaiDate(selectedEvent.start)}
                     </p>
                     <p>
-                      <b>รายละเอียด:</b><br />
+                      <b>รายละเอียด:</b>
+                      <br />
                       {selectedEvent.description || "-"}
                     </p>
                   </>

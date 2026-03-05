@@ -311,8 +311,15 @@ const EditNews = () => {
                   )}
                 </div>
 
-                {/* Submit */}
-                <div className="text-end">
+                <div className="text-center d-flex justify-content-center gap-3">
+                  <button
+                    type="button"
+                    className="btn btn-secondary px-4"
+                    onClick={() => navigate(`/admin/news/${id}`)}
+                  >
+                    ยกเลิก
+                  </button>
+
                   <button type="submit" className="btn btn-primary px-4">
                     บันทึกการแก้ไข
                   </button>
