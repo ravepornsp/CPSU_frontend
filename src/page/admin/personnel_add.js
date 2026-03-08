@@ -17,6 +17,7 @@ function PersonnelAdd() {
 
   const [formData, setFormData] = useState({
     type_personnel: "",
+    department_position_id: "",
     department_position_name: "",
     academic_position_id: "",
     thai_academic_position: "",
@@ -34,9 +35,7 @@ function PersonnelAdd() {
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const DEFAULT_DEPARTMENT_POSITION_ID = 1;
-
+  const [departmentPositions, setDepartmentPositions] = useState([]);
 
   useEffect(() => {
     return () => {
@@ -46,13 +45,27 @@ function PersonnelAdd() {
     };
   }, [previewImage]);
 
+  useEffect(() => {
+    const fetchPositions = async () => {
+      try {
+        const res = await api.get("/admin/personnel");
+        setDepartmentPositions(res.data);
+      } catch (err) {
+        console.error("โหลดตำแหน่งไม่สำเร็จ", err);
+      }
+    };
+
+    fetchPositions();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "type_personnel") {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         type_personnel: value,
+        department_position_id: "",
         department_position_name: "",
         academic_position_id: "",
         thai_academic_position: "",
@@ -72,16 +85,30 @@ function PersonnelAdd() {
     }
 
     if (name === "academic_position_id") {
-      const selected = academicPositions.find(
-        (p) => p.id === Number(value)
-      );
+      const selected = academicPositions.find((p) => p.id === Number(value));
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         academic_position_id: Number(value),
         thai_academic_position: selected?.thai || "",
         eng_academic_position: selected?.eng || "",
       }));
+      return;
+    }
+
+    if (name === "department_position_name") {
+      const found = departmentPositions.find(
+        (p) =>
+          p.department_position_name?.trim().toLowerCase() ===
+          value.trim().toLowerCase(),
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        department_position_name: value,
+        department_position_id: found ? found.id : "", // ⭐ ใช้ id
+      }));
+
       return;
     }
 
@@ -92,7 +119,7 @@ function PersonnelAdd() {
         URL.revokeObjectURL(previewImage);
       }
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         file_image: file || null,
       }));
@@ -101,7 +128,7 @@ function PersonnelAdd() {
       return;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -131,12 +158,7 @@ function PersonnelAdd() {
         data.append(key, value);
       }
     });
-
-    data.append(
-      "department_position_id",
-      DEFAULT_DEPARTMENT_POSITION_ID
-    );
-
+    console.log("FORM DATA:", formData);
     try {
       setLoading(true);
 
@@ -161,21 +183,12 @@ function PersonnelAdd() {
 
         <div className="card shadow-sm">
           <div className="card-body">
-            {error && (
-              <div className="alert alert-danger">
-                {error}
-              </div>
-            )}
+            {error && <div className="alert alert-danger">{error}</div>}
 
-            <form
-              onSubmit={handleSubmit}
-              encType="multipart/form-data"
-            >
+            <form onSubmit={handleSubmit} encType="multipart/form-data">
               {/* ประเภทบุคลากร */}
               <div className="mb-3">
-                <label className="form-label">
-                  ประเภทบุคลากร
-                </label>
+                <label className="form-label">ประเภทบุคลากร</label>
                 <select
                   className="form-select"
                   name="type_personnel"
@@ -184,38 +197,43 @@ function PersonnelAdd() {
                   required
                 >
                   <option value="">เลือกประเภท</option>
-                  <option value="สายวิชาการ">
-                    สายวิชาการ
-                  </option>
-                  <option value="สายสนับสนุนวิชาการ">
-                    สายสนับสนุนวิชาการ
-                  </option>
+                  <option value="สายวิชาการ">สายวิชาการ</option>
+                  <option value="สายสนับสนุนวิชาการ">สายสนับสนุนวิชาการ</option>
                 </select>
               </div>
 
               {/* ตำแหน่งในภาควิชา */}
               <div className="mb-4">
-                <label className="form-label">
-                  ตำแหน่งในภาควิชา
-                </label>
+                <label className="form-label">ตำแหน่งในภาควิชา</label>
                 <input
                   type="text"
                   className="form-control"
                   name="department_position_name"
+                  list="departmentPositionList"
                   value={formData.department_position_name}
                   onChange={handleChange}
                   required
                   disabled={!formData.type_personnel}
                 />
+
+                <datalist id="departmentPositionList">
+                  {[
+                    ...new Set(
+                      departmentPositions.map((pos) =>
+                        pos.department_position_name.trim(),
+                      ),
+                    ),
+                  ].map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
               </div>
 
               {/* ===== สายวิชาการ ===== */}
               {formData.type_personnel === "สายวิชาการ" && (
                 <>
                   <div className="mb-3">
-                    <label className="form-label">
-                      ตำแหน่งวิชาการ
-                    </label>
+                    <label className="form-label">ตำแหน่งวิชาการ</label>
                     <select
                       className="form-select"
                       name="academic_position_id"
@@ -223,16 +241,10 @@ function PersonnelAdd() {
                       onChange={handleChange}
                       required
                     >
-                      <option value="">
-                        เลือกตำแหน่ง
-                      </option>
+                      <option value="">เลือกตำแหน่ง</option>
                       {academicPositions.map((p) => (
-                        <option
-                          key={p.id}
-                          value={p.id}
-                        >
-                          {p.thai}{" "}
-                          {p.eng && `(${p.eng})`}
+                        <option key={p.id} value={p.id}>
+                          {p.thai} {p.eng && `(${p.eng})`}
                         </option>
                       ))}
                     </select>
@@ -245,22 +257,16 @@ function PersonnelAdd() {
                       </label>
                       <input
                         className="form-control"
-                        value={
-                          formData.thai_academic_position
-                        }
+                        value={formData.thai_academic_position}
                         readOnly
                       />
                     </div>
 
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Academic Title (EN)
-                      </label>
+                      <label className="form-label">Academic Title (EN)</label>
                       <input
                         className="form-control"
-                        value={
-                          formData.eng_academic_position
-                        }
+                        value={formData.eng_academic_position}
                         readOnly
                       />
                     </div>
@@ -268,9 +274,7 @@ function PersonnelAdd() {
 
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        ชื่อ-นามสกุล (TH)
-                      </label>
+                      <label className="form-label">ชื่อ-นามสกุล (TH)</label>
                       <input
                         type="text"
                         className="form-control"
@@ -282,9 +286,7 @@ function PersonnelAdd() {
                     </div>
 
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Name (EN)
-                      </label>
+                      <label className="form-label">Name (EN)</label>
                       <input
                         type="text"
                         className="form-control"
@@ -297,9 +299,7 @@ function PersonnelAdd() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">
-                      ประวัติการศึกษา
-                    </label>
+                    <label className="form-label">ประวัติการศึกษา</label>
                     <textarea
                       className="form-control"
                       rows={3}
@@ -310,25 +310,19 @@ function PersonnelAdd() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">
-                      สาขาที่เชี่ยวชาญ
-                    </label>
+                    <label className="form-label">สาขาที่เชี่ยวชาญ</label>
                     <textarea
                       className="form-control"
                       rows={2}
                       name="related_fields"
-                      value={
-                        formData.related_fields
-                      }
+                      value={formData.related_fields}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="row">
                     <div className="col-md-4 mb-3">
-                      <label className="form-label">
-                        Email
-                      </label>
+                      <label className="form-label">Email</label>
                       <input
                         type="email"
                         className="form-control"
@@ -339,9 +333,7 @@ function PersonnelAdd() {
                     </div>
 
                     <div className="col-md-4 mb-3">
-                      <label className="form-label">
-                        เว็บไซต์ส่วนตัว
-                      </label>
+                      <label className="form-label">เว็บไซต์ส่วนตัว</label>
                       <input
                         type="text"
                         className="form-control"
@@ -352,9 +344,7 @@ function PersonnelAdd() {
                     </div>
 
                     <div className="col-md-4 mb-3">
-                      <label className="form-label">
-                        Scopus ID
-                      </label>
+                      <label className="form-label">Scopus ID</label>
                       <input
                         type="text"
                         className="form-control"
@@ -373,14 +363,11 @@ function PersonnelAdd() {
               )}
 
               {/* ===== สายสนับสนุน ===== */}
-              {formData.type_personnel ===
-                "สายสนับสนุนวิชาการ" && (
+              {formData.type_personnel === "สายสนับสนุนวิชาการ" && (
                 <>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        ชื่อ-นามสกุล (TH)
-                      </label>
+                      <label className="form-label">ชื่อ-นามสกุล (TH)</label>
                       <input
                         type="text"
                         className="form-control"
@@ -392,9 +379,7 @@ function PersonnelAdd() {
                     </div>
 
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Name (EN)
-                      </label>
+                      <label className="form-label">Name (EN)</label>
                       <input
                         type="text"
                         className="form-control"
@@ -407,9 +392,7 @@ function PersonnelAdd() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">
-                      Email
-                    </label>
+                    <label className="form-label">Email</label>
                     <input
                       type="email"
                       className="form-control"
@@ -431,9 +414,7 @@ function PersonnelAdd() {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() =>
-                    navigate("/admin/personnel")
-                  }
+                  onClick={() => navigate("/admin/personnel")}
                 >
                   ยกเลิก
                 </button>
@@ -443,9 +424,7 @@ function PersonnelAdd() {
                   className="btn btn-success"
                   disabled={loading}
                 >
-                  {loading
-                    ? "กำลังบันทึก..."
-                    : "บันทึก"}
+                  {loading ? "กำลังบันทึก..." : "บันทึก"}
                 </button>
               </div>
             </form>
@@ -456,16 +435,11 @@ function PersonnelAdd() {
   );
 }
 
-function ImageUploadPreview({
-  previewImage,
-  handleChange,
-}) {
+function ImageUploadPreview({ previewImage, handleChange }) {
   return (
     <div className="row">
       <div className="col-md-6 mb-3">
-        <label className="form-label">
-          อัปโหลดรูปภาพ
-        </label>
+        <label className="form-label">อัปโหลดรูปภาพ</label>
         <input
           type="file"
           className="form-control"

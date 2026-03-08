@@ -6,7 +6,6 @@ import "../../css/admin/news_edit.css";
 import api from "../../api/axios";
 import AdminLayout from "../../layout/AdminLayout";
 
-// Cropper
 import Cropper from "react-easy-crop";
 import Button from "@mui/material/Button";
 import { getOrientation } from "get-orientation/browser";
@@ -15,21 +14,17 @@ const EditNews = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // state หลัก
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("1");
+  const [category, setCategory] = useState(1);
   const [urlDetail, setUrlDetail] = useState("");
 
-  // รูปภาพ
-  const [fileImage, setFileImage] = useState(null); // cover ใหม่ ถ้ามี
-  const [coverUrl, setCoverUrl] = useState(null); // URL cover เดิม หรือ preview ใหม่
+  const [fileImage, setFileImage] = useState(null);
+  const [coverUrl, setCoverUrl] = useState(null);
 
-  const [newsImages, setNewsImages] = useState([]); // File object ใหม่
-  const [newsPreviewUrls, setNewsPreviewUrls] = useState([]); // URL preview (รวมใหม่ + เดิม)
-  const [existingNewsUrls, setExistingNewsUrls] = useState([]); // URL ที่มาจาก backend เดิม
+  // ⭐ ใช้ state รูปตัวเดียว
+  const [images, setImages] = useState([]);
 
-  // สำหรับ cropper
   const [imageSrc, setImageSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -45,17 +40,20 @@ const EditNews = () => {
 
         setTitle(data.title || "");
         setContent(data.content || "");
-        setCategory(String(data.type_id || 1));
+        setCategory(data.type_id || 1);
         setUrlDetail(data.detail_url || "");
+        setCoverUrl(data.cover_image || null);
 
-        if (data.images && data.images.length > 0) {
-          const urls = data.images.map((img) => img.file_image);
-          const cover = data.cover_image;
-          const others = urls.slice(1);
+        if (data.images) {
+          const imgs = data.images
+            .map((img) => img.file_image)
+            .filter((url) => url !== data.cover_image)
+            .map((url) => ({
+              type: "existing",
+              url: url,
+            }));
 
-          setCoverUrl(cover);
-          setExistingNewsUrls(others);
-          setNewsPreviewUrls(others);
+          setImages(imgs);
         }
       } catch (err) {
         console.error("Error fetching news details", err);
@@ -65,20 +63,26 @@ const EditNews = () => {
     fetchDetailNews();
   }, [id]);
 
+  // upload รูปใหม่
   const onNewsImagesChange = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
-      // รวมกับไฟล์เดิม
-      setNewsImages((prev) => [...prev, ...files]);
-      const newPreviews = files.map((f) => URL.createObjectURL(f));
-      setNewsPreviewUrls((prev) => [...prev, ...newPreviews]);
-    }
+    if (!e.target.files) return;
+
+    const files = Array.from(e.target.files);
+
+    const newImgs = files.map((file) => ({
+      type: "new",
+      file: file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setImages((prev) => [...prev, ...newImgs]);
   };
 
   const showCroppedImage = useCallback(async () => {
     try {
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels);
       const file = new File([blob], "cover.jpg", { type: blob.type });
+
       setFileImage(file);
       setCoverUrl(URL.createObjectURL(blob));
       setImageSrc(null);
@@ -92,76 +96,75 @@ const EditNews = () => {
   }, []);
 
   const onFileChange = async (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      let imageDataUrl = await readFile(file);
-      try {
-        await getOrientation(file);
-      } catch {
-        console.warn("failed to detect orientation");
-      }
-      setImageSrc(imageDataUrl);
-    }
-  };
+    if (!e.target.files) return;
 
-  const handleEdit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("type_id", category);
-    formData.append("detail_url", urlDetail);
-
-    // cover
-    if (fileImage) {
-      formData.append("cover_image", fileImage);
-    } else if (coverUrl) {
-      // ถ้าไม่มี file ใหม่ แต่มี URL เดิม ให้ส่ง URL เดิม
-      formData.append("existing_cover", coverUrl);
-    }
-
-    // news images
-    if (newsImages.length > 0) {
-      newsImages.forEach((file) => {
-        formData.append("images", file);
-      });
-    }
-    // ส่ง URL รูปข่าวที่ยังอยู่ (เดิม) ถ้าไม่มีไฟล์ใหม่
-    if (existingNewsUrls.length > 0) {
-      formData.append("existing_images", JSON.stringify(existingNewsUrls));
-    }
+    const file = e.target.files[0];
+    let imageDataUrl = await readFile(file);
 
     try {
-      await api.put(`/admin/news/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      alert("แก้ไขข่าวสารสำเร็จ");
-      navigate(`/admin/news/${id}`);
-    } catch (err) {
-      console.error("Error submitting news", err);
-      alert("ไม่สามารถแก้ไขข่าวสารได้");
+      await getOrientation(file);
+    } catch {
+      console.warn("failed to detect orientation");
     }
+
+    setImageSrc(imageDataUrl);
   };
+
+const handleEdit = async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+
+  formData.append("title", title);
+  formData.append("content", content);
+  formData.append("type_id", String(category));
+  formData.append("detail_url", urlDetail || "");
+
+  // ⭐ cover image
+  if (fileImage) {
+    formData.append("cover_image", fileImage);
+  } else if (coverUrl) {
+    const res = await fetch(coverUrl);
+    const blob = await res.blob();
+    const file = new File([blob], "cover.jpg", { type: blob.type });
+
+    formData.append("cover_image", file);
+  }
+
+  // ⭐ images
+  for (const img of images) {
+    if (img.type === "new") {
+      formData.append("images", img.file);
+    } else {
+      const res = await fetch(img.url);
+      const blob = await res.blob();
+      const file = new File([blob], "image.jpg", { type: blob.type });
+
+      formData.append("images", file);
+    }
+  }
+
+  try {
+    await api.put(`/admin/news/${id}`, formData);
+
+    alert("แก้ไขข่าวสารสำเร็จ");
+    navigate(`/admin/news/${id}`);
+  } catch (err) {
+    console.error("Error submitting news", err.response?.data);
+  }
+};
 
   return (
     <AdminLayout>
       <div className="container-fluid">
-        <div className="mb-4">
-          <h4>แก้ไขข่าวสาร</h4>
-        </div>
+        <h4 className="mb-4">แก้ไขข่าวสาร</h4>
 
         <div className="card shadow-sm">
           <div className="card-body">
             {imageSrc ? (
               <>
                 <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    height: 400,
-                    background: "#333",
-                  }}
+                  style={{ position: "relative", width: "100%", height: 400 }}
                 >
                   <Cropper
                     image={imageSrc}
@@ -176,8 +179,8 @@ const EditNews = () => {
 
                 <div className="text-center mt-4">
                   <Button
-                    onClick={showCroppedImage}
                     variant="contained"
+                    onClick={showCroppedImage}
                     sx={{
                       backgroundColor: "#173390",
                       "&:hover": { backgroundColor: "#0b1a4a" },
@@ -189,9 +192,9 @@ const EditNews = () => {
               </>
             ) : (
               <form onSubmit={handleEdit}>
-                {/* หัวข้อ */}
+                {/* title */}
                 <div className="mb-3">
-                  <label className="form-label">หัวข้อข่าวสาร</label>
+                  <label className="form-label">หัวข้อข่าว</label>
                   <input
                     className="form-control"
                     value={title}
@@ -199,9 +202,9 @@ const EditNews = () => {
                   />
                 </div>
 
-                {/* เนื้อหา */}
+                {/* content */}
                 <div className="mb-3">
-                  <label className="form-label">เนื้อหาข่าวสาร</label>
+                  <label className="form-label">เนื้อหา</label>
                   <CKEditor
                     editor={ClassicEditor}
                     data={content}
@@ -209,24 +212,24 @@ const EditNews = () => {
                   />
                 </div>
 
-                {/* ประเภท */}
+                {/* category */}
                 <div className="mb-3">
-                  <label className="form-label">ประเภทข่าวสาร</label>
+                  <label className="form-label">ประเภท</label>
                   <select
                     className="form-select"
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    onChange={(e) => setCategory(Number(e.target.value))}
                   >
-                    <option value="1">ข่าวประชาสัมพันธ์</option>
-                    <option value="2">ทุนการศึกษา</option>
-                    <option value="3">รางวัลที่ได้รับ</option>
-                    <option value="4">กิจกรรมของภาควิชา</option>
+                    <option value={1}>ข่าวประชาสัมพันธ์</option>
+                    <option value={2}>ทุนการศึกษา</option>
+                    <option value={3}>รางวัลที่ได้รับ</option>
+                    <option value={4}>กิจกรรมของภาควิชา</option>
                   </select>
                 </div>
 
-                {/* URL */}
+                {/* detail url */}
                 <div className="mb-3">
-                  <label className="form-label">รายละเอียดข่าวสาร</label>
+                  <label className="form-label">รายละเอียดข่าว</label>
                   <input
                     className="form-control"
                     value={urlDetail}
@@ -234,12 +237,12 @@ const EditNews = () => {
                   />
                 </div>
 
-                {/* Cover */}
+                {/* cover */}
                 <div className="mb-4">
-                  <label className="form-label">รูปภาพหน้าปกข่าว</label>
+                  <label className="form-label">รูปปก</label>
                   <input
-                    className="form-control"
                     type="file"
+                    className="form-control"
                     accept="image/*"
                     onChange={onFileChange}
                   />
@@ -248,17 +251,17 @@ const EditNews = () => {
                     <div className="mt-3 position-relative d-inline-block">
                       <img
                         src={coverUrl}
-                        alt="cover-preview"
+                        alt="cover"
                         className="img-fluid rounded"
                         style={{ maxWidth: "300px" }}
                       />
                       <button
                         type="button"
+                        className="btn btn-sm btn-danger position-absolute top-0 end-0"
                         onClick={() => {
                           setCoverUrl(null);
                           setFileImage(null);
                         }}
-                        className="btn btn-sm btn-danger position-absolute top-0 end-0"
                       >
                         ×
                       </button>
@@ -266,42 +269,36 @@ const EditNews = () => {
                   )}
                 </div>
 
-                {/* News Images */}
+                {/* images */}
                 <div className="mb-4">
-                  <label className="form-label">รูปภาพข่าว</label>
+                  <label className="form-label">รูปข่าว</label>
                   <input
-                    className="form-control"
                     type="file"
                     multiple
+                    className="form-control"
                     onChange={onNewsImagesChange}
                   />
 
-                  {newsPreviewUrls.length > 0 && (
+                  {images.length > 0 && (
                     <div className="mt-3 d-flex flex-wrap gap-3">
-                      {newsPreviewUrls.map((url, idx) => (
+                      {images.map((img, idx) => (
                         <div key={idx} className="position-relative">
                           <img
-                            src={url}
-                            alt={`news-preview-${idx}`}
+                            src={
+                              img.type === "existing" ? img.url : img.preview
+                            }
                             className="img-thumbnail"
                             style={{ width: "150px" }}
                           />
+
                           <button
                             type="button"
-                            onClick={() => {
-                              setExistingNewsUrls((prev) =>
-                                prev.filter((u) => u !== url),
-                              );
-                              setNewsPreviewUrls((prev) =>
-                                prev.filter((u) => u !== url),
-                              );
-                              setNewsImages((prevFiles) =>
-                                prevFiles.filter(
-                                  (f) => URL.createObjectURL(f) !== url,
-                                ),
-                              );
-                            }}
                             className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                            onClick={() =>
+                              setImages((prev) =>
+                                prev.filter((_, i) => i !== idx),
+                              )
+                            }
                           >
                             ×
                           </button>
@@ -333,11 +330,10 @@ const EditNews = () => {
   );
 };
 
-// utils
 function readFile(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(reader.result), false);
+    reader.onload = () => resolve(reader.result);
     reader.readAsDataURL(file);
   });
 }
@@ -370,8 +366,8 @@ async function getCroppedImg(imageSrc, crop) {
 function createImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.addEventListener("load", () => resolve(image));
-    image.addEventListener("error", (err) => reject(err));
+    image.onload = () => resolve(image);
+    image.onerror = reject;
     image.setAttribute("crossOrigin", "anonymous");
     image.src = url;
   });
