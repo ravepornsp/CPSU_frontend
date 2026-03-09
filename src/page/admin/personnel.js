@@ -12,7 +12,6 @@ function PersonnelAdmin() {
   // ================= Load Initial Data =================
   useEffect(() => {
     fetchPersonnel();
-    fetchLastSync();
   }, []);
 
   // ================= Fetch Personnel =================
@@ -25,43 +24,15 @@ function PersonnelAdmin() {
     }
   };
 
-  // ================= Fetch Last Sync Date =================
-  const fetchLastSync = async () => {
-    try {
-      const res = await api.get("/admin/personnel/research");
-      if (res.data.length > 0) {
-        const latest = res.data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at),
-        )[0];
-
-        setLastSyncDate(latest.created_at);
-      }
-    } catch (err) {
-      console.error("Error fetching last sync date", err);
-    }
-  };
-
-
   return (
     <AdminLayout>
       <div className="container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3 >
-            บุคลากรทั้งหมด
-          </h3>
+          <h3>บุคลากรทั้งหมด</h3>
 
-          <div className="d-flex align-items-center gap-3">
-            <p className="text-muted small mb-0">
-              อัปเดต Scopus ล่าสุด:{" "}
-              {lastSyncDate
-                ? new Date(lastSyncDate).toLocaleDateString("th-TH")
-                : "ยังไม่มีข้อมูล"}
-            </p>
-
-            <Link to="/admin/addpersonnel" className="btn-addcourse">
-              + เพิ่มบุคลากร
-            </Link>
-          </div>
+          <Link to="/admin/addpersonnel" className="btn-addcourse">
+            + เพิ่มบุคลากร
+          </Link>
         </div>
 
         <div className="row row-cols-1 row-cols-md-4 g-4">
