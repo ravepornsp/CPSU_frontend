@@ -12,7 +12,7 @@ const Research = () => {
   const hasShownError = useRef(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 40;
+  const itemsPerPage = 20;
 
   useEffect(() => {
     fetchResearch();

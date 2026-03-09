@@ -6,15 +6,11 @@ import AdminLayout from "../../layout/AdminLayout";
 
 function PersonnelAdmin() {
   const [personnel, setPersonnel] = useState([]);
-  const [lastSyncDate, setLastSyncDate] = useState(null);
-  const [loadingSync, setLoadingSync] = useState(false);
 
-  // ================= Load Initial Data =================
   useEffect(() => {
     fetchPersonnel();
   }, []);
 
-  // ================= Fetch Personnel =================
   const fetchPersonnel = async () => {
     try {
       const res = await api.get("/admin/personnel");
