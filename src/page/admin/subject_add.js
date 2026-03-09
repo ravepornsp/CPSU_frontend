@@ -13,14 +13,14 @@ const SubjectAdd = () => {
     thai_subject: "",
     eng_subject: "",
     credits: "",
-    semester_id: "",
+    semester: "",
     compulsory_subject: "",
     condition: "",
     description_thai: "",
     description_eng: "",
     clo: "",
     course_id: "",
-    plan_type_id: "",
+    plan_type: "",
   });
 
   const [error, setError] = useState("");
@@ -65,19 +65,16 @@ const SubjectAdd = () => {
         eng_subject: formData.eng_subject,
         credits: formData.credits,
         course_id: formData.course_id,
-        semester_id: parseInt(formData.semester_id),
+        semester: formData.semester,
         compulsory_subject:
           formData.compulsory_subject.trim() === ""
             ? "-"
             : formData.compulsory_subject,
-        condition:
-          formData.condition.trim() === ""
-            ? "-"
-            : formData.condition,
+        condition: formData.condition.trim() === "" ? "-" : formData.condition,
         description_thai: formData.description_thai,
         description_eng: formData.description_eng,
         clo: formData.clo.trim() === "" ? "-" : formData.clo,
-        plan_type_id: parseInt(formData.plan_type_id),
+        plan_type: formData.plan_type,
       };
 
       await api.post("/admin/subject", cleanData);
@@ -89,14 +86,14 @@ const SubjectAdd = () => {
         thai_subject: "",
         eng_subject: "",
         credits: "",
-        semester_id: "",
+        semester: "",
         compulsory_subject: "",
         condition: "",
         description_thai: "",
         description_eng: "",
         clo: "",
         course_id: "",
-        plan_type_id: "",
+        plan_type: "",
       });
 
       alert("เพิ่มรายวิชาสำเร็จ");
@@ -193,21 +190,25 @@ const SubjectAdd = () => {
               <div className="mb-3">
                 <label>ชั้นปีและภาคการศึกษา</label>
                 <select
-                  name="semester_id"
-                  value={formData.semester_id}
+                  name="semester"
+                  value={formData.semester}
                   onChange={handleChange}
                   className="form-control"
                   required
                 >
                   <option value="">-- เลือกภาคการศึกษา --</option>
-                  <option value="11">ปี 1 เทอม 1</option>
-                  <option value="12">ปี 1 เทอม 2</option>
-                  <option value="21">ปี 2 เทอม 1</option>
-                  <option value="22">ปี 2 เทอม 2</option>
-                  <option value="31">ปี 3 เทอม 1</option>
-                  <option value="32">ปี 3 เทอม 2</option>
-                  <option value="41">ปี 4 เทอม 1</option>
-                  <option value="42">ปี 4 เทอม 2</option>
+
+                  <option value="ปีที่ 1 ภาคการศึกษาที่ 1">ปี 1 เทอม 1</option>
+                  <option value="ปีที่ 1 ภาคการศึกษาที่ 2">ปี 1 เทอม 2</option>
+
+                  <option value="ปีที่ 2 ภาคการศึกษาที่ 1">ปี 2 เทอม 1</option>
+                  <option value="ปีที่ 2 ภาคการศึกษาที่ 2">ปี 2 เทอม 2</option>
+
+                  <option value="ปีที่ 3 ภาคการศึกษาที่ 1">ปี 3 เทอม 1</option>
+                  <option value="ปีที่ 3 ภาคการศึกษาที่ 2">ปี 3 เทอม 2</option>
+
+                  <option value="ปีที่ 4 ภาคการศึกษาที่ 1">ปี 4 เทอม 1</option>
+                  <option value="ปีที่ 4 ภาคการศึกษาที่ 2">ปี 4 เทอม 2</option>
                 </select>
               </div>
 
@@ -215,15 +216,15 @@ const SubjectAdd = () => {
               <div className="mb-3">
                 <label>แผนการศึกษา</label>
                 <select
-                  name="plan_type_id"
-                  value={formData.plan_type_id}
+                  name="plan_type"
+                  value={formData.plan_type}
                   onChange={handleChange}
                   className="form-control"
                   required
                 >
                   <option value="">-- เลือกแผนการศึกษา --</option>
-                  <option value="1">โครงงานวิจัย</option>
-                  <option value="2">สหกิจศึกษา</option>
+                  <option value="โครงงานวิจัย">โครงงานวิจัย</option>
+                  <option value="สหกิจศึกษา">สหกิจศึกษา</option>
                 </select>
               </div>
 

@@ -45,11 +45,12 @@ import Dashboard from "./page/admin/dashboard";
 import EventCalendarPublic from "./page/EventCalendarPublic";
 import Admission from "./page/admission";
 import AdmissionAdmin from "./page/admin/admission";
-import AddAdmission from "./page/admin/addAdmission";
-import EditAdmission from "./page/admin/editAdmission";
+import AddAdmission from "./page/admin/admission_add";
+import EditAdmission from "./page/admin/admission_edit";
 
 import History from "./page/admin/history";
 import Manual from "./page/admin/manual";
+import Research from "./page/admin/research";
 
 const AppRoutes = () => {
   const RequireAuth = () => {
@@ -97,6 +98,7 @@ const AppRoutes = () => {
 
           <Route path="history" element={<History />} />
           <Route path="manual" element={<Manual />} />
+          <Route path="research" element={<Research />} />
         </Route>
       </Route>
 

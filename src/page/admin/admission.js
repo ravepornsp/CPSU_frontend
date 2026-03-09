@@ -27,9 +27,7 @@ const Admission = () => {
 
     try {
       await api.delete(`/admin/admission/${id}`);
-      setAdmission((prev) =>
-        prev.filter((item) => item.admission_id !== id)
-      );
+      setAdmission((prev) => prev.filter((item) => item.admission_id !== id));
     } catch (error) {
       console.error(error);
       alert("ลบข้อมูลไม่สำเร็จ");
@@ -39,7 +37,9 @@ const Admission = () => {
   return (
     <AdminLayout>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 id="course-title" className="mb-0">การรับสมัคร</h3>
+        <h3 >
+          การรับสมัคร
+        </h3>
         <Link to="/admin/admission/add" className="btn-addcourse">
           เพิ่มข้อมูล
         </Link>
@@ -52,55 +52,59 @@ const Admission = () => {
         <p>ยังไม่มีข้อมูลการรับสมัคร</p>
       )}
 
-      {admission.map((item) => (
-        <div key={item.admission_id} className="mb-5 border-bottom pb-4">
-          <h2>{item.round}</h2>
+      <div className="card shadow-sm">
+        <div className="card-body">
+          {admission.map((item) => (
+            <div key={item.admission_id} className="mb-5 border-bottom pb-4">
+              <h2>{item.round}</h2>
 
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <h4 className="mb-0">{item.title}</h4>
-            <div>
-              <Link
-                to={`/admin/admission/edit/${item.admission_id}`}
-                className="btn btn-sm btn-warning me-2"
-              >
-                แก้ไข
-              </Link>
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => handleDelete(item.admission_id)}
-              >
-                ลบ
-              </button>
-            </div>
-          </div>
-
-          <div
-            className="d-flex align-items-start"
-            style={{ gap: "20px", marginTop: "15px", flexWrap: "wrap" }}
-          >
-            {item.file_image && (
-              <div style={{ flex: "0 0 auto" }}>
-                <img
-                  src={item.file_image}
-                  alt={item.title || item.round}
-                  style={{
-                    maxWidth: "500px",
-                    width: "100%",
-                    borderRadius: "8px",
-                  }}
-                />
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h4 className="mb-0">{item.title}</h4>
+                <div className="action-buttons">
+                  <Link
+                    to={`/admin/admission/edit/${item.admission_id}`}
+                    className="btn-edit"
+                  >
+                    แก้ไข
+                  </Link>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(item.admission_id)}
+                  >
+                    ลบ
+                  </button>
+                </div>
               </div>
-            )}
 
-            <div style={{ flex: "1 1 0", minWidth: "200px" }}>
               <div
-                className="admission-detail"
-                dangerouslySetInnerHTML={{ __html: item.detail }}
-              />
+                className="d-flex align-items-start"
+                style={{ gap: "20px", marginTop: "15px", flexWrap: "wrap" }}
+              >
+                {item.file_image && (
+                  <div style={{ flex: "0 0 auto" }}>
+                    <img
+                      src={item.file_image}
+                      alt={item.title || item.round}
+                      style={{
+                        maxWidth: "500px",
+                        width: "100%",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </div>
+                )}
+
+                <div style={{ flex: "1 1 0", minWidth: "200px" }}>
+                  <div
+                    className="admission-detail"
+                    dangerouslySetInnerHTML={{ __html: item.detail }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      ))}
+      </div>
     </AdminLayout>
   );
 };

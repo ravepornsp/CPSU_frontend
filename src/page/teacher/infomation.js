@@ -9,19 +9,17 @@ const TeacherInformation = () => {
   const navigate = useNavigate();
 
   const [person, setPerson] = useState(null);
-  const [researches, setResearches] = useState([]); // เปิดใช้งาน researches
+  const [researches, setResearches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [researchLoading, setResearchLoading] = useState(true);
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  /* 🔐 ดึง user จาก localStorage */
   const [user] = useState(() => {
     const u = localStorage.getItem("user");
     return u ? JSON.parse(u) : null;
   });
 
-  /* ❌ ถ้าไม่ใช่ teacher ออกทันที */
   useEffect(() => {
     if (!user || !user.roles?.includes("teacher")) {
       localStorage.clear();
@@ -43,23 +41,13 @@ const TeacherInformation = () => {
       }
     };
 
-    const fetchResearches = async () => {
-      try {
-        const res = await api.get(`/researches/${user.user_id}`);
-        setResearches(res.data.researches);
-      } catch (err) {
-        console.error("Failed to fetch researches", err);
-      } finally {
-        setResearchLoading(false);
-      }
-    };
-
     fetchPerson();
-    fetchResearches();
   }, [user?.user_id]);
 
   const handleEdit = () => {
-    navigate("/teacher/informationedit");
+    navigate("/teacher/informationedit", {
+      state: { userId: user.user_id },
+    });
   };
 
   const handleCopyEmail = () => {
@@ -69,6 +57,7 @@ const TeacherInformation = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  /* loading */
   if (loading) {
     return (
       <>
@@ -83,6 +72,7 @@ const TeacherInformation = () => {
     );
   }
 
+  /* error */
   if (error || !person) {
     return (
       <>
@@ -115,80 +105,73 @@ const TeacherInformation = () => {
           </button>
 
           <div className="row">
+            {/* Profile */}
             <div className="col-md-4 text-center">
               <img
                 src={person.file_image || "/images/default-profile.png"}
+                onError={(e) => (e.target.src = "/images/default-profile.png")}
                 alt={person.thai_name}
-                className="img-fluid img-profile"
+                className="img-fluid rounded-circle img-profile"
               />
 
               <div className="mt-3">
-                <strong>อีเมล</strong>
-                <br />
-                <a href={`mailto:${person.email}`}>{person.email}</a>
-                <br />
-                <button
-                  className="btn btn-outline-primary btn-sm mt-2"
-                  onClick={handleCopyEmail}
-                >
-                  คัดลอกอีเมล
-                </button>
-                {copied && (
-                  <small className="text-success d-block">คัดลอกแล้ว</small>
-                )}
+                <p>อีเมล</p>
+                {/* <a href={`mailto:${person.email}`}>{person.email}</a> */}
+                <label>{person.email}</label>
               </div>
             </div>
 
-            <div className="col-md-8">
+            {/* Info */}
+            <div className="col-md-8 text-start">
               <h5 className="text-primary">
                 {person.department_position_name}
               </h5>
+
               <hr />
+
               <h4>
                 {person.thai_academic_position} {person.thai_name}
               </h4>
+
               <p className="text-muted">
                 {person.eng_academic_position} {person.eng_name}
               </p>
 
               <hr />
-              <h5>ประวัติการศึกษา</h5>
+
+              <h5>
+                {/* <i className="bi bi-mortarboard me-2"></i> */}
+                ประวัติการศึกษา
+              </h5>
+
               <ul>
-                {person.education?.split("\n").map((e, i) => (
-                  <li key={i}>{e}</li>
-                ))}
+                {(person.education || "")
+                  .split("\n")
+                  .filter(Boolean)
+                  .map((e, i) => (
+                    <li key={i}>{e}</li>
+                  ))}
               </ul>
 
               <hr />
-              <h5>สาขาที่เชี่ยวชาญ</h5>
+
+              <h5>
+                {/* <i className="bi bi-lightbulb me-2"></i> */}
+                สาขาที่เชี่ยวชาญ
+              </h5>
+
               <ul>
-                {person.related_fields?.split("\n").map((f, i) => (
-                  <li key={i}>{f}</li>
-                ))}
+                {(person.related_fields || "")
+                  .split("\n")
+                  .filter(Boolean)
+                  .map((f, i) => (
+                    <li key={i}>{f}</li>
+                  ))}
               </ul>
             </div>
           </div>
         </div>
       </div>
-
-      {researchLoading ? (
-        <p>กำลังโหลดผลงานวิจัย...</p>
-      ) : researches.length > 0 ? (
-        <div className="container my-4">
-          <h5>ผลงานวิจัย</h5>
-          <ul>
-            {researches.map((r, i) => (
-              <li key={i}>
-                <strong>{r.authors}</strong> ({r.year}) <em>{r.title}</em>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="container my-4">
-          <p>ยังไม่มีผลงานวิจัย</p>
-        </div>
-      )}
 
       <Footer />
     </>

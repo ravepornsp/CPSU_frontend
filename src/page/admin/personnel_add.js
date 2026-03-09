@@ -158,7 +158,7 @@ function PersonnelAdd() {
         data.append(key, value);
       }
     });
-    console.log("FORM DATA:", formData);
+
     try {
       setLoading(true);
 

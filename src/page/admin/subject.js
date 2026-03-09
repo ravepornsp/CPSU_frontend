@@ -78,7 +78,7 @@ function Subject() {
 
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="mb-0">รายวิชาทั้งหมด</h4>
+          <h3>รายวิชาทั้งหมด</h3>
           <Link to="/admin/addsubject" className="btn-addcourse">
             + เพิ่มรายวิชาใหม่
           </Link>

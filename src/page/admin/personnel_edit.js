@@ -16,7 +16,7 @@ function EditPersonnel() {
       { id: 4, thai: "อ.ดร.", eng: "Dr." },
       { id: 5, thai: "อ.", eng: "" },
     ],
-    []
+    [],
   );
 
   const [formData, setFormData] = useState({
@@ -38,6 +38,7 @@ function EditPersonnel() {
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [changedFields, setChangedFields] = useState({});
 
   useEffect(() => {
     const fetchPersonnel = async () => {
@@ -46,7 +47,7 @@ function EditPersonnel() {
         const p = res.data.personnel;
 
         const academic = academicPositions.find(
-          (a) => a.id === p.academic_position_id
+          (a) => a.id === p.academic_position_id,
         );
 
         setFormData({
@@ -97,19 +98,49 @@ function EditPersonnel() {
         return;
       }
 
-      setFormData({ ...formData, file_image: file });
+      setFormData((prev) => ({
+        ...prev,
+        file_image: file,
+      }));
+
+      setChangedFields((prev) => ({
+        ...prev,
+        file_image: true,
+      }));
+
       setPreviewImage(URL.createObjectURL(file));
-    } else if (name === "academic_position_id") {
+      return;
+    }
+
+    if (name === "academic_position_id") {
       const selected = academicPositions.find((p) => p.id === Number(value));
-      setFormData({
-        ...formData,
+
+      setFormData((prev) => ({
+        ...prev,
         academic_position_id: Number(value),
         thai_academic_position: selected ? selected.thai : "",
         eng_academic_position: selected ? selected.eng : "",
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
+      }));
+
+      setChangedFields((prev) => ({
+        ...prev,
+        academic_position_id: true,
+        thai_academic_position: true,
+        eng_academic_position: true,
+      }));
+
+      return;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setChangedFields((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -118,22 +149,35 @@ function EditPersonnel() {
 
     const data = new FormData();
 
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === "file_image") return;
-      if (value !== "" && value !== null) {
-        data.append(key, value);
-      }
-    });
+    data.append("type_personnel", formData.type_personnel);
+    data.append("department_position_name", formData.department_position_name);
+    data.append("academic_position_id", formData.academic_position_id);
+    data.append("thai_name", formData.thai_name);
+    data.append("eng_name", formData.eng_name);
+    data.append("education", formData.education);
+    data.append("related_fields", formData.related_fields);
+    data.append("email", formData.email);
+    data.append("website", formData.website);
+    data.append("scopus_id", formData.scopus_id);
 
-    if (formData.file_image) {
+    // ⭐ จัดการรูปเหมือน EditNews
+    if (formData.file_image instanceof File) {
       data.append("file_image", formData.file_image);
+    } else if (previewImage) {
+      const res = await fetch(previewImage);
+      const blob = await res.blob();
+      const file = new File([blob], "personnel.jpg", { type: blob.type });
+
+      data.append("file_image", file);
     }
 
     try {
       await api.put(`/admin/personnel/${id}`, data);
+
       alert("บันทึกข้อมูลสำเร็จ!");
       navigate("/admin/personnel");
     } catch (err) {
+      console.error(err);
       setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };
@@ -152,7 +196,6 @@ function EditPersonnel() {
 
               <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <div className="row">
-
                   <div className="col-md-6 mb-3">
                     <input
                       type="hidden"
@@ -316,7 +359,6 @@ function EditPersonnel() {
                       />
                     )}
                   </div>
-
                 </div>
 
                 <div className="d-flex justify-content-between mt-4">
@@ -332,7 +374,6 @@ function EditPersonnel() {
                     บันทึกการแก้ไข
                   </button>
                 </div>
-
               </form>
             </div>
           </div>

@@ -94,95 +94,139 @@ const DetailCourse = () => {
           </div>
         </div>
 
-        <hr />
+        <div className="card shadow-sm">
+          <div className="card-body">
+            {/* Basic Info */}
+            <h5 className="mt-3">ข้อมูลหลักสูตร</h5>
 
-        {/* Basic Info */}
-        <p>
-          <strong>รหัสหลักสูตร :</strong> {courseDetail.course_id}
-        </p>
-        <p>
-          <strong>ชื่ออังกฤษ :</strong> {courseDetail.eng_course}
-        </p>
-        <p>
-          <strong>ชื่อปริญญา :</strong> {courseDetail.thai_degree}
-        </p>
-        <p>
-          <strong>หน่วยกิต :</strong> {courseDetail.credits}
-        </p>
-        <p>
-          <strong>ค่าใช้จ่าย :</strong> {courseDetail.tuition}
-        </p>
+            <p>
+              <strong>สถานะ :</strong> {courseDetail.status}
+            </p>
+            <p>
+              <strong>รหัสหลักสูตร :</strong> {courseDetail.course_id}
+            </p>
+            <p>
+              <strong>ระดับปริญญา :</strong> {courseDetail.degree}
+            </p>
+            <p>
+              <strong>สาขา :</strong> {courseDetail.major}
+            </p>
+            <p>
+              <strong>ปีหลักสูตร :</strong> {courseDetail.year}
+            </p>
 
-        <hr />
+            <p>
+              <strong>ชื่อหลักสูตร (ไทย) :</strong> {courseDetail.thai_course}
+            </p>
+            <p>
+              <strong>ชื่อหลักสูตร (อังกฤษ) :</strong> {courseDetail.eng_course}
+            </p>
 
-        <h5>ปรัชญา</h5>
-        <p>{courseDetail.philosophy}</p>
+            <p>
+              <strong>ชื่อปริญญา (ไทย) :</strong> {courseDetail.thai_degree}
+            </p>
+            <p>
+              <strong>ชื่อปริญญา (อังกฤษ) :</strong> {courseDetail.eng_degree}
+            </p>
 
-        <h5>วัตถุประสงค์</h5>
-        <p>{courseDetail.objective}</p>
+            <p>
+              <strong>หน่วยกิต :</strong> {courseDetail.credits}
+            </p>
+            <p>
+              <strong>ค่าใช้จ่าย :</strong> {courseDetail.tuition}
+            </p>
 
-        <h5>PLOs</h5>
-        <pre style={{ whiteSpace: "pre-wrap" }} className="text-start">
-          {courseDetail.plo}
-        </pre>
+            <p>
+              <strong>รายละเอียดเพิ่มเติม :</strong>{" "}
+              <a
+                href={courseDetail.detail_url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {courseDetail.detail_url}
+              </a>
+            </p>
 
-        <hr />
+            <hr />
+            <h5>เกณฑ์การเข้าศึกษา</h5>
+            <p>{courseDetail.admission_req}</p>
 
-        {/* Structure */}
-        <h5>โครงสร้างหลักสูตร</h5>
-        {filteredStructures.map((st) => (
-          <img
-            key={st.course_structure_id}
-            src={st.course_structure_url}
-            alt="structure"
-            className="img-fluid mb-3 border"
-          />
-        ))}
+            <h5>เกณฑ์สำเร็จการศึกษา</h5>
+            <p>{courseDetail.graduation_req}</p>
 
-        <hr />
+            <h5>ปรัชญาของหลักสูตร</h5>
+            <p>{courseDetail.philosophy}</p>
 
-        {/* Roadmap */}
-        <h5>แผนการศึกษา</h5>
-        {filteredRoadmap.map((rp) => (
-          <img
-            key={rp.roadmap_id}
-            src={rp.roadmap_url}
-            alt="roadmap"
-            className="img-fluid mb-3 border"
-          />
-        ))}
+            <h5>วัตถุประสงค์ของหลักสูตร</h5>
+            <p>{courseDetail.objective}</p>
 
-        <hr />
+            <h5>PLOs</h5>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{courseDetail.plo}</pre>
 
-        {/* Subjects */}
-        <h5>รายวิชา</h5>
+            <h5>อาชีพที่ประกอบได้</h5>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {courseDetail.career_paths}
+            </pre>
 
-        {filteredSubjects.length === 0 ? (
-          <p>ไม่มีรายวิชา</p>
-        ) : (
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th>รหัสวิชา</th>
-                <th>ชื่อวิชา</th>
-                <th>หน่วยกิต</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSubjects.map((subj) => (
-                <tr key={subj.subject_id}>
-                  <td>
-                    <Link to={`/admin/subject/${subj.subject_id}`}>
-                      {subj.subject_id}
-                    </Link>
-                  </td>
-                  <td>{subj.thai_subject}</td>
-                  <td>{subj.credits}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            <hr />
+
+            {/* Structure */}
+            <h5>โครงสร้างหลักสูตร</h5>
+            {filteredStructures.map((st) => (
+              <img
+                key={st.course_structure_id}
+                src={st.course_structure_url}
+                alt="structure"
+                className="img-fluid mb-3 border"
+              />
+            ))}
+
+            <hr />
+
+            {/* Roadmap */}
+            <h5>แผนการศึกษา</h5>
+            {filteredRoadmap.map((rp) => (
+              <img
+                key={rp.roadmap_id}
+                src={rp.roadmap_url}
+                alt="roadmap"
+                className="img-fluid mb-3 border"
+              />
+            ))}
+
+            <hr />
+
+            {/* Subjects */}
+            <h5>รายวิชา</h5>
+
+            {filteredSubjects.length === 0 ? (
+              <p>ไม่มีรายวิชา</p>
+            ) : (
+              <table className="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>รหัสวิชา</th>
+                    <th>ชื่อวิชา</th>
+                    <th>หน่วยกิต</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSubjects.map((subj) => (
+                    <tr key={subj.subject_id}>
+                      <td>
+                        <Link to={`/admin/subject/${subj.subject_id}`}>
+                          {subj.subject_id}
+                        </Link>
+                      </td>
+                      <td>{subj.thai_subject}</td>
+                      <td>{subj.credits}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
       </div>
     </AdminLayout>
   );

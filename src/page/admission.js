@@ -14,7 +14,6 @@ const Admission = () => {
   useEffect(() => {
     axios
       .get("http://localhost:8080/api/v1/admission")
-      // .get("https://vibrant-connection-production.up.railway.app/api/v1/admission")
       .then((res) => {
         setAdmissions(res.data || []);
         setLoading(false);
@@ -33,55 +32,37 @@ const Admission = () => {
     <>
       <Headers />
       <Navbar />
+
       <Breadcrumb items={[{ label: "การรับสมัคร", path: "/admission" }]} />
-      <div className="container py-5">
-        {/* <h2 className="text-center mb-4">ข้อมูลการรับสมัคร</h2> */}
 
-        {admissions.map((item) => {
-          return (
-            <div key={item.admission_id} className="mb-5 border-bottom pb-4">
-              {/* หัวข้อ + ปุ่ม */}
-              <h2>{item.round}</h2>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <h4 className="mb-0">{item.title}</h4>{" "}
-                {/* แสดงข้อความจาก back office */}
-                <div></div>
-              </div>
+      <div className="container admission-page">
 
-              {/* เนื้อหา */}
-              <div
-                className="d-flex align-items-start"
-                style={{
-                  gap: "20px",
-                  marginTop: "15px",
-                  flexWrap: "wrap",
-                }}
-              >
-                {item.file_image && (
-                  <div style={{ flex: "0 0 auto" }}>
-                    <img
-                      src={item.file_image}
-                      alt={item.title}
-                      style={{
-                        maxWidth: "500px",
-                        width: "100%",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  </div>
-                )}
+        {admissions.map((item) => (
+          <div key={item.admission_id} className="admission-card">
 
-                <div style={{ flex: "1 1 0", minWidth: "200px" }}>
-                  <div
-                    className="admission-detail"
-                    style={{ textAlign: "left" }}
-                    dangerouslySetInnerHTML={{ __html: item.detail }}
-                  />
+            {/* หัวข้อ */}
+            <h2 className="admission-round">{item.round}</h2>
+            <h4 className="admission-title">{item.title}</h4>
+
+            {/* เนื้อหา */}
+            <div className="admission-content">
+
+              {item.file_image && (
+                <div className="admission-image">
+                  <img src={item.file_image} alt={item.title} />
                 </div>
-              </div>
+              )}
+
+              <div
+                className="admission-detail"
+                dangerouslySetInnerHTML={{ __html: item.detail }}
+              />
+
             </div>
-          );
-        })}
+
+          </div>
+        ))}
+
       </div>
 
       <Footer />

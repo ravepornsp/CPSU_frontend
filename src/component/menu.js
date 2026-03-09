@@ -14,6 +14,11 @@ const Menu = () => {
     { path: "/admin/dashboard", label: "Dashboard", icon: "fas fa-chart-line" },
     { path: "/admin/news", label: "ข่าวสาร", icon: "fas fa-newspaper" },
     { path: "/admin/personnel", label: "บุคลากร", icon: "fas fa-user-tie" },
+    {
+      path: "/admin/research",
+      label: "ผลงานวิจัย",
+      icon: "fas fa-file-alt",
+    },
     { path: "/admin/course", label: "หลักสูตร", icon: "fas fa-book-open" },
     { path: "/admin/subject", label: "รายวิชา", icon: "fas fa-book" },
     {
@@ -22,7 +27,7 @@ const Menu = () => {
       icon: "fas fa-calendar-alt",
     },
     { path: "/admin/admission", label: "การรับสมัคร", icon: "fas fa-bullhorn" },
-
+    ,
     ...(role === "admin"
       ? [
           {
@@ -37,7 +42,6 @@ const Menu = () => {
           },
         ]
       : []),
-
     {
       path: "/admin/manual",
       label: "คู่มือการใช้งาน",

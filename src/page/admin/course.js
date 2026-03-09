@@ -60,7 +60,7 @@ const Course = () => {
     <AdminLayout>
       <div className="container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3 id="course-title">หลักสูตรทั้งหมด</h3>
+          <h3>หลักสูตรทั้งหมด</h3>
           <Link to="/admin/addcourse" className="btn-addcourse">
             + เพิ่มหลักสูตร
           </Link>
@@ -75,27 +75,21 @@ const Course = () => {
               <div className="degree-divider">
                 <span className="bachelor">ปริญญาตรี</span>
               </div>
-              <div className="row">
-                {renderCourseList(bachelorCourses)}
-              </div>
+              <div className="row">{renderCourseList(bachelorCourses)}</div>
             </section>
 
             <section className="mb-5">
               <div className="degree-divider">
                 <span className="master">ปริญญาโท</span>
               </div>
-              <div className="row">
-                {renderCourseList(masterCourses)}
-              </div>
+              <div className="row">{renderCourseList(masterCourses)}</div>
             </section>
 
             <section className="mb-5">
               <div className="degree-divider">
                 <span className="doctor">ปริญญาเอก</span>
               </div>
-              <div className="row">
-                {renderCourseList(doctorateCourses)}
-              </div>
+              <div className="row">{renderCourseList(doctorateCourses)}</div>
             </section>
           </>
         )}

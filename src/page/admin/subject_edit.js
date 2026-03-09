@@ -1,63 +1,47 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../../layout/AdminLayout";
 import "../../css/admin/subject.css";
 
 const SubjectEdit = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [courseOptions, setCourseOptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     subject_id: "",
     thai_subject: "",
     eng_subject: "",
     credits: "",
-    semester_id: "",
+    semester: "",
     compulsory_subject: "",
     condition: "",
     description_thai: "",
     description_eng: "",
     clo: "",
     course_id: "",
-    plan_type_id: "",
+    plan_type: "",
   });
 
-  /* ================= Reverse Map ================= */
-
-  const semesterReverseMap = useMemo(
-    () => ({
-      "ปีที่ 1 ภาคการศึกษาที่ 1": "11",
-      "ปีที่ 1 ภาคการศึกษาที่ 2": "12",
-      "ปีที่ 2 ภาคการศึกษาที่ 1": "21",
-      "ปีที่ 2 ภาคการศึกษาที่ 2": "22",
-      "ปีที่ 3 ภาคการศึกษาที่ 1": "31",
-      "ปีที่ 3 ภาคการศึกษาที่ 2": "32",
-      "ปีที่ 4 ภาคการศึกษาที่ 1": "41",
-      "ปีที่ 4 ภาคการศึกษาที่ 2": "42",
-    }),
-    [],
-  );
-
-  const planTypeReverseMap = useMemo(
-    () => ({
-      โครงงานวิจัย: "1",
-      สหกิจศึกษา: "2",
-    }),
-    [],
-  );
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   /* ================= Load Courses ================= */
 
   useEffect(() => {
-    api
-      .get("/admin/course")
-      .then((res) => setCourseOptions(res.data))
-      .catch((err) => console.error(err));
+    const fetchCourses = async () => {
+      try {
+        const response = await api.get("/admin/course");
+        setCourseOptions(response.data);
+      } catch (error) {
+        console.error("Error loading courses", error);
+      }
+    };
+
+    fetchCourses();
   }, []);
 
   /* ================= Load Subject ================= */
@@ -73,31 +57,36 @@ const SubjectEdit = () => {
           thai_subject: s.thai_subject || "",
           eng_subject: s.eng_subject || "",
           credits: s.credits || "",
-          semester_id: semesterReverseMap[s.semester] || "",
-          plan_type_id: planTypeReverseMap[s.plan_type] || "",
+          semester: s.semester || "",
           compulsory_subject: s.compulsory_subject || "",
           condition: s.condition || "",
           description_thai: s.description_thai || "",
           description_eng: s.description_eng || "",
           clo: s.clo || "",
           course_id: s.course_id || "",
+          plan_type: s.plan_type || "",
         });
+
+        setLoading(false);
       } catch (err) {
         console.error(err);
         setError("ไม่พบข้อมูลรายวิชา");
-      } finally {
         setLoading(false);
       }
     };
 
     fetchSubject();
-  }, [id, semesterReverseMap, planTypeReverseMap]);
+  }, [id]);
 
   /* ================= Handle Change ================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   /* ================= Submit ================= */
@@ -105,33 +94,36 @@ const SubjectEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     try {
-      const payload = {
+      const cleanData = {
         subject_id: formData.subject_id,
         thai_subject: formData.thai_subject,
         eng_subject: formData.eng_subject,
         credits: formData.credits,
         course_id: formData.course_id,
-        semester: Object.keys(semesterReverseMap).find(
-          (key) => semesterReverseMap[key] === formData.semester_id,
-        ),
-        plan_type: Object.keys(planTypeReverseMap).find(
-          (key) => planTypeReverseMap[key] === formData.plan_type_id,
-        ),
-        compulsory_subject: formData.compulsory_subject.trim() || "-",
-        condition: formData.condition.trim() || "-",
+        semester: formData.semester,
+        plan_type: formData.plan_type,
+        compulsory_subject:
+          formData.compulsory_subject.trim() === ""
+            ? "-"
+            : formData.compulsory_subject,
+        condition: formData.condition.trim() === "" ? "-" : formData.condition,
         description_thai: formData.description_thai,
         description_eng: formData.description_eng,
-        clo: formData.clo.trim() || "-",
+        clo: formData.clo.trim() === "" ? "-" : formData.clo,
       };
 
-      await api.put(`/admin/subject/${id}`, payload);
+      await api.put(`/admin/subject/${id}`, cleanData);
+
+      setSuccess("แก้ไขรายวิชาสำเร็จ!");
+
       alert("แก้ไขรายวิชาสำเร็จ");
       navigate("/admin/subject");
     } catch (err) {
       console.error(err);
-      setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      setError("เกิดข้อผิดพลาดในการแก้ไขรายวิชา");
     }
   };
 
@@ -156,12 +148,10 @@ const SubjectEdit = () => {
           <div className="card-body">
             <h4 className="mb-4">แก้ไขรายวิชา</h4>
 
-            {error && <div className="alert alert-danger">{error}</div>}
-
             <form onSubmit={handleSubmit}>
-              {/* Course */}
+              {/* หลักสูตร */}
               <div className="mb-3">
-                <label>หลักสูตร</label>
+                <label>หลักสูตร (Course)</label>
                 <select
                   name="course_id"
                   value={formData.course_id}
@@ -178,9 +168,11 @@ const SubjectEdit = () => {
                 </select>
               </div>
 
+              {/* รหัสวิชา */}
               <div className="mb-3">
                 <label>รหัสรายวิชา</label>
                 <input
+                  type="text"
                   name="subject_id"
                   value={formData.subject_id}
                   className="form-control"
@@ -188,9 +180,11 @@ const SubjectEdit = () => {
                 />
               </div>
 
+              {/* ชื่อไทย */}
               <div className="mb-3">
-                <label>ชื่อรายวิชา (ไทย)</label>
+                <label>ชื่อรายวิชา (ภาษาไทย)</label>
                 <input
+                  type="text"
                   name="thai_subject"
                   value={formData.thai_subject}
                   onChange={handleChange}
@@ -199,9 +193,11 @@ const SubjectEdit = () => {
                 />
               </div>
 
+              {/* อังกฤษ */}
               <div className="mb-3">
-                <label>ชื่อรายวิชา (อังกฤษ)</label>
+                <label>ชื่อรายวิชา (ภาษาอังกฤษ)</label>
                 <input
+                  type="text"
                   name="eng_subject"
                   value={formData.eng_subject}
                   onChange={handleChange}
@@ -209,9 +205,11 @@ const SubjectEdit = () => {
                 />
               </div>
 
+              {/* หน่วยกิต */}
               <div className="mb-3">
                 <label>หน่วยกิต</label>
                 <input
+                  type="text"
                   name="credits"
                   value={formData.credits}
                   onChange={handleChange}
@@ -220,45 +218,53 @@ const SubjectEdit = () => {
                 />
               </div>
 
+              {/* semester */}
               <div className="mb-3">
                 <label>ชั้นปีและภาคการศึกษา</label>
                 <select
-                  name="semester_id"
-                  value={formData.semester_id}
+                  name="semester"
+                  value={formData.semester}
                   onChange={handleChange}
                   className="form-control"
                   required
                 >
-                  <option value="">-- เลือก --</option>
-                  <option value="11">ปี 1 เทอม 1</option>
-                  <option value="12">ปี 1 เทอม 2</option>
-                  <option value="21">ปี 2 เทอม 1</option>
-                  <option value="22">ปี 2 เทอม 2</option>
-                  <option value="31">ปี 3 เทอม 1</option>
-                  <option value="32">ปี 3 เทอม 2</option>
-                  <option value="41">ปี 4 เทอม 1</option>
-                  <option value="42">ปี 4 เทอม 2</option>
+                  <option value="">-- เลือกภาคการศึกษา --</option>
+
+                  <option value="ปีที่ 1 ภาคการศึกษาที่ 1">ปี 1 เทอม 1</option>
+                  <option value="ปีที่ 1 ภาคการศึกษาที่ 2">ปี 1 เทอม 2</option>
+
+                  <option value="ปีที่ 2 ภาคการศึกษาที่ 1">ปี 2 เทอม 1</option>
+                  <option value="ปีที่ 2 ภาคการศึกษาที่ 2">ปี 2 เทอม 2</option>
+
+                  <option value="ปีที่ 3 ภาคการศึกษาที่ 1">ปี 3 เทอม 1</option>
+                  <option value="ปีที่ 3 ภาคการศึกษาที่ 2">ปี 3 เทอม 2</option>
+
+                  <option value="ปีที่ 4 ภาคการศึกษาที่ 1">ปี 4 เทอม 1</option>
+                  <option value="ปีที่ 4 ภาคการศึกษาที่ 2">ปี 4 เทอม 2</option>
                 </select>
               </div>
 
+              {/* plan */}
               <div className="mb-3">
                 <label>แผนการศึกษา</label>
                 <select
-                  name="plan_type_id"
-                  value={formData.plan_type_id}
+                  name="plan_type"
+                  value={formData.plan_type}
                   onChange={handleChange}
                   className="form-control"
                   required
                 >
-                  <option value="">-- เลือก --</option>
-                  <option value="1">โครงงานวิจัย</option>
-                  <option value="2">สหกิจศึกษา</option>
+                  <option value="">-- เลือกแผนการศึกษา --</option>
+                  <option value="โครงงานวิจัย">โครงงานวิจัย</option>
+                  <option value="สหกิจศึกษา">สหกิจศึกษา</option>
                 </select>
               </div>
 
+              {/* other */}
               <div className="mb-3">
                 <label>วิชาบังคับ</label>
                 <input
+                  type="text"
                   name="compulsory_subject"
                   value={formData.compulsory_subject}
                   onChange={handleChange}
@@ -269,6 +275,7 @@ const SubjectEdit = () => {
               <div className="mb-3">
                 <label>เงื่อนไข</label>
                 <input
+                  type="text"
                   name="condition"
                   value={formData.condition}
                   onChange={handleChange}
@@ -277,45 +284,44 @@ const SubjectEdit = () => {
               </div>
 
               <div className="mb-3">
-                <label>คำอธิบาย (ไทย)</label>
+                <label>คำอธิบายรายวิชา (TH)</label>
                 <textarea
                   name="description_thai"
                   value={formData.description_thai}
                   onChange={handleChange}
                   className="form-control"
+                  rows={3}
                 />
               </div>
 
               <div className="mb-3">
-                <label>คำอธิบาย (อังกฤษ)</label>
+                <label>Course Description (EN)</label>
                 <textarea
                   name="description_eng"
                   value={formData.description_eng}
                   onChange={handleChange}
                   className="form-control"
+                  rows={3}
                 />
               </div>
 
               <div className="mb-3">
-                <label>CLO</label>
+                <label>CLOs</label>
                 <textarea
                   name="clo"
                   value={formData.clo}
                   onChange={handleChange}
                   className="form-control"
+                  rows={5}
                 />
               </div>
 
-              <div className="d-flex justify-content-between mt-4">
-                <button
-                  type="button"
-                  className="btn btn-secondary px-4"
-                  onClick={() => navigate("/admin/subject")}
-                >
-                  ยกเลิก
-                </button>
-                <button className="btn btn-success me-2">บันทึก</button>
-              </div>
+              {error && <div className="alert alert-danger">{error}</div>}
+              {success && <div className="alert alert-success">{success}</div>}
+
+              <button type="submit" className="btn btn-success">
+                บันทึกการแก้ไข
+              </button>
             </form>
           </div>
         </div>

@@ -31,7 +31,7 @@ function NewsAdmin() {
       <div className="container-fluid">
 
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3 className="news-title mb-0">ข่าวสารทั้งหมด</h3>
+          <h3 >ข่าวสารทั้งหมด</h3>
 
           <Link to="/admin/addnews" className="btn-addnews">
             + เพิ่มข่าวสาร

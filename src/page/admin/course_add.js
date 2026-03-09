@@ -10,6 +10,7 @@ const AddCourse = () => {
   const [structure, setStructure] = useState("");
   const [roadmapFile, setRoadmapFile] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     course_id: "",
@@ -33,10 +34,8 @@ const AddCourse = () => {
   });
 
   const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    if (name === "roadmap") {
-      setRoadmapFile(files[0]);
-    }
+    const { files } = e.target;
+    setRoadmapFile(files[0]);
   };
 
   const handleChange = (e) => {
@@ -61,6 +60,8 @@ const AddCourse = () => {
     };
 
     try {
+      setLoading(true);
+
       const courseRes = await api.post("/admin/course", payload);
       const courseId = courseRes.data.course_id;
 
@@ -78,119 +79,278 @@ const AddCourse = () => {
         await api.post("/admin/roadmap", form);
       }
 
+      alert("บันทึกข้อมูลหลักสูตรสำเร็จ");
       navigate("/admin/course");
     } catch (err) {
       console.error(err.response?.data || err);
       alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <AdminLayout>
       <div className="container-fluid">
-
         <h3 className="mb-4">เพิ่มหลักสูตร</h3>
 
-        <form onSubmit={handleSubmit}>
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              {/* Status */}
+              <div className="mb-3">
+                <label className="form-label">สถานะ</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="form-control"
+                >
+                  <option value="แสดง">แสดง</option>
+                  <option value="ไม่แสดง">ไม่แสดง</option>
+                </select>
+              </div>
 
-          {/* Status */}
-          <div className="mb-3">
-            <label className="form-label">สถานะ</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="form-control"
-              required
-            >
-              <option value="แสดง">แสดง</option>
-              <option value="ไม่แสดง">ไม่แสดง</option>
-            </select>
+              {/* Course ID */}
+              <div className="mb-3">
+                <label className="form-label">รหัสหลักสูตร</label>
+                <input
+                  className="form-control"
+                  name="course_id"
+                  value={formData.course_id}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Degree */}
+              <div className="mb-3">
+                <label className="form-label">ระดับปริญญา</label>
+                <select
+                  className="form-control"
+                  name="degree"
+                  value={formData.degree}
+                  onChange={handleChange}
+                >
+                  <option value="">-- เลือกระดับปริญญา --</option>
+                  <option value="ปริญญาตรี">ปริญญาตรี</option>
+                  <option value="ปริญญาโท">ปริญญาโท</option>
+                  <option value="ปริญญาเอก">ปริญญาเอก</option>
+                </select>
+              </div>
+
+              {/* Year */}
+              <div className="mb-3">
+                <label className="form-label">หลักสูตรของปี</label>
+                <input
+                  className="form-control"
+                  name="year"
+                  type="number"
+                  min="1"
+                  value={formData.year}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Major */}
+              <div className="mb-3">
+                <label className="form-label">สาขา</label>
+                <input
+                  className="form-control"
+                  name="major"
+                  value={formData.major}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Course Name */}
+              <div className="mb-3">
+                <label className="form-label">ชื่อหลักสูตร (ไทย)</label>
+                <input
+                  className="form-control"
+                  name="thai_course"
+                  value={formData.thai_course}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">ชื่อหลักสูตร (อังกฤษ)</label>
+                <input
+                  className="form-control"
+                  name="eng_course"
+                  value={formData.eng_course}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Degree Name */}
+              <div className="mb-3">
+                <label className="form-label">ชื่อปริญญา (ไทย)</label>
+                <input
+                  className="form-control"
+                  name="thai_degree"
+                  value={formData.thai_degree}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">ชื่อปริญญา (อังกฤษ)</label>
+                <input
+                  className="form-control"
+                  name="eng_degree"
+                  value={formData.eng_degree}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Admission */}
+              <div className="mb-3">
+                <label className="form-label">เกณฑ์การเข้าศึกษา</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  name="admission_req"
+                  value={formData.admission_req}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Graduation */}
+              <div className="mb-3">
+                <label className="form-label">เกณฑ์สำเร็จการศึกษา</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  name="graduation_req"
+                  value={formData.graduation_req}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Philosophy */}
+              <div className="mb-3">
+                <label className="form-label">ปรัชญาของหลักสูตร</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="philosophy"
+                  value={formData.philosophy}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Objective */}
+              <div className="mb-3">
+                <label className="form-label">วัตถุประสงค์ของหลักสูตร</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="objective"
+                  value={formData.objective}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* PLO */}
+              <div className="mb-3">
+                <label className="form-label">PLOs</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="plo"
+                  value={formData.plo}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Career */}
+              <div className="mb-3">
+                <label className="form-label">อาชีพที่ประกอบได้</label>
+                <textarea
+                  className="form-control"
+                  rows="4"
+                  name="career_paths"
+                  value={formData.career_paths}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Tuition */}
+              <div className="mb-3">
+                <label className="form-label">ค่าใช้จ่าย</label>
+                <input
+                  className="form-control"
+                  name="tuition"
+                  value={formData.tuition}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Credits */}
+              <div className="mb-3">
+                <label className="form-label">หน่วยกิต</label>
+                <input
+                  className="form-control"
+                  name="credits"
+                  value={formData.credits}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Detail URL */}
+              <div className="mb-3">
+                <label className="form-label">รายละเอียดเพิ่มเติม</label>
+                <input
+                  className="form-control"
+                  name="detail_url"
+                  value={formData.detail_url}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Structure CKEditor */}
+              <div className="mb-4">
+                <label className="form-label">โครงสร้างหลักสูตร</label>
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={structure}
+                  onChange={(event, editor) => setStructure(editor.getData())}
+                />
+              </div>
+
+              {/* Roadmap */}
+              <div className="mb-4">
+                <label className="form-label">แผนการศึกษา</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  name="roadmap"
+                  onChange={handleFileChange}
+                />
+              </div>
+
+              <div className="d-flex justify-content-center gap-2 mt-2">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => navigate("/admin/course")}
+                >
+                  ยกเลิก
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn btn-success"
+                  disabled={loading}
+                >
+                  {loading ? "กำลังบันทึก..." : "บันทึก"}
+                </button>
+              </div>
+            </form>
           </div>
-
-          {/* Course ID */}
-          <div className="mb-3">
-            <label className="form-label">รหัสหลักสูตร</label>
-            <input
-              className="form-control"
-              name="course_id"
-              value={formData.course_id}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Degree */}
-          <div className="mb-3">
-            <label className="form-label">ระดับปริญญา</label>
-            <select
-              className="form-control"
-              name="degree"
-              value={formData.degree}
-              onChange={handleChange}
-            >
-              <option value="">-- เลือกระดับปริญญา --</option>
-              <option value="ปริญญาตรี">ปริญญาตรี</option>
-              <option value="ปริญญาโท">ปริญญาโท</option>
-              <option value="ปริญญาเอก">ปริญญาเอก</option>
-            </select>
-          </div>
-
-          {/* Year */}
-          <div className="mb-3">
-            <label className="form-label">หลักสูตรของปี</label>
-            <input
-              className="form-control"
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              type="number"
-              min="1"
-              required
-            />
-          </div>
-
-          {/* Major */}
-          <div className="mb-3">
-            <label className="form-label">สาขา</label>
-            <input
-              className="form-control"
-              name="major"
-              value={formData.major}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* CKEditor Structure */}
-          <div className="mb-4">
-            <label className="form-label">โครงสร้างหลักสูตร</label>
-            <CKEditor
-              editor={ClassicEditor}
-              data={structure}
-              onChange={(event, editor) =>
-                setStructure(editor.getData())
-              }
-            />
-          </div>
-
-          {/* Roadmap */}
-          <div className="mb-4">
-            <label className="form-label">แผนการศึกษา</label>
-            <input
-              type="file"
-              className="form-control"
-              name="roadmap"
-              onChange={handleFileChange}
-            />
-          </div>
-
-          <button type="submit" className="btn btn-primary">
-            บันทึกข้อมูลหลักสูตร
-          </button>
-
-        </form>
-
+        </div>
       </div>
     </AdminLayout>
   );

@@ -27,35 +27,55 @@ const Course_detail = () => {
       setError(null);
       try {
         // ดึงข้อมูลหลักสูตร
-        const courseRes = await axios.get("http://localhost:8080/api/v1/course");
+        const courseRes = await axios.get(
+          "http://localhost:8080/api/v1/course",
+        );
         const courses = Array.isArray(courseRes.data) ? courseRes.data : [];
         const foundCourse = courses.find((c) => c.course_id === course_id);
         setCourse(foundCourse || null);
 
         // ดึงข้อมูลโครงสร้างหลักสูตร
-        const structureRes = await axios.get("http://localhost:8080/api/v1/structure");
-        const structures = Array.isArray(structureRes.data) ? structureRes.data : [];
-        const foundStructure = structures.find((s) => s.course_id === course_id);
+        const structureRes = await axios.get(
+          "http://localhost:8080/api/v1/structure",
+        );
+        const structures = Array.isArray(structureRes.data)
+          ? structureRes.data
+          : [];
+        const foundStructure = structures.find(
+          (s) => s.course_id === course_id,
+        );
         if (foundStructure && foundStructure.detail) {
-          const parsedStructure = foundStructure.detail.split("\n").map((line) => {
-            const [no, name, plan, credit, level] = line.split("|");
-            return { no, name, plan, credit, level: Number(level) };
-          });
+          const parsedStructure = foundStructure.detail
+            .split("\n")
+            .map((line) => {
+              const [no, name, plan, credit, level] = line.split("|");
+              return { no, name, plan, credit, level: Number(level) };
+            });
           setStructure(parsedStructure);
         } else {
           setStructure([]);
         }
 
         // ดึงข้อมูล roadmap
-        const roadmapRes = await axios.get("http://localhost:8080/api/v1/roadmap");
+        const roadmapRes = await axios.get(
+          "http://localhost:8080/api/v1/roadmap",
+        );
         const roadmaps = Array.isArray(roadmapRes.data) ? roadmapRes.data : [];
-        const foundRoadmap = roadmaps.find((r) => r.course_id === course_id);
+        const foundRoadmap = roadmaps.find(
+          (r) => r.course_id.trim() === course_id.trim(),
+        );
         setRoadmap(foundRoadmap || null);
 
         // ดึงข้อมูลรายวิชา
-        const subjectsRes = await axios.get("http://localhost:8080/api/v1/subject");
-        const subjectsData = Array.isArray(subjectsRes.data) ? subjectsRes.data : [];
-        const filteredSubjects = subjectsData.filter((subj) => subj.course_id === course_id);
+        const subjectsRes = await axios.get(
+          "http://localhost:8080/api/v1/subject",
+        );
+        const subjectsData = Array.isArray(subjectsRes.data)
+          ? subjectsRes.data
+          : [];
+        const filteredSubjects = subjectsData.filter(
+          (subj) => subj.course_id === course_id,
+        );
         setSubjects(filteredSubjects);
 
         setLoading(false);
@@ -69,18 +89,28 @@ const Course_detail = () => {
     fetchData();
   }, [course_id]);
 
-  // จัดกลุ่มรายวิชาตามปี-เทอม-แผน
   const groupSubjectsByYearSemesterAndPlan = (subjects) => {
     const grouped = {};
+
     subjects.forEach((subj) => {
-      const year = subj.study_year || "ปีไม่ระบุ";
-      const semester = subj.semester || "เทอมไม่ระบุ";
+      const semesterText = subj.semester || "";
+
+      const yearMatch = semesterText.match(/ปีที่\s*(\d+)/);
+      const semesterMatch = semesterText.match(/ภาคการศึกษาที่\s*(\d+)/);
+
+      const year = yearMatch ? `ปีที่ ${yearMatch[1]}` : "ปีไม่ระบุ";
+      const semester = semesterMatch
+        ? `เทอม ${semesterMatch[1]}`
+        : "เทอมไม่ระบุ";
       const plan = subj.plan_type || "ทั่วไป";
+
       if (!grouped[year]) grouped[year] = {};
       if (!grouped[year][semester]) grouped[year][semester] = {};
       if (!grouped[year][semester][plan]) grouped[year][semester][plan] = [];
+
       grouped[year][semester][plan].push(subj);
     });
+
     return grouped;
   };
 
@@ -88,8 +118,16 @@ const Course_detail = () => {
 
   const tabs = [
     { key: "overview", label: "ภาพรวมหลักสูตร", show: course !== null },
-    { key: "structure", label: "โครงสร้างหลักสูตร", show: structure.length > 0 },
-    { key: "roadmap", label: "แผนผังหลักสูตร", show: roadmap && roadmap.roadmap_url },
+    {
+      key: "structure",
+      label: "โครงสร้างหลักสูตร",
+      show: structure.length > 0,
+    },
+    {
+      key: "roadmap",
+      label: "แผนผังหลักสูตร",
+      show: roadmap && roadmap.roadmap_url,
+    },
     { key: "subjects", label: "รายวิชา", show: subjects.length > 0 },
   ].filter((tab) => tab.show);
 
@@ -136,7 +174,9 @@ const Course_detail = () => {
         ]}
       />
       <div className="container my-5">
-        <h2>{course.thai_course} ({course.year})</h2>
+        <h2>
+          {course.thai_course} ({course.year})
+        </h2>
         <h4>{course.eng_course}</h4>
         <h5>{course.degree}</h5>
 
@@ -157,126 +197,139 @@ const Course_detail = () => {
         <div className="tab-content mt-3">
           {/* Overview */}
           {activeTab === "overview" && (
-            <div>
-              <div className="mb-3">
-                <h4>ชื่อหลักสูตร</h4>
-                <div style={{ display: "flex" }}>
-                  <h5 style={{ width: "150px" }}>ภาษาไทย</h5>
-                  <p>{course.thai_course}</p>
-                </div>
-                <div style={{ display: "flex" }}>
-                  <h5 style={{ width: "150px" }}>ภาษาอังกฤษ</h5>
-                  <p>{course.eng_course}</p>
-                </div>
-              </div>
+            <div className="card shadow-sm">
+              <div className="card-body">
+                <h4 className="mb-4">ข้อมูลหลักสูตร</h4>
 
-              <hr />
-              <div className="mb-3">
-                <h4>ชื่อปริญญา</h4>
-                <div style={{ display: "flex" }}>
-                  <h5 style={{ width: "150px" }}>ภาษาไทย</h5>
-                  <p>{course.thai_degree}</p>
+                <div className="row mb-3">
+                  <div className="col-md-3 fw-bold">ชื่อหลักสูตร (ไทย)</div>
+                  <div className="col-md-9">{course.thai_course}</div>
                 </div>
-                <div style={{ display: "flex" }}>
-                  <h5 style={{ width: "150px" }}>ภาษาอังกฤษ</h5>
-                  <p>{course.eng_degree}</p>
-                </div>
-              </div>
 
-              <hr />
-              <div className="mb-3">
-                <h4>เกณฑ์การเข้าศึกษาและเกณฑ์การสำเร็จการศึกษา</h4>
-                <div>
-                  <h5>เกณฑ์การเข้าศึกษา</h5>
-                  <p>{course.admission_req}</p>
+                <div className="row mb-3">
+                  <div className="col-md-3 fw-bold">ชื่อหลักสูตร (อังกฤษ)</div>
+                  <div className="col-md-9">{course.eng_course}</div>
                 </div>
-                <div>
-                  <h5>เกณฑ์การสำเร็จการศึกษา</h5>
-                  <p>{course.graduation_req}</p>
-                </div>
-              </div>
 
-              <hr />
-              <div className="mb-3">
+                <hr />
+
+                <h5 className="mb-3">ชื่อปริญญา</h5>
+
+                <div className="row mb-3">
+                  <div className="col-md-3 fw-bold">ภาษาไทย</div>
+                  <div className="col-md-9">{course.thai_degree}</div>
+                </div>
+
+                <div className="row mb-3">
+                  <div className="col-md-3 fw-bold">ภาษาอังกฤษ</div>
+                  <div className="col-md-9">{course.eng_degree}</div>
+                </div>
+
+                <hr />
+
+                <h5>เกณฑ์การเข้าศึกษา</h5>
+                <p className="ms-5 mt-3">{course.admission_req}</p>
+
+                <h5>เกณฑ์การสำเร็จการศึกษา</h5>
+                <p className="ms-5 mt-3">{course.graduation_req}</p>
+
+                <hr />
+
                 <h5>ปรัชญาของหลักสูตร</h5>
-                <p>{course.philosophy}</p>
-              </div>
-              <hr />
-              <div className="mb-3">
-                <h5>วัตถุประสงค์</h5>
-                <p>{course.objective}</p>
-              </div>
-              <hr />
-              <div className="mb-3">
-                <h5>ค่าใช้จ่าย</h5>
-                <p>{course.tuition}</p>
-              </div>
-              <hr />
-              <div className="mb-3">
-                <h5>หน่วยกิต</h5>
-                <p>{course.credits}</p>
-              </div>
-              <hr />
-              <div className="mb-3">
-                <h5>อาชีพที่สามารถประกอบได้หลังสำเร็จการศึกษา</h5>
-                {course.career_paths?.split("\n").map((item, index) => (
-                  <p key={index}>{item}</p>
-                ))}
-              </div>
-              <hr />
-              <div className="mb-3">
-                <h5>รายละเอียดผลการเรียนรู้ที่คาดหวังของหลักสูตร (PLOs)</h5>
-                {course.plo?.split("\n").map((item, index) => (
-                  <p key={index}>{item}</p>
-                ))}
-              </div>
-              <hr />
-              <div className="mb-3">
+                <p className="ms-5 mt-3">{course.philosophy}</p>
+
+                <hr />
+
+                <h5>วัตถุประสงค์ของหลักสูตร</h5>
+                <p className="ms-5 mt-3">{course.objective}</p>
+
+                <hr />
+
+                <div className="row">
+                  <div className="col-md-6">
+                    <h6 className="fw-bold">ค่าใช้จ่าย</h6>
+                    <p className="text-center mt-2">{course.tuition}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <h6 className="fw-bold">หน่วยกิต</h6>
+                    <p className="text-center mt-2">{course.credits}</p>
+                  </div>
+                </div>
+
+                <hr />
+
+                <h5>อาชีพหลังสำเร็จการศึกษา</h5>
+                <ul className="list-unstyled ms-3 mt-4">
+                  {course.career_paths?.split("\n").map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+
+                <hr />
+
+                <h5>PLOs</h5>
+                <ul className="list-unstyled ms-3">
+                  {course.plo?.split("\n").map((item, index) => (
+                    <li key={index} className="mb-2">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+
+                <hr />
+
                 <h5>รายละเอียดเพิ่มเติม</h5>
                 {course.detail_url && (
-                  <a href={course.detail_url} target="_blank" rel="noopener noreferrer">
-                    {course.detail_url}
+                  <a
+                    href={course.detail_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=" btn btn-primary"
+                  >
+                    ดูรายละเอียด
                   </a>
                 )}
               </div>
             </div>
           )}
 
-          {/* Structure */}
           {activeTab === "structure" && structure.length > 0 && (
-            <div>
-              <h4>โครงสร้างหลักสูตร</h4>
-              <div style={{ fontSize: "18px", margin: "30px" }}>
+            <div className="card shadow-sm">
+              <div className="card-body">
+                <h4 className="mb-4">โครงสร้างหลักสูตร</h4>
+
                 {structure.map((row, index) => (
                   <div
                     key={index}
+                    className="d-flex justify-content-between mb-2"
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginLeft: `${(row.level - 1) * 35}px`,
-                      fontWeight: [1, 2].includes(row.level) ? "bold" : "normal",
-                      marginBottom: "4px",
+                      marginLeft: `${(row.level - 1) * 30}px`,
+                      fontWeight: [1, 2].includes(row.level)
+                        ? "bold"
+                        : "normal",
                     }}
                   >
-                    <div>{row.no} {row.name}</div>
-                    <div style={{ width: "150px", textAlign: "left", fontWeight: "bold" }}>
-                      {row.credit}
+                    <div>
+                      {row.no} {row.name}
                     </div>
+
+                    <div className="fw-bold">{row.credit}</div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Roadmap */}
           {activeTab === "roadmap" && roadmap && roadmap.roadmap_url && (
-            <div>
-              <h4>แผนผังหลักสูตร</h4>
-              <div className="my-3 text-center">
+            <div className="card shadow-sm">
+              <div className="card-body text-center">
+                <h4 className="mb-4">แผนผังหลักสูตร</h4>
+
                 <img
                   src={roadmap.roadmap_url}
-                  alt="แผนผังหลักสูตร"
-                  className="img-fluid border rounded"
+                  alt="roadmap"
+                  className="img-fluid rounded border"
                 />
               </div>
             </div>
@@ -285,33 +338,44 @@ const Course_detail = () => {
           {/* Subjects */}
           {activeTab === "subjects" && subjects.length > 0 && (
             <div>
-              <h4>รายวิชาในหลักสูตร</h4>
+              <h4 className="mb-4">รายวิชาในหลักสูตร</h4>
+
               {Object.entries(groupedSubjects).map(([year, semesters]) => (
-                <div key={year} style={{ marginBottom: "2rem" }}>
-                  <h5>{year}</h5>
+                <div key={year} className="mb-5">
+                  <h5 className="text-primary">{year}</h5>
+
                   {Object.entries(semesters).map(([semester, plans]) => (
-                    <div key={semester} style={{ marginBottom: "1rem" }}>
-                      <h6>{semester}</h6>
+                    <div key={semester} className="mb-3">
+                      <h6 className="fw-bold">{semester}</h6>
+
                       {Object.entries(plans).map(([plan, subs]) => (
-                        <div key={plan} style={{ marginBottom: "1rem" }}>
-                          <h6 style={{ fontWeight: "bold" }}>{plan}</h6>
-                          <table className="table table-striped">
-                            <thead>
+                        <div key={plan} className="mb-4">
+                          <h6 className="text-secondary">{plan}</h6>
+
+                          <table className="table table-bordered table-hover">
+                            <thead className="table-light">
                               <tr>
-                                <th>รหัสรายวิชา</th>
+                                <th style={{ width: "150px" }}>รหัสวิชา</th>
                                 <th>ชื่อวิชา</th>
-                                <th>หน่วยกิต</th>
+                                <th style={{ width: "100px" }}>หน่วยกิต</th>
                               </tr>
                             </thead>
+
                             <tbody>
                               {subs.map((subj) => (
                                 <tr key={subj.subject_id}>
                                   <td>
-                                    {["SUxxx", "SUXXX", "------"].includes(subj.subject_id)
-                                      ? subj.subject_id
-                                      : <Link to={`/subject/${subj.id}`}>{subj.subject_id}</Link>
-                                    }
+                                    {["SUxxx", "SUXXX", "------"].includes(
+                                      subj.subject_id,
+                                    ) ? (
+                                      subj.subject_id
+                                    ) : (
+                                      <Link to={`/subject/${subj.id}`}>
+                                        {subj.subject_id}
+                                      </Link>
+                                    )}
                                   </td>
+
                                   <td>{subj.thai_subject}</td>
                                   <td>{subj.credits}</td>
                                 </tr>

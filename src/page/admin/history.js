@@ -129,7 +129,9 @@ function History() {
                                 : h.action === "delete"
                                 ? "bg-danger"
                                 : h.action === "update" 
-                                ? "bg-warning"
+                                ? "bg-warning" 
+                                : h.action === "assign_role" 
+                                ? "btn-info"
                                 : "bg-primary"
                             }`}
                           >

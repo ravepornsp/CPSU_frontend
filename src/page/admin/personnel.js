@@ -41,32 +41,12 @@ function PersonnelAdmin() {
     }
   };
 
-  // ================= Manual Sync =================
-  const fetchScopus = async () => {
-    if (!window.confirm("ต้องการอัปเดตข้อมูลจาก Scopus ใช่หรือไม่?")) return;
-
-    setLoadingSync(true);
-    try {
-      await api.get("/admin/personnel/scopus");
-
-      alert("อัปเดตข้อมูลจาก Scopus สำเร็จ");
-
-      // reload data หลัง sync
-      await fetchPersonnel();
-      await fetchLastSync();
-    } catch (err) {
-      console.error(err);
-      alert("อัปเดต Scopus ไม่สำเร็จ");
-    } finally {
-      setLoadingSync(false);
-    }
-  };
 
   return (
     <AdminLayout>
       <div className="container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3 id="personnel-title" className="mb-0">
+          <h3 >
             บุคลากรทั้งหมด
           </h3>
 
@@ -77,14 +57,6 @@ function PersonnelAdmin() {
                 ? new Date(lastSyncDate).toLocaleDateString("th-TH")
                 : "ยังไม่มีข้อมูล"}
             </p>
-
-            <button
-              className="btn btn-outline-secondary btn-sm"
-              onClick={fetchScopus}
-              disabled={loadingSync}
-            >
-              {loadingSync ? "กำลัง Sync..." : "Sync Scopus"}
-            </button>
 
             <Link to="/admin/addpersonnel" className="btn-addcourse">
               + เพิ่มบุคลากร

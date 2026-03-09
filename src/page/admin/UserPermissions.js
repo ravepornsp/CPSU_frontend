@@ -48,7 +48,7 @@ function UserPermissions() {
 
     try {
       await api.post("/admin/user", newUser);
-      
+
       window.location.reload();
       alert("เพิ่มผู้ใช้สำเร็จ");
 
@@ -118,7 +118,7 @@ function UserPermissions() {
     <AdminLayout>
       <div className="container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="mb-0">กำหนดสิทธิ์ผู้ใช้</h4>
+          <h3 >กำหนดสิทธิ์ผู้ใช้</h3>
           <button
             className="btn-addcourse"
             data-bs-toggle="modal"
@@ -148,14 +148,16 @@ function UserPermissions() {
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u.id} className="align-middle">
+                  <tr key={u.user_id} className="align-middle">
                     <td>{u.username}</td>
                     <td>{u.email}</td>
                     <td>{u.name || "- ยังไม่กำหนดสิทธิ์ -"}</td>
                     <td>
                       <button
                         className="btn btn-secondary"
-                        onClick={() => openAssignRoleModal(u.user_id, u.name)}
+                        onClick={() =>
+                          openAssignRoleModal(u.user_id, u.role_id)
+                        }
                       >
                         <i className="fas fa-user-pen"></i>
                       </button>
