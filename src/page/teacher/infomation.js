@@ -9,11 +9,8 @@ const TeacherInformation = () => {
   const navigate = useNavigate();
 
   const [person, setPerson] = useState(null);
-  const [researches, setResearches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [researchLoading, setResearchLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const [user] = useState(() => {
     const u = localStorage.getItem("user");
@@ -28,13 +25,28 @@ const TeacherInformation = () => {
   }, [navigate, user]);
 
   useEffect(() => {
-    if (!user?.user_id) return;
+    if (!user?.email) return;
 
     const fetchPerson = async () => {
       try {
-        const res = await api.get(`/personnel/${user.user_id}`);
-        setPerson(res.data.personnel);
+        const res = await api.get("/personnel");
+
+        const teacher = res.data.find((p) =>
+          p.email
+            ?.split("\n")
+            .some((e) => e.trim().toLowerCase() === user.email.toLowerCase()),
+        );
+
+        // console.log("teacher:", teacher);
+
+        if (!teacher) {
+          setError(true);
+          return;
+        }
+
+        setPerson(teacher);
       } catch (err) {
+        console.error(err);
         setError(true);
       } finally {
         setLoading(false);
@@ -42,19 +54,12 @@ const TeacherInformation = () => {
     };
 
     fetchPerson();
-  }, [user?.user_id]);
+  }, [user]);
 
   const handleEdit = () => {
     navigate("/teacher/informationedit", {
-      state: { userId: user.user_id },
+      state: { personnelId: person.personnel_id },
     });
-  };
-
-  const handleCopyEmail = () => {
-    if (!person?.email) return;
-    navigator.clipboard.writeText(person.email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   /* loading */

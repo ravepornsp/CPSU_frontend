@@ -9,7 +9,7 @@ const EditTeacherInformation = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const id = location.state?.userId;
+  const id = location.state?.personnelId;
 
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
