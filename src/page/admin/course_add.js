@@ -7,7 +7,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import AdminLayout from "../../layout/AdminLayout";
 
 const AddCourse = () => {
-  const [structure, setStructure] = useState("");
+  const [structureFile, setStructureFile] = useState(null);
   const [roadmapFile, setRoadmapFile] = useState(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -59,34 +59,70 @@ const AddCourse = () => {
       year: Number(formData.year),
     };
 
+    let courseId = null;
+
     try {
       setLoading(true);
 
+      // 1️⃣ สร้าง course
       const courseRes = await api.post("/admin/course", payload);
-      const courseId = courseRes.data.course_id;
+      courseId = courseRes.data.course_id;
 
-      if (structure) {
-        await api.post("/admin/structure", {
-          course_id: courseId,
-          detail: structure,
-        });
+      // 2️⃣ upload structure
+      if (structureFile) {
+        const form = new FormData();
+        form.append("course_id", courseId);
+        form.append("detail", structureFile);
+
+        await api.post("/admin/structure", form);
       }
 
+      // 3️⃣ upload roadmap
       if (roadmapFile) {
         const form = new FormData();
         form.append("course_id", courseId);
         form.append("roadmap_url", roadmapFile);
+
         await api.post("/admin/roadmap", form);
       }
 
       alert("บันทึกข้อมูลหลักสูตรสำเร็จ");
       navigate("/admin/course");
     } catch (err) {
-      console.error(err.response?.data || err);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      console.error(err);
+
+      // ⭐ rollback ลบ course ถ้ามี error
+      if (courseId) {
+        try {
+          await api.delete(`/admin/course/${courseId}`);
+        } catch (deleteErr) {
+          console.error("Rollback failed:", deleteErr);
+        }
+      }
+
+      alert("เกิดข้อผิดพลาด ระบบได้ยกเลิกการบันทึกแล้ว");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleStructureFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("กรุณาอัปโหลดไฟล์ Excel (.xlsx หรือ .xls)");
+      e.target.value = "";
+      return;
+    }
+
+    setStructureFile(file);
   };
 
   return (
@@ -310,14 +346,29 @@ const AddCourse = () => {
                 />
               </div>
 
-              {/* Structure CKEditor */}
+              {/* Structure */}
               <div className="mb-4">
-                <label className="form-label">โครงสร้างหลักสูตร</label>
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={structure}
-                  onChange={(event, editor) => setStructure(editor.getData())}
+                <label className="form-label">โครงสร้างหลักสูตร (Excel)</label>
+
+                <input
+                  type="file"
+                  className="form-control"
+                  accept=".xlsx,.xls"
+                  onChange={handleStructureFileChange}
                 />
+                {structureFile && (
+                  <p className="text-success text-start mt-2">
+                    ไฟล์ที่เลือก : {structureFile.name}
+                  </p>
+                )}
+
+                <a
+                  href="/structure_template.xlsx"
+                  download
+                  className="form-label ms-1"
+                >
+                  <p className="text-start">ดาวน์โหลด Template Excel</p>
+                </a>
               </div>
 
               {/* Roadmap */}

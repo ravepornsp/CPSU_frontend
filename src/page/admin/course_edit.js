@@ -14,6 +14,7 @@ const EditCourse = () => {
 
   const [structure, setStructure] = useState("");
   const [structureId, setStructureId] = useState(null);
+  const [structureFile, setStructureFile] = useState(null);
 
   const [roadmap, setRoadmap] = useState([]);
   const [roadmapFile, setRoadmapFile] = useState(null);
@@ -61,7 +62,7 @@ const EditCourse = () => {
 
         if (Array.isArray(structureRes.data) && structureRes.data.length > 0) {
           setStructure(structureRes.data[0].detail);
-          setStructureId(structureRes.data[0].structure_id);
+          setStructureId(structureRes.data[0].course_structure_id);
         }
 
         setRoadmap(Array.isArray(roadmapRes.data) ? roadmapRes.data : []);
@@ -97,17 +98,16 @@ const EditCourse = () => {
         year: Number(formData.year),
       });
 
-      if (structure) {
+      if (structureFile) {
+        const form = new FormData();
+
+        form.append("course_id", id);
+        form.append("detail", structureFile);
+
         if (structureId) {
-          await api.put(`/admin/structure/${structureId}`, {
-            course_id: id,
-            detail: structure,
-          });
+          await api.put(`/admin/structure/${structureId}`, form);
         } else {
-          await api.post(`/admin/structure`, {
-            course_id: id,
-            detail: structure,
-          });
+          await api.post("/admin/structure", form);
         }
       }
 
@@ -129,6 +129,25 @@ const EditCourse = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleStructureFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("กรุณาอัปโหลดไฟล์ Excel (.xlsx หรือ .xls)");
+      e.target.value = "";
+      return;
+    }
+
+    setStructureFile(file);
   };
 
   return (
@@ -158,7 +177,7 @@ const EditCourse = () => {
                   className="form-control"
                   name="course_id"
                   value={formData.course_id}
-                  onChange={handleChange}
+                  disabled
                 />
               </div>
 
@@ -331,13 +350,34 @@ const EditCourse = () => {
               <div className="mb-4">
                 <label>โครงสร้างหลักสูตร</label>
 
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={structure}
-                  onChange={(event, editor) => {
-                    setStructure(editor.getData());
-                  }}
-                />
+                {/* Structure */}
+                {/* Structure */}
+                <div className="mb-4">
+                  <label className="form-label">
+                    โครงสร้างหลักสูตร (Excel)
+                  </label>
+
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept=".xlsx,.xls"
+                    onChange={handleStructureFileChange}
+                  />
+
+                  {structureFile && (
+                    <p className="text-success text-start mt-2">
+                      ไฟล์ที่เลือก : {structureFile.name}
+                    </p>
+                  )}
+
+                  <a
+                    href="/structure_template.xlsx"
+                    download
+                    className="form-label ms-1"
+                  >
+                    <p className="text-start">ดาวน์โหลด Template Excel</p>
+                  </a>
+                </div>
               </div>
               <hr></hr>
               <div className="mb-4">

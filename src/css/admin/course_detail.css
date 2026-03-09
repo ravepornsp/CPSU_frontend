@@ -74,3 +74,81 @@
   box-shadow: 0 6px 15px rgba(220, 53, 69, 0.35);
   background: linear-gradient(135deg, #c82333, #bd2130);
 }
+
+.structure-tree {
+  list-style: none;
+  padding-left: 20px;
+}
+
+.structure-tree li {
+  position: relative;
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+/* เส้นแนวตั้ง */
+.structure-tree li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-left: 2px solid #ccc;
+  height: 100%;
+}
+
+/* เส้นแนวนอน */
+.structure-tree li::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 15px;
+  border-top: 2px solid #ccc;
+}
+
+/* ตัดเส้นท้าย */
+.structure-tree li:last-child::before {
+  height: 12px;
+}
+
+.tree {
+  padding-left: 10px;
+}
+
+.tree ul {
+  list-style: none;
+  padding-left: 20px;
+  position: relative;
+}
+
+.tree ul::before {
+  content: "";
+  border-left: 2px solid #ccc;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.tree li {
+  margin: 6px 0;
+  padding-left: 12px;
+  position: relative;
+}
+
+.tree li::before {
+  content: "";
+  border-top: 2px solid #ccc;
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 12px;
+}
+
+.node {
+  display: flex;
+  justify-content: space-between;
+  background: #fafafa;
+  padding: 6px 10px;
+  border-radius: 6px;
+}

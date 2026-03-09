@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "../../api/axios";
 import AdminLayout from "../../layout/AdminLayout";
 
@@ -8,6 +8,7 @@ const Research = () => {
   const [loadingSync, setLoadingSync] = useState(false);
   const [search, setSearch] = useState("");
   const [lastSync, setLastSync] = useState(null);
+  const hasShownError = useRef(false);
 
   useEffect(() => {
     fetchResearch();
@@ -16,7 +17,7 @@ const Research = () => {
   const fetchResearch = async () => {
     try {
       const res = await api.get("/admin/personnel/research");
-      setResearch(res.data);
+      setResearch(res.data || []);
 
       if (res.data.length > 0) {
         const latest = [...res.data].sort(
@@ -27,7 +28,11 @@ const Research = () => {
       }
     } catch (err) {
       console.error(err);
-      alert("โหลดข้อมูลงานวิจัยไม่สำเร็จ");
+
+      if (!hasShownError.current) {
+        alert("โหลดข้อมูลงานวิจัยไม่สำเร็จ");
+        hasShownError.current = true;
+      }
     } finally {
       setLoading(false);
     }

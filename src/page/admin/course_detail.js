@@ -72,6 +72,112 @@ const DetailCourse = () => {
     (subj) => subj.course_id === courseDetail.course_id,
   );
 
+  console.log(filteredStructures[0].detail);
+  const parseCurriculum = (text) => {
+    if (!text) return [];
+
+    const lines = text.split("\n").filter((l) => l.trim() !== "");
+    lines.shift(); // remove header
+
+    const root = [];
+
+    lines.forEach((line) => {
+      const tokens = line.trim().split(/\s+/);
+
+      tokens.shift(); // remove program (IT)
+
+      // หา index ที่เป็นตัวเลข
+      const creditIndex = tokens.findIndex((t) => /^\d+$/.test(t));
+
+      if (creditIndex === -1) {
+        // กรณีไม่มี credit เช่น "วิชาบังคับ"
+        addNode(tokens.join(" "), "", root);
+        return;
+      }
+
+      const levelText = tokens.slice(0, creditIndex).join(" ");
+      const creditText = tokens.slice(creditIndex).join(" ");
+      // จะได้ "ไม่น้อยกว่า 133 หน่วยกิต"
+
+      addNode(levelText, creditText, root);
+    });
+
+    return root;
+  };
+
+  const addNode = (name, credit, root) => {
+    const parts = name.split(" ");
+
+    const level1 = parts[0];
+    const level2 = parts[1];
+    const level3 = parts[2];
+    const level4 = parts.slice(3).join(" ");
+
+    let l1 = root.find((x) => x.name === level1);
+    if (!l1) {
+      l1 = { name: level1, credit: "", children: [] };
+      root.push(l1);
+    }
+
+    if (!level2) {
+      l1.credit = credit;
+      return;
+    }
+
+    let l2 = l1.children.find((x) => x.name === level2);
+    if (!l2) {
+      l2 = { name: level2, credit: "", children: [] };
+      l1.children.push(l2);
+    }
+
+    if (!level3) {
+      l2.credit = credit;
+      return;
+    }
+
+    let l3 = l2.children.find((x) => x.name === level3);
+    if (!l3) {
+      l3 = { name: level3, credit: "", children: [] };
+      l2.children.push(l3);
+    }
+
+    if (!level4) {
+      l3.credit = credit;
+      return;
+    }
+
+    let l4 = l3.children.find((x) => x.name === level4);
+    if (!l4) {
+      l4 = { name: level4, credit: "", children: [] };
+      l3.children.push(l4);
+    }
+
+    l4.credit = credit;
+  };
+
+  const TreeNode = ({ node }) => {
+    return (
+      <li>
+        <div className="node">
+          <span>{node.name}</span>
+          {node.credit && <span>{node.credit}</span>}
+        </div>
+
+        {node.children && node.children.length > 0 && (
+          <ul>
+            {node.children.map((child, i) => (
+              <TreeNode key={i} node={child} />
+            ))}
+          </ul>
+        )}
+      </li>
+    );
+  };
+
+  const treeData =
+    filteredStructures.length > 0
+      ? parseCurriculum(filteredStructures[0].detail)
+      : [];
   return (
     <AdminLayout>
       <div className="container-fluid text-start">
@@ -172,15 +278,18 @@ const DetailCourse = () => {
 
             {/* Structure */}
             <h5>โครงสร้างหลักสูตร</h5>
-            {filteredStructures.map((st) => (
-              <img
-                key={st.course_structure_id}
-                src={st.course_structure_url}
-                alt="structure"
-                className="img-fluid mb-3 border"
-              />
-            ))}
 
+            {treeData.length === 0 ? (
+              <p>ไม่มีข้อมูลโครงสร้างหลักสูตร</p>
+            ) : (
+              <div className="tree">
+                <ul>
+                  {treeData.map((node, i) => (
+                    <TreeNode key={i} node={node} />
+                  ))}
+                </ul>
+              </div>
+            )}
             <hr />
 
             {/* Roadmap */}
