@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import api from "../../api/axios";
 import AdminLayout from "../../layout/AdminLayout";
+import "../../css/admin/research.css"
 
 const Research = () => {
   const [research, setResearch] = useState([]);
@@ -9,6 +10,9 @@ const Research = () => {
   const [search, setSearch] = useState("");
   const [lastSync, setLastSync] = useState(null);
   const hasShownError = useRef(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 40;
 
   useEffect(() => {
     fetchResearch();
@@ -21,7 +25,7 @@ const Research = () => {
 
       if (res.data.length > 0) {
         const latest = [...res.data].sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
         )[0];
 
         setLastSync(latest.created_at);
@@ -44,9 +48,7 @@ const Research = () => {
     setLoadingSync(true);
     try {
       await api.get("/admin/personnel/scopus");
-
       alert("อัปเดตข้อมูลจาก Scopus สำเร็จ");
-
       await fetchResearch();
     } catch (err) {
       console.error(err);
@@ -56,28 +58,61 @@ const Research = () => {
     }
   };
 
-  const filteredResearch = research.filter((r) =>
-    `${r.thai_name} ${r.title} ${r.author} ${r.year}`
+  const filteredResearch = research.filter((r) => {
+    const authorText = Array.isArray(r.author) ? r.author.join(" ") : r.author;
+
+    return `${r.thai_name} ${r.title} ${authorText} ${r.year}`
       .toLowerCase()
-      .includes(search.toLowerCase()),
+      .includes(search.toLowerCase());
+  });
+
+  const totalPages = Math.ceil(filteredResearch.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const currentData = filteredResearch.slice(
+    startIndex,
+    startIndex + itemsPerPage
   );
+
+  // pagination pages
+  const getPages = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    let start = Math.max(1, currentPage - 2);
+    let end = start + maxVisible - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
 
   return (
     <AdminLayout>
       <div className="container-fluid">
+
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h3>ผลงานวิจัย</h3>
-          </div>
+          <h3>ผลงานวิจัย</h3>
 
           <div className="d-flex align-items-center gap-3">
+
             <input
               type="text"
               className="form-control form-control-sm"
               placeholder="ค้นหางานวิจัย..."
               style={{ width: "250px" }}
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
             />
 
             <p className="text-muted small mb-0">
@@ -86,22 +121,24 @@ const Research = () => {
                 ? new Date(lastSync).toLocaleDateString("th-TH")
                 : "ยังไม่มีข้อมูล"}
             </p>
-            <div className="d-flex align-items-center gap-3">
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={fetchScopus}
-                disabled={loadingSync}
-              >
-                {loadingSync ? "กำลัง Sync..." : "Sync Scopus"}
-              </button>
-            </div>
+
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={fetchScopus}
+              disabled={loadingSync}
+            >
+              {loadingSync ? "กำลัง Sync..." : "Sync Scopus"}
+            </button>
+
           </div>
         </div>
 
         <div className="card shadow-sm">
           <div className="card-body">
+
             <div className="table-responsive">
               <table className="table table-bordered table-hover">
+
                 <thead className="table-light text-center">
                   <tr>
                     <th width="200">ชื่ออาจารย์</th>
@@ -125,20 +162,72 @@ const Research = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredResearch.map((r) => (
+                    currentData.map((r) => (
                       <tr key={r.id}>
                         <td>{r.thai_name}</td>
-                        <td className="text-start">{r.title}</td>
-                        <td>{r.author}</td>
-                        <td className="text-center">{r.year}</td>
+
+                        <td className="text-start">
+                          {r.title}
+                        </td>
+
+                        <td>
+                          {Array.isArray(r.author)
+                            ? r.author.map((a, i) => (
+                                <div key={i}>{a}</div>
+                              ))
+                            : r.author}
+                        </td>
+
+                        <td className="text-center">
+                          {r.year}
+                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
+
               </table>
             </div>
+
+            {/* pagination */}
+
+            <div className="d-flex justify-content-center mt-4">
+              <div className="pagination-modern">
+
+                <button
+                  className="page-btn"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  ◀
+                </button>
+
+                {getPages().map((page) => (
+                  <button
+                    key={page}
+                    className={`page-btn ${
+                      currentPage === page ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  className="page-btn"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  ▶
+                </button>
+
+              </div>
+            </div>
+
           </div>
         </div>
+
       </div>
     </AdminLayout>
   );

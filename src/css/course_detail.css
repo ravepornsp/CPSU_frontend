@@ -110,9 +110,8 @@
   display: flex;
   justify-content: space-between; /* space-evenly จะทำให้ช่องห่างเกินไป */
   text-align: left;
-  font-family: inherit;  /* ใช้ฟ้อนต์จาก root */
+  font-family: inherit; /* ใช้ฟ้อนต์จาก root */
 }
-
 
 /* #course-tab-content{
   width: 70%;
@@ -120,34 +119,34 @@
 } */
 
 .tab-content {
-  max-width: 900px;   /* กำหนดความกว้างไม่กว้างเกินไป */
-  margin: 0 auto;     /* จัดให้อยู่ตรงกลาง */
-  font-size: 0.9rem;  /* ลดขนาดตัวอักษร */
+  max-width: 900px; /* กำหนดความกว้างไม่กว้างเกินไป */
+  margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+  font-size: 0.9rem; /* ลดขนาดตัวอักษร */
   text-align: center; /* ให้ container กลาง แต่ข้อความในบล็อกจะชิดซ้ายอีกที */
 }
 
 .tab-content h4,
 .tab-content h5 {
-  text-align: left;  /* หัวข้อชิดซ้าย */
+  text-align: left; /* หัวข้อชิดซ้าย */
   margin-bottom: 0.3rem;
 }
 
 .tab-content p {
-  text-align: left;  /* ข้อความปกติชิดซ้าย */
+  text-align: left; /* ข้อความปกติชิดซ้าย */
   margin-top: 0;
   margin-bottom: 0.75rem;
 }
 
-.text-course-overview2, 
-.text-overview, 
+.text-course-overview2,
+.text-overview,
 .mb-3 {
-  text-align: left;  /* ชิดซ้าย */
+  text-align: left; /* ชิดซ้าย */
 }
 
-#structure-tab-name{
+#structure-tab-name {
   text-align: center;
 }
-#roadmap-tab-name{
+#roadmap-tab-name {
   text-align: center;
 }
 .back-button {
@@ -171,4 +170,61 @@
 .course-structure-table td {
   text-align: left !important;
 }
+.tree-container {
+  padding: 15px;
+  overflow-x: auto;
+}
 
+.tree-container {
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.tree ul {
+  list-style: none;
+  margin-left: 20px;
+  padding-left: 20px;
+  border-left: 2px solid #ccc;
+}
+
+.tree li {
+  list-style: none;
+  margin: 6px 0;
+  position: relative;
+}
+
+.tree li::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: -20px;
+  width: 20px;
+  border-top: 2px solid #ccc;
+}
+/* กล่อง node */
+.tree-node {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  padding: 6px 12px;
+  min-width: 240px;
+}
+
+/* ชื่อ */
+.node-name {
+  font-weight: 500;
+}
+
+/* หน่วยกิต */
+.node-credit {
+  color: #007bff;
+  font-weight: 600;
+}
+
+/* node สุดท้าย */
+.tree li:last-child::before {
+  height: 18px;
+}

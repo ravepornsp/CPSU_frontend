@@ -348,7 +348,7 @@ const EditCourse = () => {
               </div>
               <hr></hr>
               <div className="mb-4">
-                <label>โครงสร้างหลักสูตร</label>
+                {/* <label>โครงสร้างหลักสูตร</label> */}
 
                 {/* Structure */}
                 {/* Structure */}

@@ -72,87 +72,60 @@ const DetailCourse = () => {
     (subj) => subj.course_id === courseDetail.course_id,
   );
 
-  console.log(filteredStructures[0].detail);
+  const addNode = (tree, levels, credit) => {
+    let current = tree;
+
+    levels.forEach((level, index) => {
+      let node = current.find((n) => n.name === level);
+
+      if (!node) {
+        node = { name: level, credit: "", children: [] };
+        current.push(node);
+      }
+
+      if (index === levels.length - 1) {
+        node.credit = credit;
+      }
+
+      current = node.children;
+    });
+  };
+
   const parseCurriculum = (text) => {
     if (!text) return [];
 
-    const lines = text.split("\n").filter((l) => l.trim() !== "");
-    lines.shift(); // remove header
+    const lines = text
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l !== "" && !l.startsWith("Program"));
 
-    const root = [];
+    const tree = [];
 
     lines.forEach((line) => {
-      const tokens = line.trim().split(/\s+/);
+      let tokens = line.split(/\s+/);
 
-      tokens.shift(); // remove program (IT)
+      // ตัด prefix เช่น IT
+      tokens.shift();
 
-      // หา index ที่เป็นตัวเลข
-      const creditIndex = tokens.findIndex((t) => /^\d+$/.test(t));
+      const creditMatch = line.match(
+        /(ไม่น้อยกว่า\s*\d+\s*หน่วยกิต|\d+\s*หน่วยกิต)/,
+      );
 
-      if (creditIndex === -1) {
-        // กรณีไม่มี credit เช่น "วิชาบังคับ"
-        addNode(tokens.join(" "), "", root);
-        return;
+      let credit = "";
+      if (creditMatch) {
+        credit = creditMatch[0];
+        line = line.replace(creditMatch[0], "").trim();
       }
 
-      const levelText = tokens.slice(0, creditIndex).join(" ");
-      const creditText = tokens.slice(creditIndex).join(" ");
-      // จะได้ "ไม่น้อยกว่า 133 หน่วยกิต"
+      let levels = line
+        .replace(/^(IT|CS|DS)\s*/, "")
+        .trim()
+        .split(/\s+/);
 
-      addNode(levelText, creditText, root);
+      addNode(tree, levels, credit);
     });
 
-    return root;
-  };
-
-  const addNode = (name, credit, root) => {
-    const parts = name.split(" ");
-
-    const level1 = parts[0];
-    const level2 = parts[1];
-    const level3 = parts[2];
-    const level4 = parts.slice(3).join(" ");
-
-    let l1 = root.find((x) => x.name === level1);
-    if (!l1) {
-      l1 = { name: level1, credit: "", children: [] };
-      root.push(l1);
-    }
-
-    if (!level2) {
-      l1.credit = credit;
-      return;
-    }
-
-    let l2 = l1.children.find((x) => x.name === level2);
-    if (!l2) {
-      l2 = { name: level2, credit: "", children: [] };
-      l1.children.push(l2);
-    }
-
-    if (!level3) {
-      l2.credit = credit;
-      return;
-    }
-
-    let l3 = l2.children.find((x) => x.name === level3);
-    if (!l3) {
-      l3 = { name: level3, credit: "", children: [] };
-      l2.children.push(l3);
-    }
-
-    if (!level4) {
-      l3.credit = credit;
-      return;
-    }
-
-    let l4 = l3.children.find((x) => x.name === level4);
-    if (!l4) {
-      l4 = { name: level4, credit: "", children: [] };
-      l3.children.push(l4);
-    }
-
-    l4.credit = credit;
+    return tree;
   };
 
   const TreeNode = ({ node }) => {
@@ -160,7 +133,7 @@ const DetailCourse = () => {
       <li>
         <div className="node">
           <span>{node.name}</span>
-          {node.credit && <span>{node.credit}</span>}
+          {node.credit && <span>{node.credit.replace(/\n/g, " ")}</span>}
         </div>
 
         {node.children && node.children.length > 0 && (
@@ -178,6 +151,7 @@ const DetailCourse = () => {
     filteredStructures.length > 0
       ? parseCurriculum(filteredStructures[0].detail)
       : [];
+
   return (
     <AdminLayout>
       <div className="container-fluid text-start">

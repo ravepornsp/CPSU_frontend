@@ -25,6 +25,7 @@ const Course_detail = () => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
+
       try {
         // ดึงข้อมูลหลักสูตร
         const courseRes = await axios.get(
@@ -38,44 +39,87 @@ const Course_detail = () => {
         const structureRes = await axios.get(
           "http://localhost:8080/api/v1/structure",
         );
+
         const structures = Array.isArray(structureRes.data)
           ? structureRes.data
           : [];
+
+        const parseStructure = (detail) => {
+          const lines = detail
+            .split("\n")
+            .map((l) => l.trim())
+            .filter((l) => l && !l.startsWith("Program"));
+
+          const root = [];
+
+          lines.forEach((line) => {
+            const creditMatch = line.match(
+              /(ไม่น้อยกว่า\s*\d+\s*หน่วยกิต|\d+\s*หน่วยกิต)/,
+            );
+
+            let credit = "";
+            if (creditMatch) {
+              credit = creditMatch[0];
+              line = line.replace(credit, "").trim();
+            }
+
+            const parts = line.split(/\s+/);
+            parts.shift(); // remove IT
+
+            let currentLevel = root;
+
+            parts.forEach((part, index) => {
+              let node = currentLevel.find((n) => n.name === part);
+
+              if (!node) {
+                node = {
+                  name: part,
+                  credit: index === parts.length - 1 ? credit : "",
+                  children: [],
+                };
+
+                currentLevel.push(node);
+              }
+
+              currentLevel = node.children;
+            });
+          });
+
+          return root;
+        };
         const foundStructure = structures.find(
-          (s) => s.course_id === course_id,
+          (s) => s.course_id?.trim() === course_id?.trim(),
         );
         if (foundStructure && foundStructure.detail) {
-          const parsedStructure = foundStructure.detail
-            .split("\n")
-            .map((line) => {
-              const [no, name, plan, credit, level] = line.split("|");
-              return { no, name, plan, credit, level: Number(level) };
-            });
-          setStructure(parsedStructure);
-        } else {
-          setStructure([]);
+          const parsed = parseStructure(foundStructure.detail);
+          setStructure(parsed);
         }
 
-        // ดึงข้อมูล roadmap
+        // ดึง roadmap
         const roadmapRes = await axios.get(
           "http://localhost:8080/api/v1/roadmap",
         );
         const roadmaps = Array.isArray(roadmapRes.data) ? roadmapRes.data : [];
+
         const foundRoadmap = roadmaps.find(
-          (r) => r.course_id.trim() === course_id.trim(),
+          (r) => r.course_id?.trim() === course_id?.trim(),
         );
+
         setRoadmap(foundRoadmap || null);
 
-        // ดึงข้อมูลรายวิชา
+        // ดึงรายวิชา
         const subjectsRes = await axios.get(
           "http://localhost:8080/api/v1/subject",
         );
+
         const subjectsData = Array.isArray(subjectsRes.data)
           ? subjectsRes.data
           : [];
+
         const filteredSubjects = subjectsData.filter(
           (subj) => subj.course_id === course_id,
         );
+
         setSubjects(filteredSubjects);
 
         setLoading(false);
@@ -162,6 +206,56 @@ const Course_detail = () => {
         <Footer />
       </>
     );
+
+  const buildTree = (items) => {
+    if (!items || items.length === 0) return [];
+
+    const root = [];
+    const stack = [];
+
+    items.forEach((item) => {
+      const node = {
+        name: item.name,
+        credit: item.credit,
+        children: [],
+      };
+
+      while (stack.length >= item.level) {
+        stack.pop();
+      }
+
+      if (stack.length === 0) {
+        root.push(node);
+      } else {
+        stack[stack.length - 1].children.push(node);
+      }
+
+      stack.push(node);
+    });
+
+    return root;
+  };
+
+  const TreeNode = ({ node }) => {
+    return (
+      <li>
+        <div className="tree-node">
+          <span className="node-name">{node.name}</span>
+          {node.credit && <span className="node-credit">{node.credit}</span>}
+        </div>
+
+        {node.children && node.children.length > 0 && (
+          <ul>
+            {node.children.map((child, i) => (
+              <TreeNode key={i} node={child} />
+            ))}
+          </ul>
+        )}
+      </li>
+    );
+  };
+
+  const treeData = structure;
 
   return (
     <>
@@ -299,24 +393,17 @@ const Course_detail = () => {
               <div className="card-body">
                 <h4 className="mb-4">โครงสร้างหลักสูตร</h4>
 
-                {structure.map((row, index) => (
-                  <div
-                    key={index}
-                    className="d-flex justify-content-between mb-2"
-                    style={{
-                      marginLeft: `${(row.level - 1) * 30}px`,
-                      fontWeight: [1, 2].includes(row.level)
-                        ? "bold"
-                        : "normal",
-                    }}
-                  >
-                    <div>
-                      {row.no} {row.name}
-                    </div>
-
-                    <div className="fw-bold">{row.credit}</div>
+                {structure.length === 0 ? (
+                  <p>ไม่มีข้อมูลโครงสร้างหลักสูตร</p>
+                ) : (
+                  <div className="tree-container">
+                    <ul className="tree">
+                      {structure.map((node, i) => (
+                        <TreeNode key={i} node={node} />
+                      ))}
+                    </ul>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
@@ -362,22 +449,22 @@ const Course_detail = () => {
                             </thead>
 
                             <tbody>
-                              {subs.map((subj) => (
-                                <tr key={subj.subject_id}>
+                              {subs.map((subj, index) => (
+                                <tr key={`${subj.subject_id}-${index}`}>
                                   <td>
                                     {["SUxxx", "SUXXX", "------"].includes(
                                       subj.subject_id,
                                     ) ? (
                                       subj.subject_id
                                     ) : (
-                                      <Link to={`/subject/${subj.id}`}>
+                                      <Link to={`/subject/${subj.subject_id}`}>
                                         {subj.subject_id}
                                       </Link>
                                     )}
                                   </td>
 
-                                  <td>{subj.thai_subject}</td>
-                                  <td>{subj.credits}</td>
+                                  <td>{subj.thai_subject || "-"}</td>
+                                  <td>{subj.credits || "-"}</td>
                                 </tr>
                               ))}
                             </tbody>

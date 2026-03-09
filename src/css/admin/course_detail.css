@@ -111,44 +111,43 @@
   height: 12px;
 }
 
-.tree {
-  padding-left: 10px;
-}
-
 .tree ul {
   list-style: none;
+  margin-left: 20px;
   padding-left: 20px;
-  position: relative;
-}
-
-.tree ul::before {
-  content: "";
   border-left: 2px solid #ccc;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
 }
 
 .tree li {
   margin: 6px 0;
-  padding-left: 12px;
   position: relative;
 }
 
 .tree li::before {
   content: "";
-  border-top: 2px solid #ccc;
   position: absolute;
   top: 12px;
-  left: 0;
-  width: 12px;
+  left: -20px;
+  width: 20px;
+  border-top: 2px solid #ccc;
 }
 
 .node {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: #fafafa;
   padding: 6px 10px;
   border-radius: 6px;
 }
+
+.node span:first-child {
+  font-weight: 500;
+}
+
+.node span:last-child {
+  white-space: nowrap;
+  color: #555;
+}
+
+
