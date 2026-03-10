@@ -11,7 +11,6 @@ function UserPermissions() {
   const [newUser, setNewUser] = useState({
     username: "",
     email: "",
-    password: "",
   });
 
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -41,7 +40,7 @@ function UserPermissions() {
   };
 
   const handleRegister = async () => {
-    if (!newUser.username || !newUser.email || !newUser.password) {
+    if (!newUser.username || !newUser.email) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
@@ -52,7 +51,7 @@ function UserPermissions() {
       window.location.reload();
       alert("เพิ่มผู้ใช้สำเร็จ");
 
-      setNewUser({ username: "", email: "", password: "" });
+      setNewUser({ username: "", email: "" });
       await fetchUsers();
 
       const modalEl = document.getElementById("addUserModal");
@@ -114,11 +113,22 @@ function UserPermissions() {
     modal.show();
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("ต้องการลบข้อมูลผู้ใช้ใช่หรือไม่?")) return;
+
+    try {
+      await api.delete(`/admin/permission/user/${id}`);
+      setUsers((prev) => prev.filter((item) => item.user_id !== id));
+    } catch (error) {
+      console.error(error);
+      alert("ลบข้อมูลไม่สำเร็จ");
+    }
+  };
   return (
     <AdminLayout>
       <div className="container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3 >กำหนดสิทธิ์ผู้ใช้</h3>
+          <h3>กำหนดสิทธิ์ผู้ใช้</h3>
           <button
             className="btn-addcourse"
             data-bs-toggle="modal"
@@ -263,7 +273,7 @@ function UserPermissions() {
                   />
                 </div>
 
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <label>Password</label>
                   <input
                     type="password"
@@ -273,7 +283,7 @@ function UserPermissions() {
                       setNewUser({ ...newUser, password: e.target.value })
                     }
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="modal-footer">

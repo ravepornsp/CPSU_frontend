@@ -94,6 +94,33 @@ const Research = () => {
     return pages;
   };
 
+  const formatAuthorsIEEE = (authors) => {
+    if (!authors) return "";
+
+    const formatted = authors.map((a) => {
+      const parts = a.split(" ");
+      if (parts.length < 2) return a;
+
+      const lastName = parts[0];
+      const initials = parts[1]
+        .replace(/\./g, "") // ลบ . เดิม
+        .split("") // แยกตัวอักษร
+        .map((i) => `${i}.`) // ใส่ . ใหม่
+        .join("");
+
+      return `${initials} ${lastName}`;
+    });
+
+    if (formatted.length === 1) return formatted[0];
+    if (formatted.length === 2) return formatted.join(" and ");
+
+    return (
+      formatted.slice(0, -1).join(", ") +
+      ", and " +
+      formatted[formatted.length - 1]
+    );
+  };
+
   return (
     <AdminLayout>
       <div className="container-fluid">
@@ -121,7 +148,7 @@ const Research = () => {
             </p>
 
             <button
-              className="btn btn-outline-secondary btn-sm"
+              className="btn btn-outline-primary btn-lg "
               onClick={fetchScopus}
               disabled={loadingSync}
             >
@@ -134,11 +161,10 @@ const Research = () => {
           <div className="card-body">
             <div className="table-responsive">
               <table className="table table-bordered table-hover">
-                <thead className="table-light text-center">
+                <thead className="table-light text-start">
                   <tr>
                     <th width="200">ชื่ออาจารย์</th>
                     <th>ชื่องานวิจัย</th>
-                    <th width="100">ปี</th>
                   </tr>
                 </thead>
 
@@ -159,10 +185,24 @@ const Research = () => {
                     currentData.map((r) => (
                       <tr key={r.id}>
                         <td>{r.thai_name}</td>
-
-                        <td className="text-start">{r.title}</td>
-
-                        <td className="text-center">{r.year}</td>
+                        <td className="text-start">
+                          {formatAuthorsIEEE(r.authors)}, “{r.title},”{" "}
+                          <i>{r.journal}</i>, vol. {r.volume}
+                          {r.issue && `, no. ${r.issue}`}, {r.year}.
+                          {r.doi && (
+                            <>
+                              {" "}
+                              doi:
+                              <a
+                                href={`https://doi.org/${r.doi}`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {r.doi}
+                              </a>
+                            </>
+                          )}
+                        </td>
                       </tr>
                     ))
                   )}
