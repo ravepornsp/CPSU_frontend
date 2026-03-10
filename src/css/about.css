@@ -17,9 +17,7 @@
 .about-hero {
   width: 100%;
   height: 260px;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
-    url("https://images.unsplash.com/photo-1581093588401-22c0fbe7f3b1");
+
   background-size: cover;
   background-position: center;
   display: flex;

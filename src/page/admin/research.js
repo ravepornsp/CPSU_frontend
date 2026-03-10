@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import api from "../../api/axios";
 import AdminLayout from "../../layout/AdminLayout";
-import "../../css/admin/research.css"
+import "../../css/admin/research.css";
 
 const Research = () => {
   const [research, setResearch] = useState([]);
@@ -25,7 +25,7 @@ const Research = () => {
 
       if (res.data.length > 0) {
         const latest = [...res.data].sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
         )[0];
 
         setLastSync(latest.created_at);
@@ -71,7 +71,7 @@ const Research = () => {
 
   const currentData = filteredResearch.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + itemsPerPage,
   );
 
   // pagination pages
@@ -97,12 +97,10 @@ const Research = () => {
   return (
     <AdminLayout>
       <div className="container-fluid">
-
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h3>ผลงานวิจัย</h3>
 
           <div className="d-flex align-items-center gap-3">
-
             <input
               type="text"
               className="form-control form-control-sm"
@@ -129,21 +127,17 @@ const Research = () => {
             >
               {loadingSync ? "กำลัง Sync..." : "Sync Scopus"}
             </button>
-
           </div>
         </div>
 
         <div className="card shadow-sm">
           <div className="card-body">
-
             <div className="table-responsive">
               <table className="table table-bordered table-hover">
-
                 <thead className="table-light text-center">
                   <tr>
                     <th width="200">ชื่ออาจารย์</th>
                     <th>ชื่องานวิจัย</th>
-                    <th width="300">ผู้วิจัย</th>
                     <th width="100">ปี</th>
                   </tr>
                 </thead>
@@ -166,26 +160,13 @@ const Research = () => {
                       <tr key={r.id}>
                         <td>{r.thai_name}</td>
 
-                        <td className="text-start">
-                          {r.title}
-                        </td>
+                        <td className="text-start">{r.title}</td>
 
-                        <td>
-                          {Array.isArray(r.author)
-                            ? r.author.map((a, i) => (
-                                <div key={i}>{a}</div>
-                              ))
-                            : r.author}
-                        </td>
-
-                        <td className="text-center">
-                          {r.year}
-                        </td>
+                        <td className="text-center">{r.year}</td>
                       </tr>
                     ))
                   )}
                 </tbody>
-
               </table>
             </div>
 
@@ -193,7 +174,6 @@ const Research = () => {
 
             <div className="d-flex justify-content-center mt-4">
               <div className="pagination-modern">
-
                 <button
                   className="page-btn"
                   disabled={currentPage === 1}
@@ -221,13 +201,10 @@ const Research = () => {
                 >
                   ▶
                 </button>
-
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </AdminLayout>
   );

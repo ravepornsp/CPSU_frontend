@@ -33,7 +33,13 @@ const About = () => {
       <Navbar />
 
       {/* Hero */}
-      <div className="about-hero">
+      <div
+        className="about-hero"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(/banner-cusp3.png)",
+        }}
+      >
         <div className="hero-overlay">
           <h1>ภาควิชาคอมพิวเตอร์</h1>
           <p>Department of Computing</p>
@@ -60,7 +66,8 @@ const About = () => {
                     <p>
                       เริ่มเปิดสอนหลักสูตร{" "}
                       <strong>วิทยาศาสตรบัณฑิต สาขาวิทยาการคอมพิวเตอร์ </strong>
-                      ภายใต้การดูแลของภาควิชาคณิตศาสตร์ คณะวิทยาศาสตร์ มหาวิทยาลัยศิลปากร
+                      ภายใต้การดูแลของภาควิชาคณิตศาสตร์ คณะวิทยาศาสตร์
+                      มหาวิทยาลัยศิลปากร
                     </p>
                   </div>
                 </div>
@@ -88,7 +95,8 @@ const About = () => {
                     <h5>8 กันยายน พ.ศ. 2547</h5>
                     <p>
                       ได้รับอนุมัติจาก <strong> สภามหาวิทยาลัยศิลปากร</strong>
-                      ให้จัดตั้งเป็น <strong>ภาควิชาคอมพิวเตอร์ </strong> สังกัดคณะวิทยาศาสตร์
+                      ให้จัดตั้งเป็น <strong>ภาควิชาคอมพิวเตอร์ </strong>{" "}
+                      สังกัดคณะวิทยาศาสตร์
                     </p>
                   </div>
                 </div>

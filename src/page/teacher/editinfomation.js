@@ -133,8 +133,7 @@ const EditTeacherInformation = () => {
                 className="form-control"
                 name="department_position_name"
                 value={formData.department_position_name || ""}
-                onChange={handleChange}
-                required
+                disabled
               />
             </div>
 
@@ -145,7 +144,7 @@ const EditTeacherInformation = () => {
                 className="form-control"
                 name="thai_academic_position"
                 value={formData.thai_academic_position || ""}
-                onChange={handleChange}
+                disabled
               />
             </div>
 
@@ -156,7 +155,7 @@ const EditTeacherInformation = () => {
                 className="form-control"
                 name="eng_academic_position"
                 value={formData.eng_academic_position || ""}
-                onChange={handleChange}
+                disabled
               />
             </div>
 
@@ -224,6 +223,17 @@ const EditTeacherInformation = () => {
                 className="form-control"
                 name="website"
                 value={formData.website || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Scopus ID</label>
+              <input
+                type="text"
+                className="form-control"
+                name="scopus_id"
+                value={formData.scopus_id || ""}
                 onChange={handleChange}
               />
             </div>

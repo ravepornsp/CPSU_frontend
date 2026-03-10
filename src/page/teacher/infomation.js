@@ -37,7 +37,7 @@ const TeacherInformation = () => {
             .some((e) => e.trim().toLowerCase() === user.email.toLowerCase()),
         );
 
-        // console.log("teacher:", teacher);
+        console.log("teacher:", teacher);
 
         if (!teacher) {
           setError(true);
