@@ -69,7 +69,7 @@ const Homepage = () => {
     const fetchCalendarEvents = async () => {
       try {
         const res = await axios.get("http://localhost:8080/api/v1/calendar");
-        console.log(res.data);
+        // console.log(res.data);
         if (Array.isArray(res.data)) {
           const today = new Date();
           today.setHours(0, 0, 0, 0); // ตั้งเวลาวันนี้เป็นเที่ยงคืน (เริ่มต้นวัน)
@@ -86,7 +86,7 @@ const Homepage = () => {
             (a, b) => new Date(a.start_date) - new Date(b.start_date),
           );
 
-          console.log(sortedEvents);
+          // console.log(sortedEvents);
           setCalendarEvents(sortedEvents);
         } else {
           throw new Error("ข้อมูลปฏิทินไม่ถูกต้อง");

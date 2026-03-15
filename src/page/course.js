@@ -16,9 +16,7 @@ const Course = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8080/api/v1/course"
-        );
+        const res = await axios.get("http://localhost:8080/api/v1/course");
         setCourses(res.data);
       } catch (err) {
         console.error("Error fetching courses:", err);
@@ -28,10 +26,13 @@ const Course = () => {
     fetchCourses();
   }, []);
 
-  // เรียงปีใหม่ไปเก่า
-  const sortedCourses = [...courses].sort((a, b) => b.year - a.year);
+  // filter เฉพาะที่แสดง
+  const visibleCourses = courses.filter((c) => c.status === "แสดง");
 
-  // จัดกลุ่มตาม degree และ major
+  // เรียงปีใหม่ไปเก่า
+  const sortedCourses = [...visibleCourses].sort((a, b) => b.year - a.year);
+
+  // จัดกลุ่ม
   const grouped = {};
   sortedCourses.forEach((course) => {
     if (!grouped[course.degree]) grouped[course.degree] = {};
@@ -59,17 +60,15 @@ const Course = () => {
     <>
       <Headers />
       <Navbar />
-      <Breadcrumb
-        items={[
-          { label: "หลักสูตร", path: "/course" },
-        ]}
-      />
+      <Breadcrumb items={[{ label: "หลักสูตร", path: "/course" }]} />
       <div className="container my-5">
-
         {DEGREE_ORDER.map((degree) =>
           grouped[degree] ? (
             <div key={degree} className="degree-section mb-4">
-              <h2 className="degree-header mb-3">{"หลักสูตร"}{degree}</h2>
+              <h2 className="degree-header mb-3">
+                {"หลักสูตร"}
+                {degree}
+              </h2>
 
               {Object.entries(grouped[degree]).map(([major, courseList]) => (
                 <div key={major} className="major-section mb-3">
@@ -94,7 +93,7 @@ const Course = () => {
                 </div>
               ))}
             </div>
-          ) : null
+          ) : null,
         )}
       </div>
 

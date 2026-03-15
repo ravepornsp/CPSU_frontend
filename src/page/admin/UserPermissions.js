@@ -161,7 +161,15 @@ function UserPermissions() {
                   <tr key={u.user_id} className="align-middle">
                     <td>{u.username}</td>
                     <td>{u.email}</td>
-                    <td>{u.name || "- ยังไม่กำหนดสิทธิ์ -"}</td>
+                    <td>
+                      {u.name == "teacher"
+                        ? "อาจารย์"
+                        : u.name == "admin"
+                          ? "แอดมิน"
+                          : u.name == "staff"
+                            ? "เจ้าหน้าที่"
+                            : "- ยังไม่กำหนดสิทธิ์ -"}
+                    </td>
                     <td>
                       <button
                         className="btn btn-secondary"

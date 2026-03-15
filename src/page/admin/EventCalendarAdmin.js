@@ -17,7 +17,6 @@ function EventCalendarAdmin() {
   /* ================= utils ================= */
 
   const toDateOnly = (iso) => iso.split("T")[0];
-  const toISODate = (dateStr) => new Date(dateStr).toISOString();
 
   const subtractOneDay = (dateStr) => {
     const d = new Date(dateStr);
@@ -38,14 +37,19 @@ function EventCalendarAdmin() {
     try {
       const res = await api.get("/admin/calendar");
 
-      // แปลงข้อมูลให้ตรงกับฟอร์แมตของ FullCalendar
-      const formattedEvents = res.data.map((event) => ({
-        id: event.calendar_id, // เปลี่ยนจาก calendar_id เป็น id
-        title: event.title,
-        start: event.start_date, // ใช้ start_date จาก API
-        end: event.end_date, // ใช้ end_date จาก API
-        description: event.detail,
-      }));
+      const formattedEvents = res.data.map((event) => {
+        const start = event.start_date.split("T")[0];
+        const end = event.end_date ? event.end_date.split("T")[0] : start;
+
+        return {
+          id: event.calendar_id,
+          title: event.title,
+          start: start,
+          end: start === end ? undefined : end,
+          allDay: true,
+          description: event.detail,
+        };
+      });
 
       setEvents(formattedEvents);
     } catch (err) {
@@ -69,12 +73,14 @@ function EventCalendarAdmin() {
 
   const openAddModal = () => {
     const today = new Date().toISOString().split("T")[0];
+
     setEditedEvent({
       title: "",
       start: today,
       end: today,
       description: "",
     });
+
     setIsAdding(true);
     setShowModal(true);
   };
@@ -112,8 +118,8 @@ function EventCalendarAdmin() {
       await api.post("/admin/calendar", {
         title: editedEvent.title,
         detail: editedEvent.description,
-        start_date: toISODate(editedEvent.start),
-        end_date: toISODate(editedEvent.end || editedEvent.start),
+        start_date: editedEvent.start,
+        end_date: editedEvent.end || editedEvent.start,
       });
 
       alert("เพิ่มกิจกรรมสำเร็จ");
@@ -130,8 +136,8 @@ function EventCalendarAdmin() {
       await api.put(`/admin/calendar/${editedEvent.id}`, {
         title: editedEvent.title,
         detail: editedEvent.description,
-        start_date: toISODate(editedEvent.start),
-        end_date: toISODate(editedEvent.end),
+        start_date: editedEvent.start,
+        end_date: editedEvent.end || editedEvent.start,
       });
 
       alert("บันทึกกิจกรรมสำเร็จ");
@@ -174,8 +180,9 @@ function EventCalendarAdmin() {
             plugins={[dayGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             locale="th"
-            events={events}  // ตรวจสอบว่าใช้ค่า events ที่แปลงแล้ว
+            events={events}
             eventClick={handleEventClick}
+            displayEventTime={false}
             height="auto"
           />
         </div>
@@ -210,6 +217,7 @@ function EventCalendarAdmin() {
                       value={editedEvent.title}
                       onChange={handleChange}
                     />
+
                     <input
                       type="date"
                       className="form-control mb-2"
@@ -217,6 +225,7 @@ function EventCalendarAdmin() {
                       value={editedEvent.start}
                       onChange={handleChange}
                     />
+
                     <input
                       type="date"
                       className="form-control mb-2"
@@ -224,6 +233,7 @@ function EventCalendarAdmin() {
                       value={editedEvent.end}
                       onChange={handleChange}
                     />
+
                     <textarea
                       className="form-control"
                       name="description"
@@ -234,18 +244,21 @@ function EventCalendarAdmin() {
                   </>
                 ) : (
                   <>
-                    <p >
+                    <p>
                       <b>ชื่อกิจกรรม :</b> {selectedEvent.title}
                     </p>
+
                     <p>
                       <b>วันเริ่ม :</b> {formatThaiDate(selectedEvent.start)}
                     </p>
+
                     <p>
                       <b>วันสิ้นสุด :</b>{" "}
                       {selectedEvent.end
                         ? formatThaiDate(subtractOneDay(selectedEvent.end))
                         : formatThaiDate(selectedEvent.start)}
                     </p>
+
                     <p>
                       <b>รายละเอียด:</b>
                       <br />
@@ -289,9 +302,11 @@ function EventCalendarAdmin() {
                     >
                       แก้ไข
                     </button>
+
                     <button className="btn btn-danger" onClick={handleDelete}>
                       ลบ
                     </button>
+
                     <button className="btn btn-secondary" onClick={closeModal}>
                       ปิด
                     </button>

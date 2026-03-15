@@ -8,12 +8,26 @@ function PersonnelAdd() {
   const navigate = useNavigate();
 
   const academicPositions = [
-    { id: 1, thai: "รศ.ดร.", eng: "Assoc.Prof.Dr." },
-    { id: 2, thai: "ผศ.ดร.", eng: "Asst.Prof.Dr." },
-    { id: 3, thai: "ผศ.", eng: "Asst.Prof." },
-    { id: 4, thai: "อ.ดร.", eng: "Dr." },
-    { id: 5, thai: "อ.", eng: "" },
+    { id: 1, thai: "ศ.ดร", eng: "Prof.Dr." },
+    { id: 2, thai: "ศ.", eng: "Prof." },
+    { id: 3, thai: "รศ.ดร.", eng: "Assoc.Prof.Dr." },
+    { id: 4, thai: "รศ.", eng: "Assoc.Prof." },
+    { id: 5, thai: "ผศ.ดร.", eng: "Asst.Prof.Dr." },
+    { id: 6, thai: "ผศ.", eng: "Asst.Prof." },
+    { id: 7, thai: "อ.ดร.", eng: "Dr." },
+    { id: 8, thai: "ดร.", eng: "Dr." },
+    { id: 9, thai: "อ.", eng: "" },
   ];
+
+  //   ('ศ.ดร.','Prof.Dr.'), 1
+  // ('ศ.','Prof.'), 2
+  // ('รศ.ดร.','Assoc.Prof.Dr.'), 3
+  // ('รศ.','Assoc.Prof.'), 4
+  // ('ผศ.ดร.','Asst.Prof.Dr.'), 5
+  // ('ผศ.','Asst.Prof.'), 6
+  // ('อ.ดร.','Dr.'), 7
+  // ('ดร.','Dr.'), 8
+  // ('อ.',''); 9
 
   const [formData, setFormData] = useState({
     type_personnel: "",
