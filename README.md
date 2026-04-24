@@ -1,70 +1,105 @@
-# Getting Started with Create React App
+# Frontend - ระบบจัดการเนื้อหาภาควิชาคอมพิวเตอร์
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend ของโครงงานปริญญานิพนธ์  
+**เรื่อง : การพัฒนาเว็บไซต์และระบบจัดการเนื้อหาภาควิชาคอมพิวเตอร์**
 
-## Available Scripts
+พัฒนาด้วย React เพื่อแสดงผลข้อมูลจาก Backend API และรองรับผู้ใช้งานหลายบทบาท (Admin / Rootadmin / Teacher / Public)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ภาพรวมระบบ
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Frontend ทำหน้าที่เป็นส่วนติดต่อผู้ใช้ (User Interface) สำหรับ
+- ผู้ใช้งานทั่วไป (Public)
+- ผู้ดูแลระบบ (Admin)
+- อาจารย์ (Teacher)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+โดยเชื่อมต่อกับ Backend ผ่าน REST API
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## โครงสร้างของ Frontend
 
-### `npm run build`
+1. **node_modules**  
+   - ใช้เก็บ package หรือ library ที่ติดตั้งจากคำสั่ง `npm install`  
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. **public**  
+   - ใช้เก็บไฟล์ static ที่ React จะนำไปใช้งานโดยตรง  
+   - เช่น  
+     - `index.html` → ไฟล์หลักที่ใช้ render React  
+     - รูปภาพ / icon / ไฟล์อื่น ๆ  
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. **src (โค้ดหลักของระบบ)**  
+   ภายในประกอบไปด้วยส่วนต่าง ๆ ดังนี้
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   - **api**  
+     - ใช้จัดการการเรียก API ไปยัง backend  
 
-### `npm run eject`
+   - **auth**  
+     - ใช้จัดการระบบ authentication และ authorization  
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+   - **component**  
+     - ใช้เก็บ Component ที่สามารถนำกลับมาใช้ซ้ำได้  
+     - เช่น Navbar, Header, Footer เป็นต้น  
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   - **css**  
+     - ใช้เก็บไฟล์ CSS สำหรับตกแต่ง UI  
+     - มีการแยกส่วนเพื่อให้ง่ายต่อการจัดการ  
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+   - **layout**  
+     - ใช้กำหนดโครงสร้าง layout ของหน้า  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   - **page**  
+     - ใช้เก็บหน้าต่าง ๆ ของระบบ โดยแบ่งตามประเภทผู้ใช้งาน  
+       - `admin/rootadmin` → หน้าจัดการข้อมูล (CRUD)  
+       - `teacher` → หน้าของอาจารย์  
+       - `public` → หน้า homepage, news, course  
 
-## Learn More
+   - **App.js**  
+     - ใช้กำหนด routing หลักของระบบ และเชื่อมแต่ละ page เข้าด้วยกัน  
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   - **index.js**  
+     - เป็นไฟล์เริ่มต้นของ React และใช้ render App ลงบนหน้าเว็บ  
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. **.gitignore**  
+   - ใช้กำหนดไฟล์/โฟลเดอร์ที่ไม่ต้องการให้ Git track  
+   - เช่น `node_modules`, `.env`  
 
-### Code Splitting
+5. **package.json**  
+   - ใช้เก็บรายละเอียดของโปรเจกต์  
+   - เช่น dependencies (React, Axios) และ scripts (start, build)  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+6. **package-lock.json**  
+   - ใช้ล็อกเวอร์ชันของ package เพื่อให้ทุกคนในทีมใช้เวอร์ชันเดียวกัน  
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## วิธีการใช้งาน Frontend
 
-### Making a Progressive Web App
+1. เปิดโปรแกรม Visual Studio Code  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+2. เปิดโฟลเดอร์ `Frontend`  
 
-### Advanced Configuration
+3. เปิด Terminal  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+4. ติดตั้ง dependencies ของโปรเจกต์  
+```bash
+npm install
+```
 
-### Deployment
+5. รันระบบ Frontend
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+6. เข้าใช้งานผ่านเว็บเบราว์เซอร์
+```bash
+http://localhost:3000
+```
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## หมายเหตุ
+- ต้องติดตั้ง Node.js ก่อนใช้งาน
+- ควรรัน Backend ก่อน เพื่อให้ Frontend สามารถเรียก API ได้
+- หากพอร์ต 3000 ถูกใช้งานอยู่ ระบบจะมีการแจ้งเตือนเพื่อเปลี่ยนพอร์ต
