@@ -17,7 +17,6 @@ const Dashboard = () => {
     }
   }, [isAuthorized, navigate]);
 
-  // ❗ กัน render ก่อน redirect (ดีที่สุด)
   if (!isAuthorized) return null;
 
   const menuItems = [
@@ -62,6 +61,12 @@ const Dashboard = () => {
       label: "การรับสมัคร",
       icon: "fas fa-bullhorn",
       color: "danger",
+    },
+     {
+      path: "/admin/document",
+      label: "เอกสาร",
+      icon: "fas fa-file",
+      color: "orange",
     },
 
     ...(role === "rootadmin"

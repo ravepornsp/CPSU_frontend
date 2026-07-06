@@ -1,159 +1,66 @@
-// src/pages/Document.js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../component/navbar";
 import Headers from "../component/header";
 import Footer from "../component/footer";
 import "../css/document.css";
 import Breadcrumb from "../component/Breadcrumb";
+import axios from "axios";
 
-const petitionGroups = {
-  แบบฟอร์มทั่วไป: [
-    {
-      name: "คำร้องขอตรวจสอบคะแนนสอบ",
-      link: "https://www.sc.su.ac.th/FormPDF/score_form.pdf",
-    },
-    {
-      name: "คำร้องขอใช้สถานที่",
-      link: "https://www.sc.su.ac.th/FormPDF/place_form.pdf",
-    },
-    {
-      name: "คำร้องขอผ่อนผันการชำระเงินค่าลงทะเบียน",
-      link: "https://www.sc.su.ac.th/FormPDF/register.pdf",
-    },
-    {
-      name: "คำร้องขอเปลี่ยนสาขาวิชาเอก",
-      link: "https://www.sc.su.ac.th/FormPDF/major_form.pdf",
-    },
-    {
-      name: "คำร้องขอขาดเรียนและขาดสอบ",
-      link: "https://www.sc.su.ac.th/FormPDF/double.pdf",
-    },
-    {
-      name: "คำร้องขอสำรองที่นั่ง",
-      link: "https://www.sc.su.ac.th/FormPDF/absent.pdf",
-    },
-    {
-      name: "คำร้องขอกลับเข้าศึกษา",
-      link: "https://www.sc.su.ac.th/FormPDF/booking.pdf",
-    },
-    {
-      name: "คำร้องทั่วไป",
-      link: "https://www.sc.su.ac.th/FormPDF/generalForm.pdf",
-    },
-    {
-      name: "คำร้องขอลงทะเบียน/เพิ่ม/ถอน ช้าเป็นกรณีพิเศษ",
-      link: "https://edoc.sc.su.ac.th/StuDoc.php?docid=9",
-    },
-  ],
-  "แบบฟอร์มโครงงานปริญญานิพนธ์(1)": [
-    {
-      name: "CP00R แบบคำร้องขอเข้ารับการจัดสรรกลุ่มสำหรับการจัดทำโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/54",
-    },
-    {
-      name: "CP00X แบบแจ้งความประสงค์แลกเปลี่ยนกลุ่มโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/55",
-    },
-    {
-      name: "CS00G แบบขอตรวจสอบคุณสมบัติในการมีสิทธิขอจัดทําโครงงานปริญญานิพนธ์ (สาขาวิชาวิทยาการคอมพิวเตอร์) (หลักสูตร 51)",
-      link: "https://cp.su.ac.th/file/show/56",
-    },
-    {
-      name: "CS00G-55 แบบขอตรวจสอบคุณสมบัติในการมีสิทธิขอจัดทําโครงงานปริญญานิพนธ์ (สาขาวิชาวิทยาการคอมพิวเตอร์) (หลักสูตร 55)",
-      link: "https://cp.su.ac.th/file/show/57",
-    },
-    {
-      name: "IT00G แบบขอตรวจสอบคุณสมบัติในการมีสิทธิขอจัดทําโครงงานปริญญานิพนธ์ (สาขาวิชาเทคโนโลยีสารสนเทศ) (หลักสูตร 51)",
-      link: "https://cp.su.ac.th/file/show/58",
-    },
-    {
-      name: "IT00G-55 แบบขอตรวจสอบคุณสมบัติในการมีสิทธิขอจัดทําโครงงานปริญญานิพนธ์ (สาขาวิชาเทคโนโลยีสารสนเทศ) (หลักสูตร 55)",
-      link: "https://cp.su.ac.th/file/show/59",
-    },
-    {
-      name: "CS01S/IT01S แบบคําร้องขอเสนอหัวข้อโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/60",
-    },
-    {
-      name: "CS01D/IT01D Template ไฟล์ต้นแบบเอกสารประกอบการเสนอหัวข้อโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/61",
-    },
-    {
-      name: "CS01D/IT01D Example ตัวอย่างเอกสารประกอบการเสนอหัวข้อโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/62",
-    },
-    {
-      name: "CS02S/IT02S แบบคําร้องขอสอบข้อเสนอโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/63",
-    },
-    {
-      name: "CS02D/IT02D Template ไฟล์ต้นแบบเอกสารประกอบการสอบข้อเสนอโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/64",
-    },
-    {
-      name: "CS02R/IT02R แบบประเมินผลการสอบข้อเสนอโครงงานปริญญานิพพนธ์",
-      link: "https://cp.su.ac.th/file/show/65",
-    },
-  ],
-  "แบบฟอร์มโครงงานปริญญานิพนธ์(2)": [
-    {
-      name: "CS03S/IT03S แบบคําร้องขอสอบติดตามความก้าวหน้าโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/67",
-    },
-    {
-      name: "CS03D/IT03D Template ไฟล์ต้นแบบเอกสารประกอบการสอบติดตามความก้าวหน้าโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/68",
-    },
-    {
-      name: "CS03R/IT03R แบบประเมินผลการสอบติดตามความก้าวหน้าโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/69",
-    },
-    {
-      name: "CS04S/IT04S แบบคำร้องขอสอบนำเสนอโครงงานปริญญานิพนธ์ที่เสร็จสมบูรณ์",
-      link: "https://cp.su.ac.th/file/show/70",
-    },
-    {
-      name: "CS04D/IT04D Template ไฟล์ต้นแบบเอกสารประกอบการสอบโครงงานปริญญานิพนธ์ที่เสร็จสมบูรณ์",
-      link: "https://cp.su.ac.th/file/show/71",
-    },
-    {
-      name: "CS04R/IT04R แบบประเมินผลการสอบนำเสนอโครงงานปริญญานิพนธ์ที่เสร็จสมบูรณ์",
-      link: "https://cp.su.ac.th/file/show/72",
-    },
-    {
-      name: "CS05D/IT05D Template ไฟล์ต้นแบบเอกสารโครงงานปริญญานิพนธ์ที่เสร็จสมบูรณ์",
-      link: "https://cp.su.ac.th/file/show/73",
-    },
-    {
-      name: "CS05D/IT05D CD Template ไฟล์ต้นแบบแผ่นหน้าปกซีดีโครงงานปริญญานิพนธ์ที่เสร็จสมบูรณ์",
-      link: "https://cp.su.ac.th/file/show/74",
-    },
-    {
-      name: "CS05C/IT05C แบบฟอร์มการส่งตรวจรูปแบบเล่มโครงงานปริญญานิพนธ์",
-      link: "https://cp.su.ac.th/file/show/75",
-    },
-    {
-      name: "ไฟล์ต้นแบบโปสเตอร์ (Poster Template)",
-      link: "https://cp.su.ac.th/file/show/338",
-    },
-  ],
-};
 
 const Document = () => {
+  const [documents, setDocuments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
-  const filteredGroups = Object.entries(petitionGroups)
-    .map(([groupName, petitions]) => {
-      const filteredPetitions = petitions.filter((petition) =>
-        petition.name.toLowerCase().includes(searchTerm),
-      );
-      return { groupName, petitions: filteredPetitions };
-    })
-    .filter((group) => group.petitions.length > 0);
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/v1/document");
+        setDocuments(res.data);
+      } catch (err) {
+        console.error("Error fetching documents:", err);
+        setError("ไม่สามารถโหลดข้อมูลเอกสารได้");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, []);
+
+  const filteredDocuments = documents.filter((doc) => {
+    const title = doc.title?.toLowerCase() || "";
+    const description = doc.description?.toLowerCase() || "";
+    const typeName = doc.type_name?.toLowerCase() || "";
+
+    return (
+      title.includes(searchTerm) ||
+      description.includes(searchTerm) ||
+      typeName.includes(searchTerm)
+    );
+  });
+
+  const groupedDocuments = filteredDocuments.reduce((groups, doc) => {
+    const groupName = doc.type_name || "ไม่ระบุประเภท";
+
+    if (!groups[groupName]) {
+      groups[groupName] = [];
+    }
+
+    groups[groupName].push(doc);
+    return groups;
+  }, {});
+
+  const groupOrder = [
+    "แบบฟอร์มทั่วไป",
+    "แบบฟอร์มโครงงานปริญญานิพนธ์(1)",
+    "แบบฟอร์มโครงงานปริญญานิพนธ์(2)",
+  ];
 
   return (
     <>
@@ -172,31 +79,57 @@ const Document = () => {
           />
         </div>
 
-        {filteredGroups.map(({ groupName, petitions }) => (
-          <section key={groupName} className="mb-5">
-            <div className="document-card">
-              <h4 className="document-title">{groupName}</h4>
+        {loading && (
+          <p className="text-center text-muted">กำลังโหลดข้อมูลเอกสาร...</p>
+        )}
 
-              <ul className="document-list">
-                {petitions.map((petition, index) => (
-                  <li key={index} className="document-item text-start">
-                    <span className="doc-icon">📄</span>
+        {error && <p className="text-center text-danger">{error}</p>}
 
-                    <a
-                      href={petition.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {petition.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        ))}
+        {!loading &&
+          !error &&
+          Object.entries(groupedDocuments)
+            .sort(([a], [b]) => {
+              const indexA = groupOrder.indexOf(a);
+              const indexB = groupOrder.indexOf(b);
 
-        {filteredGroups.length === 0 && (
+              if (indexA === -1 && indexB === -1) {
+                return a.localeCompare(b, "th");
+              }
+
+              if (indexA === -1) return 1;
+              if (indexB === -1) return -1;
+
+              return indexA - indexB;
+            })
+            .map(([groupName, docs]) => (
+              <section key={groupName} className="mb-5">
+                <div className="document-card">
+                  <h4 className="document-title">{groupName}</h4>
+
+                  <ul className="document-list">
+                    {docs.map((doc) => (
+                      <li
+                        key={doc.document_id}
+                        className="document-item text-start"
+                      >
+                        <span className="doc-icon">📄</span>
+
+                        <a
+                          href={doc.file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {doc.title}
+                          {doc.description ? ` ${doc.description}` : ""}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            ))}
+
+        {!loading && !error && Object.keys(groupedDocuments).length === 0 && (
           <p className="text-center text-muted">ไม่พบเอกสารที่ตรงกับคำค้นหา</p>
         )}
       </div>

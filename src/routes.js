@@ -54,6 +54,8 @@ import Research from "./page/admin/research";
 import Unauthorized from "./page/Unauthorized";
 import NotFound from "./page/NotFound";
 
+import DocumentAdmin from "./page/admin/document";
+
 
 const AppRoutes = () => {
   const RequireAuth = () => {
@@ -105,6 +107,8 @@ const AppRoutes = () => {
           <Route path="history" element={<History />} />
           <Route path="manual" element={<Manual />} />
           <Route path="research" element={<Research />} />
+
+          <Route path="document" element={<DocumentAdmin />} />
         </Route>
       </Route>
 

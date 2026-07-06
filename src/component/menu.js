@@ -7,7 +7,7 @@ const Menu = () => {
   const currentPath = location.pathname;
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const role = user?.role || user?.roles?.[0]; 
+  const role = user?.role || user?.roles?.[0];
 
   const menuItems = [
     { path: "/admin/dashboard", label: "Dashboard", icon: "fas fa-chart-line" },
@@ -25,7 +25,17 @@ const Menu = () => {
       label: "ปฏิทินกิจกรรม",
       icon: "fas fa-calendar-alt",
     },
-    { path: "/admin/admission", label: "ข่าวการรับสมัคร", icon: "fas fa-bullhorn" },
+    {
+      path: "/admin/admission",
+      label: "ข่าวการรับสมัคร",
+      icon: "fas fa-bullhorn",
+    },
+
+    {
+      path: "/admin/document",
+      label: "เอกสาร",
+      icon: "fas fa-file",
+    },
 
     ...(role === "rootadmin"
       ? [
